@@ -1,29 +1,17 @@
 <div class="header-container fixed-top">
     <header class="header navbar navbar-expand-sm">
-
+        
         <ul class="navbar-nav theme-brand flex-row  text-center">
-            <li class="nav-item theme-text">
+            <li class="nav-item theme-logo">
                 <a href="{{ url('admin/dashboard') }}">
-                    <img src="{{ asset('admin-assets/assets/img/aranya-logo-dark.png')}}" height="60px" width="120px" class="navbar-logo" alt="logo">
+                    <img src="{{ asset('admin-assets/assets/img/90x90.jpg')}}" class="navbar-logo" alt="logo">
                 </a>
             </li>
-
-            <!-- <li class="nav-item toggle-sidebar">
-                <a href="javascript:void(0);" class="sidebarCollapse" data-placement="bottom"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list">
-                        <line x1="8" y1="6" x2="21" y2="6"></line>
-                        <line x1="8" y1="12" x2="21" y2="12"></line>
-                        <line x1="8" y1="18" x2="21" y2="18"></line>
-                        <line x1="3" y1="6" x2="3" y2="6"></line>
-                        <line x1="3" y1="12" x2="3" y2="12"></line>
-                        <line x1="3" y1="18" x2="3" y2="18"></line>
-                    </svg></a>
-            </li> -->
+            <li class="nav-item theme-text">
+                <a href="{{ url('admin/dashboard') }}" class="nav-link"> AMYT </a>
+            </li>
             <li class="nav-item toggle-sidebar">
-                <a href="javascript:void(0);" class="sidebarCollapse" data-placement="bottom"> 
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M3 18V16H16V18H3ZM19.6 17L14.6 12L19.6 7L21 8.4L17.4 12L21 15.6L19.6 17ZM3 13V11H13V13H3ZM3 8V6H16V8H3Z" fill="#ADB5BD" />
-                    </svg>
-                </a>
+                <a href="javascript:void(0);" class="sidebarCollapse" data-placement="bottom"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-list"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3" y2="6"></line><line x1="3" y1="12" x2="3" y2="12"></line><line x1="3" y1="18" x2="3" y2="18"></line></svg></a>
             </li>
         </ul>
 
@@ -60,7 +48,7 @@
                         <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
                     </svg> -->
                     <div class="media mx-auto">
-                            <img src="{{ asset('admin-assets/assets/img/aranya-logo-dark.png')}}" class="img-fluid mr-2" alt="avatar">
+                            <img src="{{ asset('admin-assets/assets/img/90x90.jpg')}}" class="img-fluid mr-2" alt="avatar">
                             </div>
                 </a>
                 

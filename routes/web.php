@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Auth\AdminController;
 use App\Http\Controllers\CustomerController;
+use App\Http\Controllers\CustomerGroupController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -9,10 +10,14 @@ Route::get('/', function () {
 });
 
 Route::prefix('admin')->group(function () {
-    Route::controller(CustomerController::class)->group(function () {
-        Route::get('/customer', 'index')->name('customer');
-        Route::post('customer', 'store');
-    });
+    Route::resource('customer', CustomerController::class);
+    Route::view('/customer-page', 'pages.customer.customer')->name('customer-page');
+    Route::resource('customer-groups', CustomerGroupController::class);
+    Route::view('/customer-group-page', 'pages.customergroup.customer_group')->name('customer-group-page');
+    // Route::controller(CustomerGroupController::class)->group(function () {
+    //     Route::get('/customer-group', 'index')->name('customer-group');
+    //     // Route::post('customer', 'store');
+    // });
 });
 
 Route::get('logout', [AdminController::class, 'logout'])->name('logout');

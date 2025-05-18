@@ -60,7 +60,7 @@
         <table>
             <tr>
                 <th style="border: none; text-align: left">
-                    <img src="{{ asset('admin-assets/assets/img/aranya-logo-dark.png') }}" alt="Aranya Logo"
+                    <img src="{{ asset('admin-assets/assets/img/90x90.jpg') }}" alt="Aranya Logo"
                         width="90px" />
                 </th>
                 <td style="width: 80%;border:none"></td>

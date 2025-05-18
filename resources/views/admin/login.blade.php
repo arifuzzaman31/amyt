@@ -12,7 +12,7 @@
             <div class="form-form-wrap">
                 <div class="form-container">
                     <div class="form-content">
-                    <img src="{{asset('admin-assets/assets/img/aranya-logo-dark.png')}}" height="60px" width="110px" bottom="10px"class="navbar-logo" alt="logo">
+                    <img src="{{asset('admin-assets/assets/img/90x90.jpg')}}" height="60px" width="110px" bottom="10px"class="navbar-logo" alt="logo">
 
                         <!-- <h1 class="">Sign In</h1> -->
                         <p class="">Log in to your account to continue.</p>

@@ -41,7 +41,7 @@
         <td style="border: none"></td>
         <th style="border: none; text-align: center">
           <img
-            src="{{ asset('admin-assets/assets/img/aranya-logo-dark.png') }}"
+            src="{{ asset('admin-assets/assets/img/90x90.jpg') }}"
             alt="Aranya Logo"
             width="50px"
           />

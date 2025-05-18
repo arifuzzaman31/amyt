@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('customer_groups', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
 
@@ -22,6 +23,10 @@ return new class extends Migration
             $table->foreignId('customer_group_id')->constrained()->onDelete('cascade');
             $table->string('name');
             $table->string('address')->nullable();
+            $table->string('email')->nullable();
+            $table->string('phone')->nullable();
+            $table->string('type')->nullable();
+            $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
     }

@@ -312,7 +312,7 @@
             <table role="presentation" class="main" style="width:720px;margin:50px auto; border: 1px solid #d6d6d6;background-image: url(bg-1.png);"> 
               <tr align="center"> 
                 <td style="padding: 19px 0 14px 0;">
-                    <img src="{{ url('admin-assets/assets/img/aranya-logo-dark.png') }}" width="100"/>
+                    <img src="{{ url('admin-assets/assets/img/90x90.jpg') }}" width="100"/>
                 </td>
               
               </tr>

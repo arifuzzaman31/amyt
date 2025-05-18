@@ -10,8 +10,6 @@
 <script>
     var rootUrl = "{{ url('/') }}";
     var baseUrl = rootUrl+'/admin/';
-    var clName = "diyc1dizi";
-    var clPreset = "467722864351132";
     $(document).ready(function() {
         App.init();
     });
