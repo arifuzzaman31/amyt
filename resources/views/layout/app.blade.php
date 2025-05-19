@@ -55,7 +55,7 @@
 
         <!--  BEGIN CONTENT AREA  -->
         <div id="content" class="main-content">
-            <div class="layout-px-spacing" id="app">
+            <div class="layout-px-spacing mt-4" id="app">
                 @yield('content')
             </div>
             <div class="footer-wrapper">

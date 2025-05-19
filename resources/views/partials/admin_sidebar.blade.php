@@ -60,11 +60,11 @@
                 </a>
                 <ul class="collapse submenu list-unstyled" id="customer" data-parent="#accordionExample">
                     <li>
-                        <a href="{{route('customer-page')}}"> Customer </a>
+                        <a href="{{route('customer-list')}}"> Customer </a>
                     </li>
                     
                     <li>
-                        <a href="{{route('customer-group-page')}}"> Customer Group </a>
+                        <a href="{{route('customer-group-list')}}"> Customer Group </a>
                     </li>
                    
                 </ul>
@@ -92,10 +92,10 @@
                 </a>
                 <ul class="collapse submenu list-unstyled" id="expense" data-parent="#accordionExample">
                     <li>
-                        <a href="">Expense Category</a>
+                        <a href="{{ route('expense/category-list') }}">Expense Category</a>
                     </li>
                     <li>
-                        <a href="">Expenses</a>
+                        <a href="{{ route('expense-list') }}">Expenses</a>
                     </li>
                     
                 </ul>

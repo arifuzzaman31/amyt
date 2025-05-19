@@ -3,6 +3,8 @@
 use App\Http\Controllers\Auth\AdminController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerGroupController;
+use App\Http\Controllers\ExpenseCategoryController;
+use App\Http\Controllers\ExpenseController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -11,13 +13,13 @@ Route::get('/', function () {
 
 Route::prefix('admin')->group(function () {
     Route::resource('customer', CustomerController::class);
-    Route::view('/customer-page', 'pages.customer.customer')->name('customer-page');
+    Route::view('customer-list', 'pages.customer.customer')->name('customer-list');
     Route::resource('customer-groups', CustomerGroupController::class);
-    Route::view('/customer-group-page', 'pages.customergroup.customer_group')->name('customer-group-page');
-    // Route::controller(CustomerGroupController::class)->group(function () {
-    //     Route::get('/customer-group', 'index')->name('customer-group');
-    //     // Route::post('customer', 'store');
-    // });
+    Route::view('customer-group-list', 'pages.customergroup.customer_group')->name('customer-group-list');
+    Route::resource('expense/category', ExpenseCategoryController::class);
+    Route::view('expense/category-list', 'pages.expense.expense_category')->name('expense/category-list');
+    Route::resource('expense', ExpenseController::class);
+    Route::view('expense-list', 'pages.expense.expense')->name('expense-list');
 });
 
 Route::get('logout', [AdminController::class, 'logout'])->name('logout');

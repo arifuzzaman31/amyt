@@ -2,22 +2,22 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ExpenseCategory;
+use App\Models\Expense;
 use Illuminate\Http\Request;
 
-class ExpenseCategoryController extends Controller
+class ExpenseController extends Controller
 {
-
-    public function __construct(private ExpenseCategory $model = new ExpenseCategory()) {}
+    public function __construct(private Expense $model = new Expense()) {}
 
     public function index()
     {
-        return $this->model::get();
+        return $this->model::with('expense_category:id,name')->get();
     }
     public function store(Request $request)
     {
         $request->validate([
-            'name' => 'required|string|max:255'
+            'expense_date' => 'required',
+            'amount' => 'required'
         ]);
 
         return $this->model::create($request->all());
@@ -30,9 +30,9 @@ class ExpenseCategoryController extends Controller
 
     public function update(Request $request, $id)
     {
-        $group = $this->model::findOrFail($id);
-        $group->update($request->all());
-        return $group;
+        $expense = $this->model::findOrFail($id);
+        $expense->update($request->all());
+        return $expense;
     }
 
     public function destroy($id)

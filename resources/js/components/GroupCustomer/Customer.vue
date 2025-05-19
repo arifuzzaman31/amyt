@@ -27,7 +27,7 @@
 
                         <div class="modal-body">
                             <div class="statbox widget box-shadow">
-                                <div class="widget-content widget-content-area">
+                                <div class="">
                                     <div class="widget-header">
                                         <form @submit.prevent="submitForm">
                                             <div class="form-group">
@@ -70,7 +70,7 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Discard</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="clearData">Discard</button>
                             <button type="button" class="btn btn-primary" @click="submitCustomerForm">
                                 {{ editingId ? 'Update' : 'Add' }}
                             </button>
@@ -90,6 +90,7 @@
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th class="">Status</th>
+                                <th class="">Action</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -100,6 +101,10 @@
                                 <td>{{ customer.email }}</td>
                                 <td>{{ customer.phone }}</td>
                                 <td class=""><span class=" shadow-none badge outline-badge-primary">{{ customer.status == 1 ? 'active' : 'inactive'}}</span></td>
+                                <td>
+                                    <button class="btn btn-sm btn-warning mr-2" @click="openEditModal(customer)">Edit</button>
+                                    <button class="btn btn-sm btn-danger" @click="deleteCustomer(customer.id)">Delete</button>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -119,6 +124,15 @@ const customerList = ref([])
 const form = ref({ customer_group_id: 0, name: '', address: '', email: '', phone: '' })
 const editingId = ref(null)
 
+const clearData = () => {
+    form.value.customer_group_id = 0
+    form.value.name = ''
+    form.value.address = ''
+    form.value.email = ''
+    form.value.phone = ''
+    editingId.value = ''
+}
+
 const fetchCustomers = async () => {
     const res = await axios.get(baseUrl + 'customer')
     customerList.value = res.data
@@ -127,6 +141,8 @@ const openEditModal = (customer) => {
     form.value.customer_group_id = customer.customer_group_id
     form.value.name = customer.name
     form.value.address = customer.address
+    form.value.email = customer.email
+    form.value.phone = customer.phone
     editingId.value = customer.id
     $('#customerModalCenter').modal('show')
 }

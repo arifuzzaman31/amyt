@@ -3,12 +3,12 @@
     <h2 class="mb-4">Customer Groups</h2>
 
     <!-- Modal Trigger Button -->
-    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#exampleModalCenter">
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#customerGroupModal">
       Add Group
     </button>
 
     <!-- Bootstrap Modal -->
-    <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal fade" id="customerGroupModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
       <div class="modal-dialog" role="document">
         <div class="modal-content">
           <div class="modal-header">
@@ -81,7 +81,7 @@
   const openEditModal = (group) => {
     form.value.name = group.name
     editingId.value = group.id
-    $('#exampleModalCenter').modal('show')
+    $('#customerGroupModal').modal('show')
   }
   const submitForm = async () => {
     if (editingId.value) {
@@ -93,13 +93,13 @@
     form.value.name = ''
     editingId.value = null
     fetchGroups()
-    $('#exampleModalCenter').modal('hide')
+    $('#customerGroupModal').modal('hide')
   }
   
   const editGroup = (group) => {
     form.value.name = group.name
     editingId.value = group.id
-    $('#exampleModalCenter').modal('show')
+    $('#customerGroupModal').modal('show')
   }
   
   const deleteGroup = async (id) => {

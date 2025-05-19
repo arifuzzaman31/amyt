@@ -7,5 +7,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class ExpenseCategory extends Model
 {
-    use SoftDeletes;
+    // use SoftDeletes;
+    protected $fillable = ['id','name'];
 }
