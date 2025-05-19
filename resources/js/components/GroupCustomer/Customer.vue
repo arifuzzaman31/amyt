@@ -49,6 +49,12 @@
                                             </div>
 
                                             <div class="form-group">
+                                                <label for="company_name">Company Name</label>
+                                                <input v-model="form.company_name" type="text" class="form-control"
+                                                    id="company_name" placeholder="Enter Company name" />
+                                            </div>
+
+                                            <div class="form-group">
                                                 <label for="address">Address</label>
                                                 <input v-model="form.address" type="text" class="form-control" id="address"
                                                     placeholder="Enter address" />
@@ -86,6 +92,7 @@
                             <tr>
                                 <th class="">#</th>
                                 <th>Name</th>
+                                <th>company name</th>
                                 <th>Group</th>
                                 <th>Email</th>
                                 <th>Phone</th>
@@ -96,7 +103,8 @@
                         <tbody>
                             <tr v-for="customer in customerList" :key="customer.id">
                                 <td>{{ customer.id }}</td>
-                                <td>{{ customer.name }}</td>
+                                <td>{{ customer.name }}</td> 
+                                <td>{{ customer.company_name }}</td> 
                                 <td>{{ customer.customer_group.name }}</td>
                                 <td>{{ customer.email }}</td>
                                 <td>{{ customer.phone }}</td>
@@ -121,12 +129,13 @@ import axios from 'axios'
 
 const customerGroups = ref([])
 const customerList = ref([])
-const form = ref({ customer_group_id: 0, name: '', address: '', email: '', phone: '' })
+const form = ref({ customer_group_id: 0, name: '',company_name:'', address: '', email: '', phone: '' })
 const editingId = ref(null)
 
 const clearData = () => {
     form.value.customer_group_id = 0
     form.value.name = ''
+    form.value.company_name = ''
     form.value.address = ''
     form.value.email = ''
     form.value.phone = ''
@@ -140,6 +149,7 @@ const fetchCustomers = async () => {
 const openEditModal = (customer) => {
     form.value.customer_group_id = customer.customer_group_id
     form.value.name = customer.name
+    form.value.company_name = customer.company_name
     form.value.address = customer.address
     form.value.email = customer.email
     form.value.phone = customer.phone
@@ -154,6 +164,7 @@ const submitCustomerForm = async () => {
     }
 
     form.value.name = ''
+    form.value.company_name = ''
     form.value.customer_group_id = customer.customer_group_id
     form.value.address = customer.address
     form.value.email = customer.email
@@ -165,6 +176,7 @@ const submitCustomerForm = async () => {
 
 const editCustomer = (group) => {
     form.value.name = group.name
+    form.value.company_name = group.company_name
     form.value.customer_group_id = customer.customer_group_id
     form.value.address = customer.address
     form.value.email = customer.email

@@ -22,12 +22,14 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_group_id')->constrained()->onDelete('cascade');
             $table->string('name');
+            $table->string('company_name')->nullable();
             $table->string('address')->nullable();
             $table->string('email')->nullable();
             $table->string('phone')->nullable();
             $table->string('type')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
+            $table->index(['name', 'phone']);
         });
     }
 

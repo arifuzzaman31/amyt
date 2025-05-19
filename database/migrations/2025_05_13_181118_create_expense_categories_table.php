@@ -26,6 +26,7 @@ return new class extends Migration
             $table->longText('description')->nullable();  // [cite: 4]
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
+            $table->index(['expense_date']);
         });
     }
 
