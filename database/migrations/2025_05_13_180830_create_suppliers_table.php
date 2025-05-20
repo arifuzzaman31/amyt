@@ -28,7 +28,10 @@ return new class extends Migration
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
             $table->date('purchase_date');
             $table->string('challan_no')->nullable();
+            $table->string('document_link')->nullable();
             $table->enum('status', ['paid', 'due'])->default('due'); // Paid or Due [cite: 2, 3]
+            $table->enum('save_as', ['draft', 'approved'])->default('draft');
+            $table->longText('additional_info')->nullable();
             $table->timestamps();
         });
 

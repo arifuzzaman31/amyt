@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Supplier;
+use App\Models\Purchase;
 use Illuminate\Http\Request;
 
-class SupplierController extends Controller
+class PurchaseController extends Controller
 {
-    public function __construct(private Supplier $model = new Supplier()) {}
+    public function __construct(private Purchase $model = new Purchase()) {}
 
     public function index()
     {

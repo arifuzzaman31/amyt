@@ -4,22 +4,22 @@
             <div class="widget-header">
                 <div class="row">
                     <div class="col-xl-12 col-md-12 col-sm-12 col-12 d-flex justify-content-between">
-                        <h4>Customer</h4>
+                        <h4>Supplier</h4>
                         <button type="button" class="btn btn-primary mb-3" data-toggle="modal"
-                            data-target="#customerModalCenter">
-                            Add Customer
+                            data-target="#supplierModal">
+                            Add Supplier
                         </button>
                     </div>
                 </div>
             </div>
 
             <!-- Bootstrap Modal -->
-            <div class="modal fade" id="customerModalCenter" tabindex="-1" role="dialog"
+            <div class="modal fade" id="supplierModal" tabindex="-1" role="dialog"
                 aria-labelledby="exampleModalLabel" aria-hidden="true">
                 <div class="modal-dialog" role="document">
                     <div class="modal-content">
                         <div class="modal-header">
-                            <h5 class="modal-title">{{ editingId ? 'Edit Customer' : 'New Customer' }}</h5>
+                            <h5 class="modal-title">{{ editingId ? 'Edit Supplier' : 'New Supplier' }}</h5>
                             <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                             </button>
@@ -31,21 +31,9 @@
                                     <div class="widget-header">
                                         <form @submit.prevent="submitForm">
                                             <div class="form-group">
-                                                <label for="customerGroup">Customer Group</label>
-                                                <select v-model="form.customer_group_id" class="form-control"
-                                                    id="customerGroup">
-                                                    <option disabled value="0">Select a group</option>
-                                                    <option v-for="group in customerGroups" :key="group.id"
-                                                        :value="group.id">
-                                                        {{ group.name }}
-                                                    </option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="customerName">Customer Name</label>
+                                                <label for="SupplierName">Supplier Name</label>
                                                 <input v-model="form.name" type="text" class="form-control"
-                                                    id="customerName" placeholder="Enter Name" />
+                                                    id="SupplierName" placeholder="Enter Supplier Name" />
                                             </div>
 
                                             <div class="form-group">
@@ -77,7 +65,7 @@
 
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="clearData">Discard</button>
-                            <button type="button" class="btn btn-primary" @click="submitCustomerForm">
+                            <button type="button" class="btn btn-primary" @click="submitSupplierForm">
                                 {{ editingId ? 'Update' : 'Add' }}
                             </button>
                         </div>
@@ -87,31 +75,29 @@
             <div class="widget-content widget-content-area">
                 <div class="table-responsive">
                     <table class="table mb-4">
-                        <caption>List of all Customer</caption>
+                        <caption>List of Supplier</caption>
                         <thead>
                             <tr>
                                 <th class="">#</th>
                                 <th>Name</th>
                                 <th>company name</th>
-                                <th>Group</th>
                                 <th>Email</th>
                                 <th>Phone</th>
                                 <th class="">Status</th>
-                                <th class="">Action</th>
+                                <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="customer in customerList" :key="customer.id">
-                                <td>{{ customer.id }}</td>
-                                <td>{{ customer.name }}</td> 
-                                <td>{{ customer.company_name }}</td> 
-                                <td>{{ customer.customer_group.name }}</td>
-                                <td>{{ customer.email }}</td>
-                                <td>{{ customer.phone }}</td>
-                                <td class=""><span class=" shadow-none badge outline-badge-primary">{{ customer.status == 1 ? 'active' : 'inactive'}}</span></td>
+                            <tr v-for="supplier in supplierList" :key="supplier.id">
+                                <td>{{ supplier.id }}</td>
+                                <td>{{ supplier.name }}</td> 
+                                <td>{{ supplier.company_name }}</td> 
+                                <td>{{ supplier.email }}</td>
+                                <td>{{ supplier.phone }}</td>
+                                <td class=""><span class=" shadow-none badge outline-badge-primary">{{ supplier.status == 1 ? 'active' : 'inactive'}}</span></td>
                                 <td>
-                                    <button class="btn btn-sm btn-warning mr-2" @click="openEditModal(customer)">Edit</button>
-                                    <button class="btn btn-sm btn-danger" @click="deleteCustomer(customer.id)">Delete</button>
+                                    <button class="btn btn-sm btn-warning mr-2" @click="openEditModal(supplier)">Edit</button>
+                                    <button class="btn btn-sm btn-danger" @click="deleteSupplier(supplier.id)">Delete</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -127,70 +113,63 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-const customerGroups = ref([])
-const customerList = ref([])
-const form = ref({ customer_group_id: 0, name: '',company_name:'', address: '', email: '', phone: '' })
+const supplierList = ref([])
+const form = ref({ name: '',company_name:'', address: '', email: '', phone: '', status: 1 })
 const editingId = ref(null)
 
 const clearData = () => {
-    form.value.customer_group_id = 0
     form.value.name = ''
     form.value.company_name = ''
     form.value.address = ''
     form.value.email = ''
     form.value.phone = ''
+    form.value.status = 1
     editingId.value = ''
 }
 
-const fetchCustomers = async () => {
-    const res = await axios.get(baseUrl + 'customer')
-    customerList.value = res.data
+const openEditModal = (supplier) => {
+    form.value.name = supplier.name
+    form.value.company_name = supplier.company_name
+    form.value.address = supplier.address
+    form.value.email = supplier.email
+    form.value.phone = supplier.phone
+    form.value.status = supplier.status
+    editingId.value = supplier.id
+    $('#supplierModal').modal('show')
 }
-const openEditModal = (customer) => {
-    form.value.customer_group_id = customer.customer_group_id
-    form.value.name = customer.name
-    form.value.company_name = customer.company_name
-    form.value.address = customer.address
-    form.value.email = customer.email
-    form.value.phone = customer.phone
-    editingId.value = customer.id
-    $('#customerModalCenter').modal('show')
-}
-const submitCustomerForm = async () => {
+const submitSupplierForm = async () => {
     if (editingId.value) {
-        await axios.put(baseUrl + `customer/${editingId.value}`, form.value)
+        await axios.put(baseUrl + `supplier/${editingId.value}`, form.value)
     } else {
-        await axios.post(baseUrl + 'customer', form.value)
+        await axios.post(baseUrl + 'supplier', form.value)
     }
     clearData()
-    fetchCustomers()
-    $('#customerModalCenter').modal('hide')
+    fetchSupplier()
+    $('#supplierModal').modal('hide')
 }
 
-const editCustomer = (group) => {
-    form.value.name = group.name
-    form.value.company_name = group.company_name
-    form.value.customer_group_id = customer.customer_group_id
-    form.value.address = customer.address
-    form.value.email = customer.email
-    form.value.phone = customer.phone
-    editingId.value = group.id
-    $('#customerModalCenter').modal('show')
+const editSupplier = (supplier) => {
+    form.value.name = supplier.name
+    form.value.company_name = supplier.company_name
+    form.value.address = supplier.address
+    form.value.email = supplier.email
+    form.value.phone = supplier.phone
+    form.value.status = supplier.status
+    editingId.value = supplier.id
+    $('#supplierModal').modal('show')
 }
 
-const fetchGroups = async () => {
-    const res = await axios.get(baseUrl + 'customer-groups')
-    customerGroups.value = res.data
+const fetchSupplier = async () => {
+    const res = await axios.get(baseUrl + 'supplier')
+    supplierList.value = res.data
 }
 
-const deleteCustomer = async (id) => {
+const deleteSupplier = async (id) => {
     if (confirm('Are you sure?')) {
-        await axios.delete(baseUrl + `customer/${id}`)
-        fetchCustomers()
+        await axios.delete(baseUrl + `supplier/${id}`)
     }
 }
 onMounted(() => {
-    fetchGroups()
-    fetchCustomers()
+    fetchSupplier()
 })
 </script>

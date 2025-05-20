@@ -155,10 +155,10 @@
                 </a>
                 <ul class="collapse submenu list-unstyled" id="purchase" data-parent="#accordionExample">
                     <li>
-                        <a href="">Purchase </a>
+                        <a href="{{route('purchase-list')}}">Purchase </a>
                     </li>
                     <li>
-                        <a href="">Supplier</a>
+                        <a href="{{route('supplier-list')}}">Supplier</a>
                     </li>
                 </ul>
             </li>

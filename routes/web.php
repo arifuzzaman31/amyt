@@ -5,6 +5,8 @@ use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerGroupController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
+use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -20,6 +22,10 @@ Route::prefix('admin')->group(function () {
     Route::view('expense/category-list', 'pages.expense.expense_category')->name('expense/category-list');
     Route::resource('expense', ExpenseController::class);
     Route::view('expense-list', 'pages.expense.expense')->name('expense-list');
+    Route::resource('supplier', SupplierController::class);
+    Route::view('supplier-list', 'pages.supplier.supplier')->name('supplier-list');
+    Route::resource('purchase', PurchaseController::class);
+    Route::view('purchase-list', 'pages.purchase.purchase')->name('purchase-list');
 });
 
 Route::get('logout', [AdminController::class, 'logout'])->name('logout');

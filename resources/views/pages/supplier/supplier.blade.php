@@ -1,13 +1,11 @@
 @extends('layout.app')
-@section('title', 'Individual Customer Report | Aranya')
-@push('style')
+@section('title', 'Supplier | '.env('APP_NAME'))
 
-@endpush
 @section('content')
 <div id="tableHover" class="col-lg-12 col-12 layout-spacing" style="padding: 15px 0;">
     <div class="statbox">
         <div class="widget-header">
-            <individual-customer-report />
+            <supplier />
         </div>
     </div>
 </div>    
@@ -15,5 +13,5 @@
 @endsection
 
 @push('script')
-<script src="{{ asset('js/report.js') }}"></script>
+@vite(['resources/js/supplier.js'])
 @endpush
