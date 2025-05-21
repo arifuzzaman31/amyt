@@ -1,8 +1,10 @@
 import { createApp } from 'vue';
 import Supplier from './components/supplier/Supplier.vue';
-// import Supplier from './components/supplier/Purchase.vue';
+import PurchaseList from './components/supplier/PurchaseList.vue';
+import CreatePurchase from './components/supplier/CreatePurchase.vue';
 
 const app = createApp()
 app.component('supplier', Supplier)
-// app.component('purchase', Purchase)
+app.component('purchase-list', PurchaseList)
+app.component('create-purchase', CreatePurchase)
 app.mount('#app');

@@ -1,13 +1,13 @@
 @extends('layout.app')
-@section('title', 'Customer | '.env('APP_NAME'))
+@section('title', 'Service | '.env('APP_NAME'))
 
 @section('content')
     <div class="row">                
-        <view-customer />
+        <service />
     </div>
 <!-- end modal -->
 @endsection
 
 @push('script')
-@vite(['resources/js/customer.js'])
+@vite(['resources/js/service.js'])
 @endpush

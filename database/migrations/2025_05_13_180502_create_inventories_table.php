@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('yarn_counts', function (Blueprint $table) {
             $table->id();
             $table->string('name'); // e.g., "150/D (0)", "40/2"
+            $table->tinyInteger('status')->default(1);
             $table->timestamps();
         });
 

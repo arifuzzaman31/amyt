@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('type')->nullable();
             $table->tinyInteger('status')->default(1);
             $table->timestamps();
+            $table->index(['name', 'company_name','phone']);
         });
 
         Schema::create('purchases', function (Blueprint $table) {
@@ -29,10 +30,12 @@ return new class extends Migration
             $table->date('purchase_date');
             $table->string('challan_no')->nullable();
             $table->string('document_link')->nullable();
-            $table->enum('status', ['paid', 'due'])->default('due'); // Paid or Due [cite: 2, 3]
-            $table->enum('save_as', ['draft', 'approved'])->default('draft');
+            $table->double('total_amount')->default(0);
+            $table->tinyInteger('payment_status')->default(0)->comment('0=due,1=>paid');
+            $table->tinyInteger('status')->default(0)->comment('0=pending,1=>approved,2=>rejected,3=>draft,4=>close'); // Paid or Due [cite: 2, 3]
             $table->longText('additional_info')->nullable();
             $table->timestamps();
+            $table->index(['challan_no', 'purchase_date']);
         });
 
         Schema::create('purchase_items', function (Blueprint $table) {
@@ -42,6 +45,7 @@ return new class extends Migration
             $table->decimal('quantity');
             $table->decimal('unit_price');
             $table->timestamps();
+            $table->index(['purchase_id', 'yarn_count_id']);
         });
     }
 

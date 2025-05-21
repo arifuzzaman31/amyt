@@ -3,8 +3,8 @@
     <h2 class="mt-4">Add Order</h2>
     <form @submit.prevent="submitForm" class="needs-validation" novalidate>
       <div class="mb-3">
-        <label for="orderNumber" class="form-label">Order Number</label>
-        <input type="text" class="form-control" id="orderNumber" value="Auto Generated" readonly>
+        <label for="challanNumber" class="form-label">Challan Number</label>
+        <input type="text" class="form-control" id="challanNumber" value="Auto Generated" readonly>
       </div>
       <div class="mb-3">
         <label for="supplier" class="form-label">Supplier*</label>

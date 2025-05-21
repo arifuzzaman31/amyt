@@ -184,7 +184,7 @@
                             </li>
            
                             <li>
-                                <a href="">Service List </a>
+                                <a href="{{ route('service')}}">Service List </a>
                             </li>
                             <li>
                                 <a href="">Quotation</a>

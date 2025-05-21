@@ -6,6 +6,7 @@ use App\Http\Controllers\CustomerGroupController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SupplierController;
 use Illuminate\Support\Facades\Route;
 
@@ -25,7 +26,10 @@ Route::prefix('admin')->group(function () {
     Route::resource('supplier', SupplierController::class);
     Route::view('supplier-list', 'pages.supplier.supplier')->name('supplier-list');
     Route::resource('purchase', PurchaseController::class);
+    Route::view('create-purchase', 'pages.purchase.create_purchase')->name('create-purchase');
     Route::view('purchase-list', 'pages.purchase.purchase')->name('purchase-list');
+    Route::resource('service', ServiceController::class);
+    Route::view('service-list', 'pages.service.service')->name('service-list');
 });
 
 Route::get('logout', [AdminController::class, 'logout'])->name('logout');

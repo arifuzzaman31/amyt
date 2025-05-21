@@ -4,98 +4,40 @@
             <div class="widget-header">
                 <div class="row">
                     <div class="col-xl-12 col-md-12 col-sm-12 col-12 d-flex justify-content-between">
-                        <h4>Expense</h4>
-                        <button type="button" class="btn btn-primary mb-3" data-toggle="modal"
-                            data-target="#expenseModal">
-                            Add Expense
-                        </button>
+                        <h4>Purchase</h4>
+                        <a :href="baseUrl+'purchase'" class="btn btn-primary mb-3">
+                            Add Purchase
+                        </a>
                     </div>
                 </div>
             </div>
 
-            <!-- Bootstrap Modal -->
-            <div class="modal fade" id="expenseModal" tabindex="-1" role="dialog"
-                aria-labelledby="exampleModalLabel" aria-hidden="true">
-                <div class="modal-dialog" role="document">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                            <h5 class="modal-title">{{ editingId ? 'Edit Expense' : 'New Expense' }}</h5>
-                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                                <span aria-hidden="true">&times;</span>
-                            </button>
-                        </div>
-
-                        <div class="modal-body">
-                            <div class="statbox widget box-shadow">
-                                <div class="">
-                                    <div class="widget-header">
-                                        <form @submit.prevent="submitForm">
-                                            <div class="form-group">
-                                                <label for="expCategory">Expense Category</label>
-                                                <select v-model="form.expense_category_id" class="form-control"
-                                                    id="expCategory">
-                                                    <option disabled value="0">Select Expense Category</option>
-                                                    <option v-for="category in expenseCategories" :key="category.id"
-                                                        :value="category.id">
-                                                        {{ category.name }}
-                                                    </option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="expDate">Expense Date</label>
-                                                <input v-model="form.expense_date" type="date" class="form-control"
-                                                    id="expDate" placeholder="Expense Date" />
-                                            </div>
-
-                                            <div class="form-group">
-                                                <label for="amount">Amount</label>
-                                                <input v-model="form.amount" type="number" class="form-control" id="amount"
-                                                    placeholder="Enter Amount" />
-                                            </div>
-                                            <div class="form-group">
-                                                <label for="description">Description</label>
-                                                <textarea v-model="form.description" rows="3" class="form-control" id="description"></textarea>
-                                            </div>
-                                        </form>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="clearData">Discard</button>
-                            <button type="button" class="btn btn-primary" @click="submitCustomerForm">
-                                {{ editingId ? 'Update' : 'Add' }}
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
             <div class="widget-content widget-content-area">
                 <div class="table-responsive">
                     <table class="table mb-4">
-                        <caption>List of all Expense</caption>
+                        <caption>List of all Purchase</caption>
                         <thead>
                             <tr>
                                 <th class="">#</th>
-                                <th>Expense Category</th>
-                                <th>Date</th>
-                                <th>Amount</th>
-                                <th>Description</th>
+                                <th>Challan No</th>
+                                <th>Purchase Date</th>
+                                <th>Supplier</th>
+                                <th>Total</th>
+                                <th>Status</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="expense in expenseList" :key="expense.id">
-                                <td>{{ expense.id }}</td>
-                                <td>{{ expense.expense_category.name }}</td>
-                                <td>{{ expense.expense_date }}</td>
-                                <td>{{ expense.amount }}</td>
-                                <td class="text-wrap" style="width:35%;">{{ expense.description }}</td>
+                            <tr v-for="purchase in purchaseList" :key="purchase.id">
+                                <td>{{ purchase.id }}</td>
+                                <td>{{ purchase.challan_no }}</td>
+                                <td>{{ purchase.purchase_date }}</td>
+                                <td>{{ purchase.supplier_id }}</td>
+                                <td>{{ purchase.total_amount }}</td>
+                                <td class="text-wrap" style="width:35%;">{{ purchase.status }}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-warning mr-2" @click="openEditModal(expense)">Edit</button>
-                                    <button class="btn btn-sm btn-danger" @click="deleteExpense(expense.id)">Delete</button>
+                                    <button class="btn btn-sm btn-warning mr-2" @click="openEditModal(purchase)">Edit</button>
+                                    <button class="btn btn-sm btn-danger" @click="deletePurchase(purchase.id)">Delete</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -111,64 +53,67 @@
 import { ref, onMounted } from 'vue'
 import axios from 'axios'
 
-const expenseCategories = ref([])
-const expenseList = ref([])
-const form = ref({ expense_category_id: 0, expense_date: '', amount: '', description: '' })
+const purchaseList = ref([])
+const form = ref({ supplier_id: 0, purchase_date: '', challan_no: '', document_link: '',
+ total_amount: '', payment_status: '', status: '' })
 const editingId = ref(null)
 
 const clearData = () => {
-    form.value.expense_category_id = 0
-    form.value.expense_date = ''
-    form.value.amount = ''
-    form.value.description = ''
+    form.value.supplier_id = 0
+    form.value.purchase_date = ''
+    form.value.challan_no = ''
+    form.value.document_link = ''
+    form.value.total_amount = ''
+    form.value.payment_status = ''
+    form.value.status = ''
     editingId.value = ''
 }
 
-const fetchExpenseCategory = async () => {
-    const res = await axios.get(baseUrl + 'expense/category')
-    expenseCategories.value = res.data
-}
-const openEditModal = (customer) => {
-    form.value.expense_category_id = customer.expense_category_id
-    form.value.expense_date = customer.expense_date
-    form.value.amount = customer.amount
-    form.value.description = customer.description
+const openEditModal = (purchase) => {
+    form.value.supplier_id = purchase.supplier_id
+    form.value.purchase_date = purchase.purchase_date
+    form.value.challan_no = purchase.challan_no
+    form.value.document_link = purchase.document_link
+    form.value.total_amount = purchase.total_amount
+    form.value.payment_status = purchase.payment_status
+    form.value.status = purchase.status
     editingId.value = customer.id
-    $('#expenseModal').modal('show')
+    $('#purchaseModal').modal('show')
 }
 const submitCustomerForm = async () => {
     if (editingId.value) {
-        await axios.put(baseUrl + `expense/${editingId.value}`, form.value)
+        await axios.put(baseUrl + `purchase/${editingId.value}`, form.value)
     } else {
-        await axios.post(baseUrl + 'expense', form.value)
+        await axios.post(baseUrl + 'purchase', form.value)
     }
     clearData()
-    fetchExpense()
-    $('#expenseModal').modal('hide')
+    fetchPurchase()
+    $('#purchaseModal').modal('hide')
 }
 
-const editExpense = (group) => {
-    form.value.expense_date = group.expense_date
-    form.value.expense_category_id = customer.expense_category_id
-    form.value.amount = customer.amount
-    form.value.description = customer.description
-    editingId.value = group.id
-    $('#expenseModal').modal('show')
+const editPurchase = (purchase) => {
+    form.value.supplier_id = purchase.supplier_id
+    form.value.purchase_date = purchase.purchase_date
+    form.value.challan_no = purchase.challan_no
+    form.value.document_link = purchase.document_link
+    form.value.total_amount = purchase.total_amount
+    form.value.payment_status = purchase.payment_status
+    form.value.status = purchase.status
+    editingId.value = purchase.id
+    $('#purchaseModal').modal('show')
 }
 
-const fetchExpense = async () => {
-    const res = await axios.get(baseUrl + 'expense')
-    expenseList.value = res.data
+const fetchPurchase = async () => {
+    const res = await axios.get(baseUrl + 'purchase')
+    purchaseList.value = res.data
 }
 
 const deleteCustomer = async (id) => {
     if (confirm('Are you sure?')) {
-        await axios.delete(baseUrl + `expense/${id}`)
-        fetchExpenseCategory()
+        await axios.delete(baseUrl + `purchase/${id}`)
     }
 }
 onMounted(() => {
-    fetchExpense()
-    fetchExpenseCategory()
+    fetchPurchase()
 })
 </script>
