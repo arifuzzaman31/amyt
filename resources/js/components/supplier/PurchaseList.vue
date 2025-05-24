@@ -5,7 +5,7 @@
                 <div class="row">
                     <div class="col-xl-12 col-md-12 col-sm-12 col-12 d-flex justify-content-between">
                         <h4>Purchase</h4>
-                        <a :href="baseUrl+'purchase'" class="btn btn-primary mb-3">
+                        <a :href="url+'create-purchase'" class="btn btn-primary mb-3">
                             Add Purchase
                         </a>
                     </div>
@@ -57,6 +57,7 @@ const purchaseList = ref([])
 const form = ref({ supplier_id: 0, purchase_date: '', challan_no: '', document_link: '',
  total_amount: '', payment_status: '', status: '' })
 const editingId = ref(null)
+const url = ref(baseUrl)
 
 const clearData = () => {
     form.value.supplier_id = 0

@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Customer extends Model
 {
     // use SoftDeletes;
-    protected $fillable = ['customer_group_id','name','address',
+    protected $fillable = ['customer_group_id','name','address','company_name',
     'email','phone','type','status',];
 
     public function customer_group()
