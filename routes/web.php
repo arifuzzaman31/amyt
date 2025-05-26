@@ -8,6 +8,7 @@ use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PurchaseController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SupplierController;
+use App\Http\Controllers\YarnController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -30,6 +31,8 @@ Route::prefix('admin')->group(function () {
     Route::view('purchase-list', 'pages.purchase.purchase')->name('purchase-list');
     Route::resource('service', ServiceController::class);
     Route::view('service-list', 'pages.service.service')->name('service-list');
+    Route::resource('yarn-count', YarnController::class);
+    Route::view('yarn-count-list', 'pages.yarn.yarn_list')->name('yarn-count-list');
 });
 
 Route::get('logout', [AdminController::class, 'logout'])->name('logout');

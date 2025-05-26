@@ -25,3 +25,4 @@
     </script>
 <script src="{{ asset('admin-assets/plugins/apex/apexcharts.min.js')}}"></script>
 <script src="{{ asset('admin-assets/assets/js/dashboard/dash_1.js')}}"></script>
+
