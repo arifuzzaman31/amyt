@@ -27,6 +27,7 @@ return new class extends Migration
         Schema::create('purchases', function (Blueprint $table) {
             $table->id();
             $table->foreignId('supplier_id')->constrained()->onDelete('cascade');
+            $table->uuid('auto_generated_id')->nullable();
             $table->date('purchase_date');
             $table->string('challan_no')->nullable();
             $table->string('document_link')->nullable();
@@ -36,6 +37,7 @@ return new class extends Migration
             $table->tinyInteger('discount_type')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0=pending,1=>approved,2=>rejected,3=>draft,4=>close'); // Paid or Due [cite: 2, 3]
             $table->longText('additional_info')->nullable();
+            $table->longText('description')->nullable();
             $table->timestamps();
             $table->index(['challan_no', 'purchase_date']);
         });
