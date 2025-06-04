@@ -31,9 +31,16 @@ Route::prefix('admin')->group(function () {
     Route::view('purchase-list', 'pages.purchase.purchase')->name('purchase-list');
     Route::resource('service', ServiceController::class);
     Route::view('service-list', 'pages.service.service')->name('service-list');
-    Route::resource('yarn-count', YarnController::class);
+    Route::resource('yarn-count', YarnController::class); // Restoring original resource route
+    Route::get('all-yarn-counts', [YarnController::class, 'allYarns'])->name('all-yarn-counts'); // Route for fetching all yarns
     Route::view('yarn-count-list', 'pages.yarn.yarn_list')->name('yarn-count-list');
 });
+
+// Removing the 'api' prefix group that was added
+// Route::prefix('api')->group(function () {
+//     Route::resource('yarns', YarnController::class)->except(['create', 'edit']);
+//     Route::get('all-yarns', [YarnController::class, 'allYarns']);
+// });
 
 Route::get('logout', [AdminController::class, 'logout'])->name('logout');
 Route::view('change-password', 'admin.change_password')->name('change-password');

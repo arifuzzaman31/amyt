@@ -7,5 +7,5 @@ use Illuminate\Database\Eloquent\Model;
 class Yarn extends Model
 {
     protected $table = "yarn_counts";
-    protected $fillable = ['name'];
+    protected $fillable = ['name','count','type'];
 }

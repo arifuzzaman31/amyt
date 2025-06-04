@@ -32,7 +32,7 @@
                                 <td>{{ purchase.id }}</td>
                                 <td>{{ purchase.challan_no }}</td>
                                 <td>{{ purchase.purchase_date }}</td>
-                                <td>{{ purchase.supplier_id }}</td>
+                                <td>{{ purchase.supplier.name }}</td>
                                 <td>{{ purchase.total_amount }}</td>
                                 <td class="text-wrap" style="width:35%;">{{ purchase.status }}</td>
                                 <td>

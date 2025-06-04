@@ -367,6 +367,7 @@ export default {
       try {
         const response = await axios.post(baseUrl + 'purchase', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         alert(response.data.message);
+        // console.log(response)
       } catch (error) {
         alert(error.response?.data?.message || 'An error occurred');
       }

@@ -2,41 +2,111 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Yarn;
+use App\Services\YarnService;
 use Illuminate\Http\Request;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 
 class YarnController extends Controller
 {
-    public function __construct(protected Yarn $model = new Yarn()) {}
+    public function __construct(private YarnService $yarnService) {}
 
-    public function index()
+    /**
+     * Display a listing of the resource.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function index(Request $request): JsonResponse
     {
-        return $this->model::get();
+        $perPage = $request->query('per_page', 10); // Default to 10 items per page
+        $yarns = $this->yarnService->getAllPaginated((int)$perPage);
+        return response()->json($yarns);
     }
-    public function store(Request $request)
+
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param Request $request
+     * @return JsonResponse
+     */
+    public function store(Request $request): JsonResponse
     {
-        $request->validate([
-            'name' => 'required|string|max:255'
+        // Basic validation, adjust as per your Yarn model's requirements
+        $validatedData = $request->validate([
+            'name' => 'required|string|max:255|unique:yarn_counts,name', // Corrected table name for unique rule
+            'count' => 'nullable|string|max:50', // Example: yarn count like 20s, 30s
+            'type' => 'nullable|string|max:100', // Example: Cotton, Polyester, Blend
+            // Add other fields that your Yarn model might have
         ]);
 
-        return $this->model::create($request->all());
+        $yarn = $this->yarnService->create($validatedData);
+        return response()->json($yarn, Response::HTTP_CREATED);
     }
 
-    public function show($id)
+    /**
+     * Display the specified resource.
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function show(int $id): JsonResponse
     {
-        return $this->model::findOrFail($id);
+        $yarn = $this->yarnService->find($id);
+        if (!$yarn) {
+            return response()->json(['message' => 'Yarn not found'], Response::HTTP_NOT_FOUND);
+        }
+        return response()->json($yarn);
     }
 
-    public function update(Request $request, $id)
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function update(Request $request, int $id): JsonResponse
     {
-        $group = $this->model::findOrFail($id);
-        $group->update($request->all());
-        return $group;
+        $yarn = $this->yarnService->find($id);
+        if (!$yarn) {
+            return response()->json(['message' => 'Yarn not found'], Response::HTTP_NOT_FOUND);
+        }
+
+        // Basic validation, adjust as per your Yarn model's requirements
+        $validatedData = $request->validate([
+            'name' => 'sometimes|required|string|max:255|unique:yarn_counts,name,' . $id, // Corrected table name
+            'count' => 'nullable|string|max:50',
+            'type' => 'nullable|string|max:100',
+            // Add other fields
+        ]);
+
+        $updatedYarn = $this->yarnService->update($id, $validatedData);
+        return response()->json($updatedYarn);
     }
 
-    public function destroy($id)
+    /**
+     * Remove the specified resource from storage.
+     *
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function destroy(int $id): JsonResponse
     {
-        $this->model::destroy($id);
-        return response()->noContent();
+        if ($this->yarnService->delete($id)) {
+            return response()->json(null, Response::HTTP_NO_CONTENT);
+        }
+        return response()->json(['message' => 'Yarn not found or delete failed'], Response::HTTP_NOT_FOUND);
+    }
+
+    /**
+     * Get all yarns without pagination (for dropdowns, etc.).
+     *
+     * @return JsonResponse
+     */
+    public function allYarns(): JsonResponse
+    {
+        $yarns = $this->yarnService->getAll();
+        return response()->json($yarns);
     }
 }
