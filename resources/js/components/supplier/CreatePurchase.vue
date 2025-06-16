@@ -243,7 +243,7 @@
 
 <script>
 import { ref, reactive, onMounted, computed, watch } from 'vue'; // Added computed and watch
-
+import Axistance from '../../Axistance';
 export default {
   setup() {
     const suppliers = ref([]);
@@ -288,7 +288,7 @@ export default {
 
     const getSuppliers = async () => {
       try {
-        const response = await axios.get(baseUrl + 'supplier');
+        const response = await Axistance.get(baseUrl + 'supplier');
         suppliers.value = response.data;
       } catch (error) {
         console.error('Error fetching suppliers:', error);
@@ -297,8 +297,8 @@ export default {
 
     const getYarnCounts = async () => {
       try {
-        const response = await axios.get(baseUrl + 'yarn-count'); // Ensure this endpoint is correct
-        yarnCounts.value = response.data;
+        const response = await Axistance.get(baseUrl + 'yarn-count'); // Ensure this endpoint is correct
+        yarnCounts.value = response.data.data;
       } catch (error) {
         console.error('Error fetching yarn counts:', error);
       }
@@ -365,12 +365,30 @@ export default {
       });
     
       try {
-        const response = await axios.post(baseUrl + 'purchase', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        const response = await Axistance.post(baseUrl + 'purchase', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         alert(response.data.message);
-        // console.log(response)
+        resetForm();
+        //redirect to purchase list
+        window.location.href = baseUrl + 'purchase-list';
+
       } catch (error) {
         alert(error.response?.data?.message || 'An error occurred');
       }
+    };
+
+    const resetForm = () => {
+      purchaseOrder.dataItem = [{ yarn_count_id: '', quantity: '', unit_price: '' }];
+      purchaseOrder.supplier_id = '';
+      purchaseOrder.purchase_date = '';
+      purchaseOrder.challan_no = '';
+      purchaseOrder.document_link = null;
+      purchaseOrder.total_amount = 0;
+      purchaseOrder.payment_status = 0;
+      purchaseOrder.discount = 0;
+      purchaseOrder.discount_type = null;
+      purchaseOrder.status = 0;
+      purchaseOrder.description = '';
+      showModal.value = false; // Close the modal after resetting
     };
 
     onMounted(() => {

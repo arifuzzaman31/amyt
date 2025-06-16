@@ -32,7 +32,7 @@ return new class extends Migration
             $table->string('challan_no')->nullable();
             $table->string('document_link')->nullable();
             $table->double('total_amount')->default(0);
-            $table->tinyInteger('payment_status')->default(0)->comment('0=due,1=>paid');
+            $table->tinyInteger('payment_status')->default(0)->comment('0=due,1=>paid,2=>refunded');
             $table->decimal('discount')->default(0);
             $table->tinyInteger('discount_type')->nullable();
             $table->tinyInteger('status')->default(0)->comment('0=pending,1=>approved,2=>rejected,3=>draft,4=>close'); // Paid or Due [cite: 2, 3]

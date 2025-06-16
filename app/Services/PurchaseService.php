@@ -51,7 +51,9 @@ class PurchaseService
         // Remove document_link if it's still being passed, to avoid conflict if schema has it
         unset($purchaseData['document_link']);
 
-
+        if (!isset($purchaseData['discount_type'])) {
+            $purchaseData['discount_type'] = null;
+        }
         $purchase = new Purchase();
         $purchase->fill($purchaseData);
         $purchase->save();
