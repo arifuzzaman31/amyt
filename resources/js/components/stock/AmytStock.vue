@@ -4,7 +4,7 @@
             <div class="widget-header">
                 <div class="row">
                     <div class="col-xl-12 col-md-12 col-sm-12 col-12 d-flex justify-content-between">
-                        <h4>Purchase</h4>
+                        <h4>Amyt Stock</h4>
                         <a :href="url+'create-purchase'" class="btn btn-primary mb-3">
                             Add Purchase
                         </a>
@@ -15,28 +15,24 @@
             <div class="widget-content widget-content-area">
                 <div class="table-responsive">
                     <table class="table mb-4">
-                        <caption>List of all Purchase</caption>
+                        <caption>List of all Amyt Stock</caption>
                         <thead>
                             <tr>
                                 <th class="">#</th>
-                                <th>Challan No</th>
-                                <th>Purchase Date</th>
-                                <th>Supplier</th>
-                                <th>Total</th>
+                                <th>Yarn</th>
+                                <th>Quantity</th>
                                 <th>Status</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="purchase in purchaseList" :key="purchase.id">
-                                <td>{{ purchase.id }}</td>
-                                <td>{{ purchase.challan_no }}</td>
-                                <td>{{ new Date(purchase.purchase_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) }}</td>
-                                <td>{{ (purchase.supplier?.name || 'N/A') }}</td>
-                                <td>{{ formatCurrency(purchase.total_amount) }}</td>
+                            <tr v-for="stock in stockList" :key="stock.id">
+                                <td>{{ stock.id }}</td>
+                                <td>{{ stock.yarn_count_id }}</td>
+                                <td>{{ stock.quantity}}</td>
                                 <td class="status-cell">
-                                    <span :class="getStatusClass(purchase.status)">
-                                        {{ getStatusLabel(purchase.status) }}
+                                    <span :class="getStatusClass(stock.status)">
+                                        {{ getStatusLabel(stock.status) }}
                                     </span>
                                 </td>
                                 <td class="text-center">
@@ -46,10 +42,10 @@
                                         </a>
 
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
-                                            <a type="button" class="dropdown-item" @click="openEditModal(purchase)" href="javascript:void(0);">Approved</a>
-                                            <a type="button" :class="'dropdown-item ' + (purchase.status === 0 || purchase.payment_status === 0 ? 'disabled' : '')" href="javascript:void(0);">Load to Stock</a>
-                                            <a type="button" class="dropdown-item" @click="openEditModal(purchase)" href="javascript:void(0);">Edit</a>
-                                            <a type="button" class="dropdown-item" @click="deletePurchase(purchase.id)" href="javascript:void(0);">Delete</a>
+                                            <a type="button" class="dropdown-item" @click="openEditModal(stock)" href="javascript:void(0);">Approved</a>
+                                            <a type="button" :class="'dropdown-item ' + (stock.status === 0 || stock.payment_status === 0 ? 'disabled' : '')" href="javascript:void(0);">Load to Stock</a>
+                                            <a type="button" class="dropdown-item" @click="openEditModal(stock)" href="javascript:void(0);">Edit</a>
+                                            <a type="button" class="dropdown-item" @click="deleteStock(stock.id)" href="javascript:void(0);">Delete</a>
                                         </div>
                                     </div>
                                     
@@ -58,8 +54,7 @@
                         </tbody>
                     </table>
                 </div>
-                <EditPurchase v-if="selectedPurchase" :purchase="selectedPurchase" @purchase-updated="handlePurchaseUpdated" @close-modal="closeEditModal"/>
-            </div>
+               </div>
         </div>
     </div>
 </template>
@@ -67,35 +62,34 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import Axistance from '../../Axistance'
-import EditPurchase from './EditPurchase.vue';
 
-const purchaseList = ref([])
-const selectedPurchase = ref(null);
+const stockList = ref([])
+const selectedStock = ref(null);
 const url = ref(baseUrl)
 
 const openEditModal = (purchase) => {
-    selectedPurchase.value = purchase;
+    selectedStock.value = purchase;
 }
 
 const closeEditModal = () => {
-    selectedPurchase.value = null;
+    selectedStock.value = null;
 }
 
-const fetchPurchase = async () => {
+const fetchStock = async () => {
     try {
-        const res = await Axistance.get(baseUrl + 'purchase')
-        purchaseList.value = res.data
+        const res = await Axistance.get(baseUrl + 'stock-list?vendor=amyt');
+        stockList.value = res.data
     } catch (error) {
         console.error('Error fetching purchases:', error);
         // Here you could add user-facing error handling, e.g., a toast notification.
     }
 }
 
-const deletePurchase = async (id) => {
+const deleteStock = async (id) => {
     if (confirm('Are you sure?')) {
         try {
             await Axistance.delete(baseUrl + `purchase/${id}`);
-            fetchPurchase();
+            fetchStock();
         } catch (error) {
             console.error('Error deleting purchase:', error);
             // Here you could add user-facing error handling.
@@ -104,7 +98,7 @@ const deletePurchase = async (id) => {
 }
 
 const handlePurchaseUpdated = () => {
-    fetchPurchase();
+    fetchStock();
     closeEditModal();
 }
 
@@ -153,7 +147,7 @@ const getStatusClass = (status) => {
 }
 
 onMounted(() => {
-    fetchPurchase()
+    fetchStock()
 })
 </script>
 

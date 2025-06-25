@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AmytStockController;
 use App\Http\Controllers\Auth\AdminController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerGroupController;
@@ -34,6 +35,10 @@ Route::prefix('admin')->group(function () {
     Route::resource('yarn-count', YarnController::class); // Restoring original resource route
     Route::get('all-yarn-counts', [YarnController::class, 'allYarns'])->name('all-yarn-counts'); // Route for fetching all yarns
     Route::view('yarn-count-list', 'pages.yarn.yarn_list')->name('yarn-count-list');
+    // amyt-stock-list
+    Route::view('amyt-stock-list', 'pages.stock.amyt_stock')->name('amyt-stock-list');
+    //stock-list
+    Route::get('stock-list', [AmytStockController::class, 'stockList'])->name('stock-list');
 });
 
 // Removing the 'api' prefix group that was added

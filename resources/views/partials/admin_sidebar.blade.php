@@ -126,7 +126,7 @@
             <ul class="collapse submenu list-unstyled" id="inventory" data-parent="#accordionExample">
 
                 <li>
-                    <a href="">AMYT Stock </a>
+                    <a href="{{route('amyt-stock-list')}}">AMYT Stock </a>
                 </li>
                 <li>
                     <a href="">Customer Stock</a>

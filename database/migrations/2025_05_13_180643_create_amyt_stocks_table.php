@@ -22,7 +22,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade')->index();
             $table->foreignId('yarn_count_id')->constrained()->onDelete('cascade');
-             $table->decimal('quantity')->default(0);
+            $table->string('date')->nullable();
+            $table->decimal('quantity')->default(0);
             $table->timestamps();
         });
     }

@@ -36,19 +36,24 @@ class PurchaseController extends Controller
             'document_file' => 'nullable|file|mimes:doc,docx,pdf|max:2048', // Example validation for doc/pdf
             'image_file' => 'nullable|file|image|max:2048' // Example validation for image
         ]);
-
-        $data = $request->all();
-
-        if ($request->hasFile('document_file')) {
-            $data['document_file'] = $request->file('document_file');
+        try {
+            //code...
+            $data = $request->all();
+            
+            if ($request->hasFile('document_file')) {
+                $data['document_file'] = $request->file('document_file');
+            }
+            if ($request->hasFile('image_file')) {
+                $data['image_file'] = $request->file('image_file');
+            }
+            
+            $purchase = $this->purchaseService->create($data);
+            // return response()->json(, Response::HTTP_CREATED);
+            return response()->json(['message' => 'Purchase Created Successful!','data' => $purchase], Response::HTTP_CREATED);
+        } catch (\Throwable $th) {
+            //throw $th;
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_BAD_REQUEST);
         }
-        if ($request->hasFile('image_file')) {
-            $data['image_file'] = $request->file('image_file');
-        }
-
-        $purchase = $this->purchaseService->create($data);
-        // return response()->json(, Response::HTTP_CREATED);
-        return response()->json(['message' => 'Purchase Created Successful!','data' => $purchase], Response::HTTP_CREATED);
     }
 
     /**
