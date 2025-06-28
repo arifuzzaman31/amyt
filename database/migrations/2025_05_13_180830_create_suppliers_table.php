@@ -38,6 +38,7 @@ return new class extends Migration
             $table->tinyInteger('status')->default(0)->comment('0=pending,1=>approved,2=>rejected,3=>draft,4=>close'); // Paid or Due [cite: 2, 3]
             $table->longText('additional_info')->nullable();
             $table->longText('description')->nullable();
+            $table->tinyInteger('is_stocked')->default(0)->comment('0=not stock,1=>stock'); // 0=not stock, 1=stock
             $table->timestamps();
             $table->index(['challan_no', 'purchase_date']);
         });

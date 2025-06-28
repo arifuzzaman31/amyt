@@ -17,6 +17,7 @@ Route::get('/', function () {
 });
 
 Route::prefix('admin')->group(function () {
+    Route::view('dashboard','pages.dashboard');
     Route::resource('customer', CustomerController::class);
     Route::view('customer-list', 'pages.customer.customer')->name('customer-list');
     Route::resource('customer-groups', CustomerGroupController::class);
@@ -28,6 +29,7 @@ Route::prefix('admin')->group(function () {
     Route::resource('supplier', SupplierController::class);
     Route::view('supplier-list', 'pages.supplier.supplier')->name('supplier-list');
     Route::resource('purchase', PurchaseController::class);
+    Route::post('purchase/{id}/approve', [PurchaseController::class, 'purchaseStatus'])->name('purchase-to-stock');
     Route::view('create-purchase', 'pages.purchase.create_purchase')->name('create-purchase');
     Route::view('purchase-list', 'pages.purchase.purchase')->name('purchase-list');
     Route::resource('service', ServiceController::class);
@@ -37,8 +39,10 @@ Route::prefix('admin')->group(function () {
     Route::view('yarn-count-list', 'pages.yarn.yarn_list')->name('yarn-count-list');
     // amyt-stock-list
     Route::view('amyt-stock-list', 'pages.stock.amyt_stock')->name('amyt-stock-list');
+    Route::view('customer-stock-list', 'pages.stock.customer_stock')->name('customer-stock-list');
     //stock-list
     Route::get('stock-list', [AmytStockController::class, 'stockList'])->name('stock-list');
+    Route::post('purchase-to-stock/{id}', [AmytStockController::class, 'purchaseToStock'])->name('purchase-to-stock');
 });
 
 // Removing the 'api' prefix group that was added

@@ -4,10 +4,7 @@
             <div class="widget-header">
                 <div class="row">
                     <div class="col-xl-12 col-md-12 col-sm-12 col-12 d-flex justify-content-between">
-                        <h4>Amyt Stock</h4>
-                        <a :href="url+'create-purchase'" class="btn btn-primary mb-3">
-                            Add Purchase
-                        </a>
+                        <h4>Customer Stock</h4>
                     </div>
                 </div>
             </div>
@@ -15,17 +12,19 @@
             <div class="widget-content widget-content-area">
                 <div class="table-responsive">
                     <table class="table mb-4">
-                        <caption>List of all Amyt Stock</caption>
+                        <caption>List of all Customer Stock</caption>
                         <thead>
                             <tr>
                                 <th class="">#</th>
-                                <th>Yarn</th>
+                                <th>Customer</th> 
+                                <th>Yarn</th> 
                                 <th>Quantity</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="stock in stockList" :key="stock.id">
                                 <td>{{ stock.id }}</td>
+                                <td>{{ stock.customer_id }}</td>
                                 <td>{{ stock.yarn_count?.name }}</td>
                                 <td>{{ stock.quantity}}</td>
                             </tr>
@@ -55,7 +54,7 @@ const closeEditModal = () => {
 
 const fetchStock = async () => {
     try {
-        const res = await Axistance.get('stock-list?vendor=amyt');
+        const res = await Axistance.get('stock-list?vendor=customer');
         stockList.value = res.data.data
     } catch (error) {
         console.error('Error fetching purchases:', error);

@@ -8,5 +8,5 @@
 </div>
 @endsection
 @push('script')
-<script src="{{ asset('js/app.js') }}"></script>
+@vite(['resources/js/app.js'])
 @endpush

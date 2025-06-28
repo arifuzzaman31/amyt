@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\CustomConst\AllStatic;
 use App\Models\AmytStock;
 use App\Models\Purchase;
 use Illuminate\Http\Request;
@@ -69,21 +70,6 @@ class PurchaseService
                 }
             }
             $purchase->load('items.yarn'); // Eager load items after creation
-            //if status approved, and payment_status is 1 then quantity add to amyt_stock
-            if ($purchase->status == 1 && $purchase->payment_status == 1) {
-                $purchase->items->each(function ($item) {
-                    $stock = AmytStock::where('yarn_count_id', $item->yarn_count_id)->first();
-                    if ($stock) {
-                        $stock->incrementQuantity($item->quantity);
-                    } else {
-                        // If stock does not exist, create it
-                        AmytStock::create([
-                            'yarn_count_id' => $item->yarn_count_id,
-                            'quantity' => $item->quantity,
-                        ]);
-                    }
-                });
-            }
             DB::commit();
             return $purchase;
         } catch (\Throwable $th) {
@@ -155,19 +141,51 @@ class PurchaseService
             }
         }
 
-        if ($purchase->status == 1 && $purchase->payment_status == 1) {
-            // If status is approved and payment is done, we need to decrement stock
-            $purchase->items->each(function ($item) {
-                $stock = AmytStock::where('yarn_count_id', $item->yarn_count_id)->first();
-                if ($stock) {
-                    $stock->decrementQuantity($item->quantity);
-                }
-            });
-        }
+        // if ($purchase->status == 1 && $purchase->payment_status == 1) {
+        //     // If status is approved and payment is done, we need to decrement stock
+        //     $purchase->items->each(function ($item) {
+        //         $stock = AmytStock::where('yarn_count_id', $item->yarn_count_id)->first();
+        //         if ($stock) {
+        //             $stock->decrementQuantity($item->quantity);
+        //         }
+        //     });
+        // }
 
         $purchase->fill($updateData);
         $purchase->save();
 
+        return $purchase;
+    }
+
+    // updateStatus
+    /**
+     * Update the status of a purchase.
+     *
+     * @param int $id
+     * @param array $statusData
+     * @return Purchase|null
+     */
+    public function updateStatus(int $id, array $statusData = []): ?Purchase
+    {
+        $purchase = $this->find($id);
+        if (!$purchase) {
+            return null;
+        }
+        // Update the status and payment status
+        $purchase->status = $statusData['status'] ?? AllStatic::ALL_STATIC['PURCHASE_STATUS']['APPROVED'];
+        $purchase->payment_status = $statusData['payment_status'] ?? AllStatic::ALL_STATIC['PURCHASE_PAYMENT_STATUS']['APPROVED'];
+
+        // If status is approved and payment is done, we need to decrement stock
+        // if ($purchase->status == 1 && $purchase->payment_status == 1) {
+        //     $purchase->items->each(function ($item) {
+        //         $stock = AmytStock::where('yarn_count_id', $item->yarn_count_id)->first();
+        //         if ($stock) {
+        //             $stock->decrementQuantity($item->quantity);
+        //         }
+        //     });
+        // }
+
+        $purchase->save();
         return $purchase;
     }
 

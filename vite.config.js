@@ -6,9 +6,9 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                'resources/css/app.css', 'resources/js/customer.js',
-                'resources/js/expense.js','resources/js/supplier.js',
-                'resources/js/service.js'
+                'resources/css/app.css', 'resources/js/app.js',
+                'resources/js/customer.js','resources/js/expense.js',
+                'resources/js/supplier.js','resources/js/service.js'
             ],
             refresh: true,
         }),

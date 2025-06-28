@@ -118,4 +118,24 @@ class PurchaseController extends Controller
         }
         return response()->json(['message' => 'Purchase not found or delete failed'], Response::HTTP_NOT_FOUND);
     }
+    /**
+     * Update the status of a purchase.
+     *
+     * @param Request $request
+     * @param int $id
+     * @return JsonResponse
+     */
+    public function purchaseStatus(int $id): JsonResponse
+    {
+        try {
+            $purchase = $this->purchaseService->updateStatus($id,['status' => 1, 'payment_status' => 1]);
+            if (!$purchase) {
+                return response()->json(['message' => 'Purchase not found or status update failed'], Response::HTTP_NOT_FOUND);
+            }
+            return response()->json($purchase);
+        } catch (\Throwable $th) {
+            return response()->json($th->getMessage(), Response::HTTP_BAD_REQUEST);
+            //throw $th;
+        }
+    }
 }

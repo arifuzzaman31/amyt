@@ -129,7 +129,7 @@
                     <a href="{{route('amyt-stock-list')}}">AMYT Stock </a>
                 </li>
                 <li>
-                    <a href="">Customer Stock</a>
+                    <a href="{{route('customer-stock-list')}}">Customer Stock</a>
                 </li>
 
             </ul>

@@ -46,8 +46,8 @@
                                         </a>
 
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
-                                            <a type="button" class="dropdown-item" @click="openEditModal(purchase)" href="javascript:void(0);">Approved</a>
-                                            <a type="button" :class="'dropdown-item ' + (purchase.status === 0 || purchase.payment_status === 0 ? 'disabled' : '')" href="javascript:void(0);">Load to Stock</a>
+                                            <a type="button" :class="'dropdown-item ' + (getStatusLabel(purchase.status) == 'Approved' ? 'disabled text-muted' : '')" @click="updateStatus(purchase.id)" href="javascript:void(0);">Approved</a>
+                                            <a type="button" :class="'dropdown-item ' + (purchase.status == 0 || purchase.payment_status === 0 ? 'disabled text-muted' : '')" @click="loadToStock(purchase.id)" href="javascript:void(0);">Load to Stock</a>
                                             <a type="button" class="dropdown-item" @click="openEditModal(purchase)" href="javascript:void(0);">Edit</a>
                                             <a type="button" class="dropdown-item" @click="deletePurchase(purchase.id)" href="javascript:void(0);">Delete</a>
                                         </div>
@@ -59,6 +59,7 @@
                     </table>
                 </div>
                 <EditPurchase v-if="selectedPurchase" :purchase="selectedPurchase" @purchase-updated="handlePurchaseUpdated" @close-modal="closeEditModal"/>
+                <!-- // Add a modal component for editing purchase take payment info then approve -->
             </div>
         </div>
     </div>
@@ -79,6 +80,35 @@ const openEditModal = (purchase) => {
 
 const closeEditModal = () => {
     selectedPurchase.value = null;
+}
+const updateStatus = (id) => {
+    // need to open a modal and take payment details and status then approve the purchase
+    // For now, we will just approve the purchase directly
+    // Uncomment the following lines to enable the approval functionality
+    if (confirm('Are you sure you want to approve this purchase?')) {
+        Axistance.post(`purchase/${id}/approve`)
+            .then((response) => {
+                alert(response.data.message || 'Purchase approved successfully.');
+                fetchPurchase();
+            })
+            .catch(error => {
+                console.error('Error approving purchase:', error);
+                // Here you could add user-facing error handling, e.g., a toast notification.
+            });
+    }
+}
+const loadToStock = (id) => {
+    if (confirm('Are you sure you want to load this purchase to stock?')) {
+        Axistance.post(`purchase-to-stock/${id}`)
+            .then((response,error) => {
+                alert(response.data.message || 'Purchase loaded to stock successfully.');
+                fetchPurchase();
+            })
+            .catch(error => {
+                console.error('Error loading purchase to stock:', error);
+                // Here you could add user-facing error handling, e.g., a toast notification.
+            });
+    }
 }
 
 const fetchPurchase = async () => {
