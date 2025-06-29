@@ -15,4 +15,9 @@ class Customer extends Model
     {
         return $this->belongsTo(CustomerGroup::class);
     }
+
+    public function customer_stock()
+    {
+        return $this->hasMany(CustomerStock::class);
+    }
 }

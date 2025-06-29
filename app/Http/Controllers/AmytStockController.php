@@ -9,14 +9,13 @@ class AmytStockController extends Controller
 {
     public function stockList(Request $request)
     {
-        if (strtolower($request->query('vendor', '')) !== 'amyt') {
-            return redirect()->route('customer.stock.list'); 
+        if (strtolower($request->query('vendor', '')) === 'customer') {
+            return app()->call('App\Http\Controllers\CustomerStockController@stockList', ['request' => $request]);
         }
 
         $perPage = $request->query('per_page', 10);
         $stocks = \App\Models\AmytStock::with('yarnCount:id,name')->paginate($perPage);
         return $stocks;
-        return view('pages.stock.amyt_stock', compact('stocks'));
     }
 
     public function purchaseToStock($id)

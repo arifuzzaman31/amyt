@@ -5,6 +5,9 @@
                 <div class="row">
                     <div class="col-xl-12 col-md-12 col-sm-12 col-12 d-flex justify-content-between">
                         <h4>Customer Stock</h4>
+                        <a :href="url+'customer-stock-page'" class="btn btn-primary mb-3">
+                            Add Customer Stock
+                        </a>
                     </div>
                 </div>
             </div>
@@ -22,7 +25,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="stock in stockList" :key="stock.id">
+                            <tr v-for="stock in customerStockList" :key="stock.id">
                                 <td>{{ stock.id }}</td>
                                 <td>{{ stock.customer_id }}</td>
                                 <td>{{ stock.yarn_count?.name }}</td>
@@ -40,7 +43,7 @@
 import { ref, onMounted } from 'vue'
 import Axistance from '../../Axistance'
 
-const stockList = ref([])
+const customerStockList = ref([])
 const selectedStock = ref(null);
 const url = ref(baseUrl)
 
@@ -52,21 +55,21 @@ const closeEditModal = () => {
     selectedStock.value = null;
 }
 
-const fetchStock = async () => {
+const fetchCustomerStock = async () => {
     try {
         const res = await Axistance.get('stock-list?vendor=customer');
-        stockList.value = res.data.data
+        customerStockList.value = res.data.data
     } catch (error) {
         console.error('Error fetching purchases:', error);
         // Here you could add user-facing error handling, e.g., a toast notification.
     }
 }
 
-const deleteStock = async (id) => {
+const deleteCustomerStock = async (id) => {
     if (confirm('Are you sure?')) {
         try {
             await Axistance.delete(baseUrl + `purchase/${id}`);
-            fetchStock();
+            fetchCustomerStock();
         } catch (error) {
             console.error('Error deleting purchase:', error);
             // Here you could add user-facing error handling.
@@ -75,7 +78,7 @@ const deleteStock = async (id) => {
 }
 
 const handlePurchaseUpdated = () => {
-    fetchStock();
+    fetchCustomerStock();
     closeEditModal();
 }
 
@@ -124,7 +127,7 @@ const getStatusClass = (status) => {
 }
 
 onMounted(() => {
-    fetchStock()
+    fetchCustomerStock()
 })
 </script>
 

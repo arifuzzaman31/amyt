@@ -43,6 +43,7 @@ Route::prefix('admin')->group(function () {
     //stock-list
     Route::get('stock-list', [AmytStockController::class, 'stockList'])->name('stock-list');
     Route::post('purchase-to-stock/{id}', [AmytStockController::class, 'purchaseToStock'])->name('purchase-to-stock');
+    Route::view('customer-stock-page','pages.stock.create_stock')->name('customer-stock-page');
 });
 
 // Removing the 'api' prefix group that was added
