@@ -13,5 +13,5 @@
 @endsection
 
 @push('script')
-@vite(['resources/js/supplier.js'])
+@vite(['resources/js/stock.js'])
 @endpush
