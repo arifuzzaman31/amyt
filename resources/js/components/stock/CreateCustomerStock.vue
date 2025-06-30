@@ -17,13 +17,13 @@
                             <div class="form-group">
                               <label for="Stock_date">Date</label>
                               <input type="date" class="form-control mb-4" id="Stock_date"
-                                v-model="purchaseOrder.purchase_date" />
+                                v-model="customerItems.purchase_date" />
                             </div>
                           </div>
                           <div class="col-md-4">
                             <div class="form-group">
                               <label for="customer_id">Select Customer</label>
-                              <select v-model="purchaseOrder.customer_id" class="form-control mb-4" id="customer_id">
+                              <select v-model="customerItems.customer_id" class="form-control mb-4" id="customer_id">
                                 <option value="">Select Customer</option>
                                 <option v-for="s in customers" :key="s.id" :value="s.id">
                                   {{ s.name }} - {{ s.company_name }}
@@ -35,7 +35,7 @@
                             <div class="form-group">
                               <label for="challan_no">Challan No</label>
                               <input type="text" class="form-control mb-4" id="challan_no"
-                                v-model="purchaseOrder.challan_no" />
+                                v-model="customerItems.challan_no" />
                             </div>
                           </div>
   
@@ -52,7 +52,7 @@
                             <div class="form-group">
                               <label for="description">Description</label>
                               <textarea class="form-control" placeholder="Description for the purchase order" rows="3"
-                                v-model="purchaseOrder.description"></textarea>
+                                v-model="customerItems.description"></textarea>
                             </div>
                           </div>
                         </div>
@@ -93,7 +93,7 @@
                                     </tr>
                                   </thead>
                                   <tbody>
-                                    <tr v-for="(item, index) in purchaseOrder.dataItem" :key="index">
+                                    <tr v-for="(item, index) in customerItems.dataItem" :key="index">
                                       <td>
                                         <select v-model="item.yarn_count_id" class="form-control">
                                           <option value="">Select Yarn Count</option>
@@ -137,7 +137,7 @@
                               </tr>
                             </thead>
                             <tbody>
-                              <tr v-for="addedItem in purchaseOrder.dataItem" :key="addedItem.yarn_count_id">
+                              <tr v-for="addedItem in customerItems.dataItem" :key="addedItem.yarn_count_id">
                                 <td>{{ getYarnCountName(addedItem.yarn_count_id) }}</td>
                                 <td>{{ addedItem.quantity }}</td>
                                 <td>{{ addedItem.unit_price }}</td>
@@ -166,13 +166,13 @@
                               <label for="discount" class="col-sm-5 col-form-label text-right">Discount:</label>
                               <div class="col-sm-7">
                                 <input type="number" class="form-control form-control-sm" id="discount"
-                                  v-model.number="purchaseOrder.discount" placeholder="Discount value">
+                                  v-model.number="customerItems.discount" placeholder="Discount value">
                               </div>
                             </div>
                             <div class="form-group row">
                               <label for="discount_type" class="col-sm-5 col-form-label text-right">Discount Type:</label>
                               <div class="col-sm-7">
-                                <select v-model="purchaseOrder.discount_type" class="form-control form-control-sm"
+                                <select v-model="customerItems.discount_type" class="form-control form-control-sm"
                                   id="discount_type">
                                   <option :value="null">Select Type</option>
                                   <option value="0">Percentage (%)</option>
@@ -202,7 +202,7 @@
                               <label for="payment_status_bottom" class="col-sm-5 col-form-label text-right">Payment
                                 Status:</label>
                               <div class="col-sm-7">
-                                <select v-model="purchaseOrder.payment_status" class="form-control form-control-sm"
+                                <select v-model="customerItems.payment_status" class="form-control form-control-sm"
                                   id="payment_status_bottom">
                                   <option value="0">Due</option>
                                   <option value="1">Paid</option>
@@ -212,7 +212,7 @@
                             <div class="form-group row">
                               <label for="status_bottom" class="col-sm-5 col-form-label text-right">Order Status:</label>
                               <div class="col-sm-7">
-                                <select v-model="purchaseOrder.status" class="form-control form-control-sm"
+                                <select v-model="customerItems.status" class="form-control form-control-sm"
                                   id="status_bottom">
                                   <!-- <option value="0">Pending</option> -->
                                   <option value="1">Approved</option>
@@ -242,18 +242,18 @@
   </template>
   
   <script>
-  import { ref, reactive, onMounted, computed, watch } from 'vue'; // Added computed and watch
+  import { ref, reactive, onMounted, computed, watch } from 'vue';
   import Axistance from '../../Axistance';
   export default {
     setup() {
-      const suppliers = ref([]);
+      const customers = ref([]);
       const yarnCounts = ref([]);
       const url = ref(rootUrl);
       const showModal = ref(false);
   
-      const purchaseOrder = reactive({
-        supplier_id: '',
-        purchase_date: '',
+      const customerItems = reactive({
+        customer_id: '',
+        in_date: '',
         challan_no: '',
         document_link: null,
         total_amount: 0, // This will be updated by grandTotal watcher
@@ -271,14 +271,14 @@
       };
   
       const addItem = () => {
-        purchaseOrder.dataItem.push({ yarn_count_id: '', quantity: '', unit_price: '' });
+        customerItems.dataItem.push({ yarn_count_id: '', quantity: '', unit_price: '' });
       };
   
       const removeItem = (index) => {
-        if (purchaseOrder.dataItem.length > 1) {
-          purchaseOrder.dataItem.splice(index, 1);
+        if (customerItems.dataItem.length > 1) {
+          customerItems.dataItem.splice(index, 1);
         } else {
-          Object.assign(purchaseOrder.dataItem[0], { yarn_count_id: '', quantity: '', unit_price: '' });
+          Object.assign(customerItems.dataItem[0], { yarn_count_id: '', quantity: '', unit_price: '' });
         }
       };
   
@@ -286,18 +286,18 @@
         showModal.value = false;
       };
   
-      const getSuppliers = async () => {
+      const getCustomer = async () => {
         try {
-          const response = await Axistance.get(baseUrl + 'supplier');
-          suppliers.value = response.data;
+          const response = await Axistance.get('customer');
+          customers.value = response.data;
         } catch (error) {
-          console.error('Error fetching suppliers:', error);
+          console.error('Error fetching customers:', error);
         }
       };
   
       const getYarnCounts = async () => {
         try {
-          const response = await Axistance.get(baseUrl + 'yarn-count'); // Ensure this endpoint is correct
+          const response = await Axistance.get('yarn-count');
           yarnCounts.value = response.data.data;
         } catch (error) {
           console.error('Error fetching yarn counts:', error);
@@ -307,7 +307,7 @@
       const handleFileUpload = (event) => {
         const file = event.target.files[0];
         if (file) {
-          purchaseOrder.document_link = file;
+          customerItems.document_link = file;
         }
       };
   
@@ -318,7 +318,7 @@
   
       // Computed Properties for Totals
       const subTotal = computed(() => {
-        return purchaseOrder.dataItem.reduce((acc, item) => {
+        return customerItems.dataItem.reduce((acc, item) => {
           const quantity = parseFloat(item.quantity) || 0;
           const price = parseFloat(item.unit_price) || 0;
           return acc + (quantity * price);
@@ -326,10 +326,10 @@
       });
   
       const discountAmount = computed(() => {
-        const discountValue = parseFloat(purchaseOrder.discount) || 0;
-        if (purchaseOrder.discount_type === '0') { // Percentage
+        const discountValue = parseFloat(customerItems.discount) || 0;
+        if (customerItems.discount_type === '0') { // Percentage
           return (subTotal.value * discountValue) / 100;
-        } else if (purchaseOrder.discount_type === '1') { // Fixed
+        } else if (customerItems.discount_type === '1') { // Fixed
           return discountValue;
         }
         return 0;
@@ -343,33 +343,33 @@
         // An item is considered "added" or "meaningful" if it has a yarn_count_id selected.
         // This aligns with the logic for showing the "Added Items" table and
         // handles the fact that dataItem always has at least one (potentially blank) entry.
-        return purchaseOrder.dataItem.some(item => item.yarn_count_id);
+        return customerItems.dataItem.some(item => item.yarn_count_id);
       });
   
-      // Watch grandTotal to update purchaseOrder.total_amount
+      // Watch grandTotal to update customerItems.total_amount
       watch(grandTotal, (newTotal) => {
-        purchaseOrder.total_amount = newTotal;
+        customerItems.total_amount = newTotal;
       });
   
       const submitForm = async() => {
-        console.log('Submitting Purchase Order:', purchaseOrder);
+        console.log('Submitting Purchase Order:', customerItems);
         const formData = new FormData();
-        Object.keys(purchaseOrder).forEach(key => {
+        Object.keys(customerItems).forEach(key => {
           if (key === 'dataItem') {
-            formData.append(key, JSON.stringify(purchaseOrder[key]));
-          } else if (key === 'document_link' && purchaseOrder[key] instanceof File) {
-            formData.append(key, purchaseOrder[key], purchaseOrder[key].name);
+            formData.append(key, JSON.stringify(customerItems[key]));
+          } else if (key === 'document_link' && customerItems[key] instanceof File) {
+            formData.append(key, customerItems[key], customerItems[key].name);
           } else {
-            formData.append(key, purchaseOrder[key]);
+            formData.append(key, customerItems[key]);
           }
         });
       
         try {
-          const response = await Axistance.post(baseUrl + 'purchase', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          const response = await Axistance.post('customer-stock-in', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
           alert(response.data.message);
           resetForm();
           //redirect to purchase list
-          window.location.href = baseUrl + 'purchase-list';
+          window.location.href = 'purchase-list';
   
         } catch (error) {
           alert(error.response?.data?.message || 'An error occurred');
@@ -377,35 +377,35 @@
       };
   
       const resetForm = () => {
-        purchaseOrder.dataItem = [{ yarn_count_id: '', quantity: '', unit_price: '' }];
-        purchaseOrder.supplier_id = '';
-        purchaseOrder.purchase_date = '';
-        purchaseOrder.challan_no = '';
-        purchaseOrder.document_link = null;
-        purchaseOrder.total_amount = 0;
-        purchaseOrder.payment_status = 0;
-        purchaseOrder.discount = 0;
-        purchaseOrder.discount_type = null;
-        purchaseOrder.status = 0;
-        purchaseOrder.description = '';
+        customerItems.dataItem = [{ yarn_count_id: '', quantity: '', unit_price: '' }];
+        customerItems.supplier_id = '';
+        customerItems.purchase_date = '';
+        customerItems.challan_no = '';
+        customerItems.document_link = null;
+        customerItems.total_amount = 0;
+        customerItems.payment_status = 0;
+        customerItems.discount = 0;
+        customerItems.discount_type = null;
+        customerItems.status = 0;
+        customerItems.description = '';
         showModal.value = false; // Close the modal after resetting
       };
   
       onMounted(() => {
-        getSuppliers();
+        getCustomer();
         getYarnCounts();
       });
   
       return {
-        suppliers,
+        customers,
         yarnCounts,
         url,
-        purchaseOrder,
+        customerItems,
         openModal,
         addItem,
         removeItem,
         saveItems,
-        getSuppliers,
+        getCustomer,
         handleFileUpload,
         getYarnCountName,
         submitForm,

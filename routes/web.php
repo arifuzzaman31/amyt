@@ -4,6 +4,7 @@ use App\Http\Controllers\AmytStockController;
 use App\Http\Controllers\Auth\AdminController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerGroupController;
+use App\Http\Controllers\CustomerStockController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PurchaseController;
@@ -39,11 +40,12 @@ Route::prefix('admin')->group(function () {
     Route::view('yarn-count-list', 'pages.yarn.yarn_list')->name('yarn-count-list');
     // amyt-stock-list
     Route::view('amyt-stock-list', 'pages.stock.amyt_stock')->name('amyt-stock-list');
-    Route::view('customer-stock-list', 'pages.stock.customer_stock')->name('customer-stock-list');
     //stock-list
+    Route::view('customer-stock-list', 'pages.stock.customer_stock')->name('customer-stock-list');
     Route::get('stock-list', [AmytStockController::class, 'stockList'])->name('stock-list');
     Route::post('purchase-to-stock/{id}', [AmytStockController::class, 'purchaseToStock'])->name('purchase-to-stock');
     Route::view('customer-stock-page','pages.stock.create_stock')->name('customer-stock-page');
+    Route::post('customer-stock-in', [CustomerStockController::class, 'stockIn'])->name('customer-stock-in');
 });
 
 // Removing the 'api' prefix group that was added

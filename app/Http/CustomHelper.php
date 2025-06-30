@@ -3,6 +3,7 @@
 use App\Http\AllStatic;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 
     function getParentCategory(){
         return [];
@@ -61,7 +62,7 @@ use Illuminate\Support\Facades\DB;
     }
 
     function getPermission(){
-        // return [];
+        return [];
         // return Cache::remember('admin_permission',60, function () {
             // $value = auth()->guard('admin')->user()->role->role_permission->pluck('slug');
             //  return auth()->guard('admin')->user()->role->role_permission->pluck('slug') ?? [] ;
@@ -145,6 +146,22 @@ use Illuminate\Support\Facades\DB;
     function rangDivider()
     {
 
+    }
+
+    /**
+     * Store the uploaded file.
+     *
+     * @param \Illuminate\Http\UploadedFile $file
+     * @param string $directory
+     * @return string|false
+     */
+    function storeFile(\Illuminate\Http\UploadedFile $file, string $directory)
+    {
+        if (!$file->isValid()) {
+            return false;
+        }
+        $fileName = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+        return $file->storeAs($directory, $fileName, 'public');
     }
 
 ?>

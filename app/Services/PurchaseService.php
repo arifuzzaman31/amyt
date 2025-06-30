@@ -3,12 +3,9 @@
 namespace App\Services;
 
 use App\CustomConst\AllStatic;
-use App\Models\AmytStock;
 use App\Models\Purchase;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Str;
 
 class PurchaseService
 {
@@ -40,14 +37,14 @@ class PurchaseService
         try {
             //code...
             if (isset($data['document_file']) && $data['document_file'] instanceof \Illuminate\Http\UploadedFile) {
-                $purchaseData['document_path'] = $this->storeFile($data['document_file'], 'purchases/documents');
+                $purchaseData['document_path'] = storeFile($data['document_file'], 'purchases/documents');
             }
             // Remove the file object itself, as we only want to store the path
             unset($purchaseData['document_file']);
 
 
             if (isset($data['image_file']) && $data['image_file'] instanceof \Illuminate\Http\UploadedFile) {
-                $purchaseData['image_path'] = $this->storeFile($data['image_file'], 'purchases/images');
+                $purchaseData['image_path'] = storeFile($data['image_file'], 'purchases/images');
             }
             // Remove the file object itself
             unset($purchaseData['image_file']);
@@ -110,7 +107,7 @@ class PurchaseService
             if ($purchase->document_path) {
                 Storage::disk('public')->delete($purchase->document_path);
             }
-            $updateData['document_path'] = $this->storeFile($data['document_file'], 'purchases/documents');
+            $updateData['document_path'] = storeFile($data['document_file'], 'purchases/documents');
             unset($updateData['document_file']);
         }
 
@@ -119,7 +116,7 @@ class PurchaseService
             if ($purchase->image_path) {
                 Storage::disk('public')->delete($purchase->image_path);
             }
-            $updateData['image_path'] = $this->storeFile($data['image_file'], 'purchases/images');
+            $updateData['image_path'] = storeFile($data['image_file'], 'purchases/images');
         }
         // Remove the file object itself
         unset($updateData['image_file']);
@@ -209,21 +206,5 @@ class PurchaseService
             return $purchase->delete();
         }
         return false;
-    }
-
-    /**
-     * Store the uploaded file.
-     *
-     * @param \Illuminate\Http\UploadedFile $file
-     * @param string $directory
-     * @return string|false
-     */
-    protected function storeFile(\Illuminate\Http\UploadedFile $file, string $directory)
-    {
-        if (!$file->isValid()) {
-            return false;
-        }
-        $fileName = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
-        return $file->storeAs($directory, $fileName, 'public');
     }
 }
