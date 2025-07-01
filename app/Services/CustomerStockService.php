@@ -9,8 +9,8 @@ class CustomerStockService
 {
     public function getAll($data)
     {
-        $perPage = $data->query('per_page', 10);
-        $stocks = \App\Models\CustomerStock::with(['yarnCount:id,name','customer:id,name'])->paginate($perPage);
+        $perPage = $data['per_page'] ?? 10;
+        $stocks = \App\Models\CustomerItem::with(['customer:id,name'])->paginate($perPage);
         return $stocks;
     }
 
@@ -25,15 +25,15 @@ class CustomerStockService
         $itemData = $data;
         try {
             //code...
-            if (isset($data['document_file']) && $data['document_file'] instanceof \Illuminate\Http\UploadedFile) {
-                $itemData['document_path'] = storeFile($data['document_file'], 'purchases/documents');
+            if (isset($data['document_link']) && $data['document_link'] instanceof \Illuminate\Http\UploadedFile) {
+                $itemData['document_link'] = storeFile($data['document_link'], 'purchases/documents');
             }
             // Remove the file object itself, as we only want to store the path
-            unset($itemData['document_file']);
+            unset($itemData['document_link']);
 
 
             if (isset($data['image_file']) && $data['image_file'] instanceof \Illuminate\Http\UploadedFile) {
-                $itemData['image_path'] = storeFile($data['image_file'], 'purchases/images');
+                $itemData['image_path'] = storeFile($data['image_file'], 'customer-item/images');
             }
             // Remove the file object itself
             unset($itemData['image_file']);
@@ -43,6 +43,9 @@ class CustomerStockService
 
             if (!isset($itemData['discount_type'])) {
                 $itemData['discount_type'] = null;
+            }
+            if (!isset($itemData['in_date'])) {
+                $itemData['in_date'] = now();
             }
             DB::beginTransaction();
             $stockItem = new CustomerItem();
@@ -55,7 +58,7 @@ class CustomerStockService
                     $stockItem->items()->save($item);
                 }
             }
-            $stockItem->load('items.yarn'); // Eager load items after creation
+            $stockItem->load('items.yarnCount'); // Eager load items after creation
             DB::commit();
             return $stockItem;
         } catch (\Throwable $th) {
@@ -63,30 +66,36 @@ class CustomerStockService
             throw $th;
         }
     }
-    public function stockIn($id)
+    public function itemStockIn($id)
     {
         try {
             $result = \App\Models\CustomerItem::with('items')->find($id);
             if (!$result) {
-                return res('error', 'No items found for this Stock.');
+                return ['status'=>false, 'message' =>'No items found' ];
             }
             // Create or update the stock entry
-            $result->items()->each(function ($item) {
-                $stock = \App\Models\CustomerStock::firstOrNew(['yarn_count_id' => $item->yarn_count_id]);
+            $result->items()->each(function ($item) use ($result) {
+                $stock = \App\Models\CustomerStock::firstOrNew([
+                    'yarn_count_id' => $item->yarn_count_id,
+                    'customer_id' => $result->customer_id
+                ]);
+                $stock->customer_id = $result->customer_id;
                 $stock->quantity += $item->quantity; // Increment the quantity
+                
                 $stock->save();
             });
             $result->is_stocked = AllStatic::ALL_STATIC['IS_STOCK']['STOCK'];
-            return response()->json([
+            $result->save(); // Save the updated customer item status
+            return [
                 'success' => true,
                 'message' => 'Stock updated successfully.'
-            ]);
+            ];
             //code...
         } catch (\Throwable $th) {
-            return response()->json([
+            return [
                 'success' => false,
                 'message' => $th->getMessage()
-            ], 500);
+            ];
         }
     }
     public function stockOut($data, $id)

@@ -17,7 +17,7 @@
                             <div class="form-group">
                               <label for="Stock_date">Date</label>
                               <input type="date" class="form-control mb-4" id="Stock_date"
-                                v-model="customerItems.purchase_date" />
+                                v-model="customerItems.in_date" />
                             </div>
                           </div>
                           <div class="col-md-4">
@@ -352,7 +352,7 @@
       });
   
       const submitForm = async() => {
-        console.log('Submitting Purchase Order:', customerItems);
+        console.log('Submitting Customer Stock record:', customerItems);
         const formData = new FormData();
         Object.keys(customerItems).forEach(key => {
           if (key === 'dataItem') {
@@ -366,10 +366,10 @@
       
         try {
           const response = await Axistance.post('customer-stock-in', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
-          alert(response.data.message);
+            alert(response.data.message || 'Customer Stock record created successfully!');
+            console.log(response.data);
           resetForm();
-          //redirect to purchase list
-          window.location.href = 'purchase-list';
+          window.location.href = 'customer-stock-list';
   
         } catch (error) {
           alert(error.response?.data?.message || 'An error occurred');
@@ -378,8 +378,8 @@
   
       const resetForm = () => {
         customerItems.dataItem = [{ yarn_count_id: '', quantity: '', unit_price: '' }];
-        customerItems.supplier_id = '';
-        customerItems.purchase_date = '';
+        customerItems.customer_id = '';
+        customerItems.in_date = '';
         customerItems.challan_no = '';
         customerItems.document_link = null;
         customerItems.total_amount = 0;

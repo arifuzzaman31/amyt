@@ -73,9 +73,6 @@
 
     @include('partials.footer-assets')
 
-    <script>
-        window.userPermission = "{{ getPermission() }}";
-    </script>
 
     @stack('script')
 

@@ -19,17 +19,41 @@
                         <thead>
                             <tr>
                                 <th class="">#</th>
-                                <th>Customer</th> 
-                                <th>Yarn</th> 
-                                <th>Quantity</th>
+                                <th>Challan No</th>
+                                <th>Date</th>
+                                <th>Customer</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             <tr v-for="stock in customerStockList" :key="stock.id">
                                 <td>{{ stock.id }}</td>
-                                <td>{{ stock.customer_id }}</td>
-                                <td>{{ stock.yarn_count?.name }}</td>
-                                <td>{{ stock.quantity}}</td>
+                                <td>{{ stock.challan_no }}</td>
+                                <td>{{ new Date(stock.in_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) }}</td>
+                                <td>{{ (stock.customer?.name || 'N/A') }}</td>
+                                <td>{{ formatCurrency(stock.total_amount) }}</td>
+                                <td class="status-cell">
+                                    <span :class="getStatusClass(stock.status)">
+                                        {{ getStatusLabel(stock.status) }}
+                                    </span>
+                                </td>
+                                <td class="text-center">
+                                    <div class="dropdown custom-dropdown">
+                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                                        </a>
+
+                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
+                                            <a type="button" :class="'dropdown-item ' + (getStatusLabel(stock.status) == 'Approved' ? 'disabled text-muted' : '')" @click="updateStatus(stock.id)" href="javascript:void(0);">Approved</a>
+                                            <a type="button" :class="'dropdown-item ' + (stock.is_stocked == 1 ? 'disabled text-muted' : '')" @click="loadToStock(stock.id)" href="javascript:void(0);">Load to Stock</a>
+                                            <a type="button" class="dropdown-item" @click="openEditModal(purchase)" href="javascript:void(0);">Edit</a>
+                                            <a type="button" class="dropdown-item" @click="deletePurchase(stock.id)" href="javascript:void(0);">Delete</a>
+                                        </div>
+                                    </div>
+                                    
+                                </td>
                             </tr>
                         </tbody>
                     </table>
@@ -74,6 +98,20 @@ const deleteCustomerStock = async (id) => {
             console.error('Error deleting purchase:', error);
             // Here you could add user-facing error handling.
         }
+    }
+}
+
+const loadToStock = (id) => {
+    if (confirm('Are you sure you want to load this customer to stock?')) {
+        Axistance.post(`customer-item-to-stock/${id}`)
+            .then((response,error) => {
+                alert(response.data.message || 'Purchase loaded to stock successfully.');
+                fetchPurchase();
+            })
+            .catch(error => {
+                console.error('Error loading purchase to stock:', error);
+                // Here you could add user-facing error handling, e.g., a toast notification.
+            });
     }
 }
 

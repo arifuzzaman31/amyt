@@ -17,17 +17,16 @@ class CustomerStockController extends Controller
 
     public function stockIn(Request $request)
     {
-        $validatedData = $request->validate([
+        $request->validate([
             'customer_id' => 'required|exists:customers,id',
-            'yarn_count_id' => 'required|exists:yarn_counts,id',
-            'quantity' => 'required|numeric|min:0',
-            'unit_price' => 'required|numeric|min:0',
+            'in_date' => 'required',
+            'dataItem.*.yarn_count_id' => 'required|exists:yarn_counts,id',
+            'dataItem.*.quantity' => 'required|numeric|min:0',
+            'dataItem.*.unit_price' => 'required|numeric|min:0'
         ]);
 
         try {
-            //code...
             $data = $request->all();
-            
             if ($request->hasFile('document_file')) {
                 $data['document_file'] = $request->file('document_file');
             }
@@ -43,11 +42,11 @@ class CustomerStockController extends Controller
             return response()->json(['message' => $th->getMessage()], Response::HTTP_BAD_REQUEST);
         }
     }
-    public function stockLoad($id)
+    public function loadTostockIn($id)
     {
         try {
-            $purchase = $this->stockService->stockIn($id);
-            return response()->json($purchase);
+            $purchase = $this->stockService->itemStockIn($id);
+            return response()->json($purchase, Response::HTTP_OK);
         } catch (\Throwable $th) {
             return response()->json(['message' => $th->getMessage()], Response::HTTP_NOT_FOUND);
         }
