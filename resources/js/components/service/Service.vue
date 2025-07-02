@@ -68,14 +68,14 @@
   
   <script setup>
   import { ref, onMounted } from 'vue'
-  import axios from 'axios'
+  import Axistance from '../../Axistance'
   
   const serviceList = ref([])
   const form = ref({ name: '' })
   const editingId = ref(null)
   
   const fetchServices = async () => {
-    const res = await axios.get(baseUrl+'service')
+    const res = await Axistance.get('service')
     serviceList.value = res.data
   }
   const openEditModal = (group) => {
@@ -85,9 +85,9 @@
   }
   const submitForm = async () => {
     if (editingId.value) {
-      await axios.put(baseUrl+`service/${editingId.value}`, form.value)
+      await Axistance.put(`service/${editingId.value}`, form.value)
     } else {
-      await axios.post(baseUrl+'service', form.value)
+      await Axistance.post('service', form.value)
     }
   
     form.value.name = ''
@@ -104,7 +104,7 @@
   
   const deleteService = async (id) => {
     if (confirm('Are you sure?')) {
-      await axios.delete(baseUrl+`service/${id}`)
+      await Axistance.delete(`service/${id}`)
       fetchServices()
     }
   }
