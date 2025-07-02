@@ -49,6 +49,7 @@ Route::prefix('admin')->group(function () {
     Route::post('customer-item-to-stock/{id}', [CustomerStockController::class, 'loadTostockIn'])->name('customer-item-to-stock');
     // Route for Service creation
     Route::view('create-service', 'pages.service.create_service')->name('create-service');
+    Route::view('attribute-list', 'pages.attribute.attribute')->name('attribute-list');
 });
 
 // Removing the 'api' prefix group that was added

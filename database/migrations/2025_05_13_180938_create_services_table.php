@@ -16,6 +16,9 @@ return new class extends Migration
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->date('service_date');
             $table->string('invoice_no');
+            $table->string('document_link')->nullable();
+            $table->longText('description')->nullable();
+            $table->longText('addition_info')->nullable();
             $table->decimal('discount')->nullable();
             $table->timestamps();
         });
@@ -25,13 +28,15 @@ return new class extends Migration
             $table->foreignId('service_id')->constrained()->onDelete('cascade');
             $table->foreignId('yarn_count_id')->constrained()->onDelete('cascade');
             $table->decimal('quantity');
+            $table->foreignId('unit_attr_id')->constrained('attributes')->onDelete('cascade');
             $table->decimal('unit_price');
             $table->decimal('extra_quantity')->nullable(); // [cite: 22]
             $table->decimal('extra_quantity_price')->nullable(); // [cite: 23]
-            $table->string('color')->nullable(); // [cite: 19]
-            $table->string('bag_poly')->nullable(); // Assuming this is how it's stored
+            $table->foreignId('color_id')->constrained('attributes')->onDelete('cascade');
+            //$table->string('bag_poly')->nullable(); // Assuming this is how it's stored
             $table->decimal('gross_weight')->nullable();  // [cite: 19]
-            $table->decimal('net_weight')->nullable();    // [cite: 19]
+            $table->decimal('net_weight')->nullable();
+            $table->foreignId('weight_attr_id')->constrained('attributes')->onDelete('cascade');    // [cite: 19]
             $table->integer('bobin')->nullable();         // [cite: 19]
             $table->string('remark')->nullable();         // [cite: 19, 21]
             $table->timestamps();

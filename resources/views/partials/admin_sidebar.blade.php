@@ -182,7 +182,7 @@
                     <ul class="collapse submenu list-unstyled" id="service" data-parent="#accordionExample">
                       
                             <li>
-                                <a href="">Challan/Invoice </a>
+                                <a href="{{ route('create-service') }}">Challan/Invoice </a>
                             </li>
            
                             <li>
@@ -213,12 +213,12 @@
                     <ul class="collapse submenu list-unstyled" id="settings" data-parent="#accordionExample">
                       
                             <li>
-                                <a href="">Branch Setting </a>
+                                <a href="{{ route('attribute-list')}}">Attribute </a>
                             </li>
            
-                            <li>
+                            {{-- <li>
                                 <a href="">Business Setting </a>
-                            </li>
+                            </li> --}}
                     </ul>
                 </li>
                 <li class="menu">
