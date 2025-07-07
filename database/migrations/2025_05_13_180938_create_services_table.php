@@ -18,9 +18,13 @@ return new class extends Migration
             $table->string('invoice_no');
             $table->string('document_link')->nullable();
             $table->longText('description')->nullable();
+            $table->tinyInteger('payment_status')->default(0)->comment('0=due,1=>paid,2=>refunded');
+            $table->decimal('discount')->default(0);
+            $table->tinyInteger('discount_type')->nullable()->comment('1=fixed,0=>percentage');
+            $table->tinyInteger('status')->default(0)->comment('0=pending,1=>approved,2=>rejected,3=>draft,4=>close'); // Paid or Due [cite: 2, 3]
             $table->longText('addition_info')->nullable();
-            $table->decimal('discount')->nullable();
             $table->timestamps();
+            $table->index(['invoice_no', 'service_date']);
         });
 
         Schema::create('service_items', function (Blueprint $table) { //renamed from sales_items

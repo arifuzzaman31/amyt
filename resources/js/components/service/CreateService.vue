@@ -131,9 +131,12 @@
                             <thead>
                               <tr>
                                 <th>Yarn Count</th>
+                                <th>Color</th>
                                 <th>Quantity</th>
-                                <th>Unit Price</th>
-                                <th>Subtotal</th>
+                                <th>Extra Quantity</th>
+                                <th>Gross Weight</th>
+                                <th>Bobin</th>
+                                <th>Remark</th>
                               </tr>
                             </thead>
                             <tbody>
@@ -262,7 +265,11 @@
         discount_type: null, // 0 for percentage, 1 for fixed
         status: 0,
         description: '',
-        dataItem: [{ yarn_count_id: '',attr_id:'', quantity: '', unit_price: '' }]
+        dataItem: [{ 
+          yarn_count_id: '',unit_attr_id:'', quantity: '', unit_price: '',
+          extra_quantity: '',extra_quantity_price:'', color_id: '', gross_weight: '',
+          net_weight: '',weight_attr_id:'', bobin: '', remark: ''
+        }]
       });
   
       const openModal = (event) => {
@@ -271,14 +278,18 @@
       };
   
       const addItem = () => {
-        serviceInfo.dataItem.push({ yarn_count_id: '', quantity: '', unit_price: '' });
+        serviceInfo.dataItem.push({ yarn_count_id: '',unit_attr_id:'', quantity: '', unit_price: '',
+          extra_quantity: '',extra_quantity_price:'', color_id: '', gross_weight: '',
+          net_weight: '',weight_attr_id:'', bobin: '', remark: '' });
       };
   
       const removeItem = (index) => {
         if (serviceInfo.dataItem.length > 1) {
           serviceInfo.dataItem.splice(index, 1);
         } else {
-          Object.assign(serviceInfo.dataItem[0], { yarn_count_id: '', quantity: '', unit_price: '' });
+          Object.assign(serviceInfo.dataItem[0], { yarn_count_id: '',unit_attr_id:'', quantity: '', unit_price: '',
+          extra_quantity: '',extra_quantity_price:'', color_id: '', gross_weight: '',
+          net_weight: '',weight_attr_id:'', bobin: '', remark: '' });
         }
       };
   
@@ -288,7 +299,7 @@
   
       const getSuppliers = async () => {
         try {
-          const response = await Axistance.get(baseUrl + 'supplier');
+          const response = await Axistance.get('supplier');
           suppliers.value = response.data;
         } catch (error) {
           console.error('Error fetching suppliers:', error);
@@ -297,7 +308,7 @@
   
       const getYarnCounts = async () => {
         try {
-          const response = await Axistance.get(baseUrl + 'yarn-count'); // Ensure this endpoint is correct
+          const response = await Axistance.get('yarn-count'); // Ensure this endpoint is correct
           yarnCounts.value = response.data.data;
         } catch (error) {
           console.error('Error fetching yarn counts:', error);
@@ -327,9 +338,9 @@
   
       const discountAmount = computed(() => {
         const discountValue = parseFloat(serviceInfo.discount) || 0;
-        if (serviceInfo.discount_type === '0') { // Percentage
+        if (serviceInfo.discount_type == '0') { // Percentage
           return (subTotal.value * discountValue) / 100;
-        } else if (serviceInfo.discount_type === '1') { // Fixed
+        } else if (serviceInfo.discount_type == '1') { // Fixed
           return discountValue;
         }
         return 0;
@@ -352,12 +363,12 @@
       });
   
       const submitForm = async() => {
-        console.log('Submitting Purchase Order:', serviceInfo);
+        console.log('Submitting Service Order:', serviceInfo);
         const formData = new FormData();
         Object.keys(serviceInfo).forEach(key => {
-          if (key === 'dataItem') {
+          if (key == 'dataItem') {
             formData.append(key, JSON.stringify(serviceInfo[key]));
-          } else if (key === 'document_link' && serviceInfo[key] instanceof File) {
+          } else if (key == 'document_link' && serviceInfo[key] instanceof File) {
             formData.append(key, serviceInfo[key], serviceInfo[key].name);
           } else {
             formData.append(key, serviceInfo[key]);
@@ -365,11 +376,11 @@
         });
       
         try {
-          const response = await Axistance.post(baseUrl + 'purchase', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+          const response = await Axistance.post('purchase', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
           alert(response.data.message);
           resetForm();
           //redirect to purchase list
-          window.location.href = baseUrl + 'purchase-list';
+          window.location.href = 'purchase-list';
   
         } catch (error) {
           alert(error.response?.data?.message || 'An error occurred');
@@ -377,7 +388,9 @@
       };
   
       const resetForm = () => {
-        serviceInfo.dataItem = [{ yarn_count_id: '', quantity: '', unit_price: '' }];
+        serviceInfo.dataItem = [{yarn_count_id: '',unit_attr_id:'', quantity: '', unit_price: '',
+          extra_quantity: '',extra_quantity_price:'', color_id: '', gross_weight: '',
+          net_weight: '',weight_attr_id:'', bobin: '', remark: ''}];
         serviceInfo.customer_id = '';
         serviceInfo.service_date = '';
         serviceInfo.invoice_no = '';
