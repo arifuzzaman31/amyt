@@ -12,6 +12,15 @@ class AttributeSeeder extends Seeder
      */
     public function run(): void
     {
-        //
+        //color, weight, size
+        $attributes = [
+            ['name' => 'Green', 'type' => 'color','group' => 'product'],
+            ['name' => 'Lbs', 'type' => 'weight','group' => 'product'],
+            ['name' => 'XLL', 'type' => 'size','group' => 'product'],
+            ['name' => 'Kg', 'type' => 'size','group' => 'product'],
+        ];
+        foreach ($attributes as $attribute) {
+            \App\Models\Attribute::create($attribute);
+        }
     }
 }

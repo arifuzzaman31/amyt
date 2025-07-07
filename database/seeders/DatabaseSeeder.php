@@ -17,6 +17,7 @@ class DatabaseSeeder extends Seeder
             CustomerSeeder::class, 
             SupplierSeeder::class, 
             ExpenseCategorySeeder::class,
+            AttributeSeeder::class,
             YarnCountSeeder::class
         ]);
         // User::factory(10)->create();
