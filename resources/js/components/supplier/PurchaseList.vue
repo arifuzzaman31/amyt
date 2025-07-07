@@ -23,6 +23,7 @@
                                 <th>Purchase Date</th>
                                 <th>Supplier</th>
                                 <th>Total</th>
+                                <th>IsStocked</th>
                                 <th>Status</th>
                                 <th class="text-center">Action</th>
                             </tr>
@@ -34,7 +35,12 @@
                                 <td>{{ new Date(purchase.purchase_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) }}</td>
                                 <td>{{ (purchase.supplier?.name || 'N/A') }}</td>
                                 <td>{{ formatCurrency(purchase.total_amount) }}</td>
-                                <td class="status-cell">
+                                <td>
+                                    <span :class="getStatusClass(purchase.is_stocked)">
+                                        {{ purchase.is_stocked == 0 ? 'Not Yet' : 'Stocked' }}
+                                    </span>
+                                </td>
+                                <td>
                                     <span :class="getStatusClass(purchase.status)">
                                         {{ getStatusLabel(purchase.status) }}
                                     </span>

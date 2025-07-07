@@ -23,6 +23,7 @@
                                 <th>Date</th>
                                 <th>Customer</th>
                                 <th>Total</th>
+                                <th>IsStocked</th>
                                 <th>Status</th>
                                 <th class="text-center">Action</th>
                             </tr>
@@ -34,7 +35,12 @@
                                 <td>{{ new Date(stock.in_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) }}</td>
                                 <td>{{ (stock.customer?.name || 'N/A') }}</td>
                                 <td>{{ formatCurrency(stock.total_amount) }}</td>
-                                <td class="status-cell">
+                                <td>
+                                    <span :class="getStatusClass(stock.is_stocked)">
+                                        {{ stock.is_stocked == 0 ? 'Not Yet' : 'Stocked' }}
+                                    </span>
+                                </td>
+                                <td>
                                     <span :class="getStatusClass(stock.status)">
                                         {{ getStatusLabel(stock.status) }}
                                     </span>

@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AmytStockController;
+use App\Http\Controllers\AttributeController;
 use App\Http\Controllers\Auth\AdminController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerGroupController;
@@ -50,6 +51,7 @@ Route::prefix('admin')->group(function () {
     // Route for Service creation
     Route::view('create-service', 'pages.service.create_service')->name('create-service');
     Route::view('attribute-list', 'pages.attribute.attribute')->name('attribute-list');
+    Route::resource('attribute', AttributeController::class);
 });
 
 // Removing the 'api' prefix group that was added
