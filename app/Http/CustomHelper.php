@@ -161,6 +161,9 @@ use Illuminate\Support\Str;
             return false;
         }
         $fileName = Str::uuid()->toString() . '.' . $file->getClientOriginalExtension();
+        if (!is_dir(public_path('storage/' . $directory))) {
+            mkdir(public_path('storage/' . $directory), 0755, true);
+        }
         return $file->storeAs($directory, $fileName, 'public');
     }
 
