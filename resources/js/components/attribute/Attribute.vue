@@ -127,19 +127,25 @@ const openEditModal = (attr) => {
   $('#attributeModal').modal('show')
 }
 const submitForm = async () => {
-  if (editingId.value) {
-    await Axistance.put(`attribute/${editingId.value}`, form.value)
-  } else {
-    await Axistance.post('attribute', form.value)
+  try {
+    let resp;
+    if (editingId.value) {
+      resp = await Axistance.put(`attribute/${editingId.value}`, form.value)
+    } else {
+      resp = await Axistance.post('attribute', form.value)
+    }
+    
+    alert(resp.data.message || 'Operation successful')
+    form.value.name = ''
+    form.value.type = ''
+    form.value.group = 'product'
+    form.value.is_active = 1
+    editingId.value = null
+    fetchAttribute()
+    $('#attributeModal').modal('hide')
+  } catch (error) {
+    alert(error.response?.data?.message || 'An error occurred')
   }
-
-  form.value.name = ''
-  form.value.type = ''
-  form.value.group = 'product'
-  form.value.is_active = 1
-  editingId.value = null
-  fetchAttribute()
-  $('#attributeModal').modal('hide')
 }
 
 const editGroup = (group) => {

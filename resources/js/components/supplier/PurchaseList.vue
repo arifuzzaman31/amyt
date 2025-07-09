@@ -119,7 +119,7 @@ const loadToStock = (id) => {
 
 const fetchPurchase = async () => {
     try {
-        const res = await Axistance.get(baseUrl + 'purchase')
+        const res = await Axistance.get('purchase')
         purchaseList.value = res.data
     } catch (error) {
         console.error('Error fetching purchases:', error);
@@ -130,7 +130,7 @@ const fetchPurchase = async () => {
 const deletePurchase = async (id) => {
     if (confirm('Are you sure?')) {
         try {
-            await Axistance.delete(baseUrl + `purchase/${id}`);
+            await Axistance.delete(`purchase/${id}`);
             fetchPurchase();
         } catch (error) {
             console.error('Error deleting purchase:', error);

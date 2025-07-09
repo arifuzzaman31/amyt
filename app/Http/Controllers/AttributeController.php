@@ -15,11 +15,21 @@ class AttributeController extends Controller
     }
     public function store(Request $request)
     {
-        $request->validate([
-            'name' => 'required|string|max:255'
-        ]);
-
-        return $this->model::create($request->all());
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255'
+            ]);
+    
+            $result = $this->model::create($request->all());
+            if (!$result) {
+                return response()->json(['status' => false, 'message' => 'Attribute not added'], 500);
+            }
+            // If the attribute is successfully created, return a success response
+            return response()->json(['status' => true, 'message' => 'Attribute added Successfully'], 201);
+            //code...
+        } catch (\Throwable $th) {
+            return response()->json(['status' => false, 'message' => $th->getMessage()], 500);   
+        }
     }
 
     public function show($id)

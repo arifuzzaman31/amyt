@@ -13,7 +13,7 @@ class SalesService
 
     public function getAllServices()
     {
-        return $this->serviceModel::all();
+        return $this->serviceModel::with('customer:id,name')->get();
     }
 
     public function createService(array $data)

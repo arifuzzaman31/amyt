@@ -20,4 +20,10 @@ class Customer extends Model
     {
         return $this->hasMany(CustomerStock::class);
     }
+    
+    public function attributes()
+    {
+        return $this->hasMany(Attribute::class);
+    }
+
 }
