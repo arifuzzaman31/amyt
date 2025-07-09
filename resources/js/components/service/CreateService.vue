@@ -4,7 +4,7 @@
 
       <div class="account-content">
         <div class="scrollspy-example" data-spy="scroll" data-target="#account-settings-scroll" data-offset="-100">
-          <form id="purchase-form" @submit.prevent="submitForm()">
+          <form id="service-form" @submit.prevent="submitForm()">
             <div class="row">
               <div class="col-xl-12 col-lg-12 col-md-12">
                 <div class="info section form-section-styled">
@@ -16,7 +16,7 @@
                         <div class="col-md-4">
                           <div class="form-group">
                             <label for="service_date">Service Date</label>
-                            <input type="service_date" class="form-control mb-4" id="service_date"
+                            <input type="date" class="form-control mb-4" id="service_date"
                               v-model="serviceInfo.service_date" />
                           </div>
                         </div>
@@ -51,7 +51,7 @@
                         <div class="col-md-12">
                           <div class="form-group">
                             <label for="description">Description</label>
-                            <textarea class="form-control" placeholder="Description for the purchase order" rows="3"
+                            <textarea class="form-control" placeholder="Description for the service order" rows="3"
                               v-model="serviceInfo.description"></textarea>
                           </div>
                         </div>
@@ -255,12 +255,12 @@ export default {
       total_amount: 0, // This will be upservice_dated by grandTotal watcher
       payment_status: 0,
       discount: 0,
-      discount_type: null, // 0 for percentage, 1 for fixed
+      discount_type: 0, // 0 for percentage, 1 for fixed
       status: 0,
       description: '',
       dataItem: [{
-        yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: '',
-        extra_quantity: '', extra_quantity_price: '', color_id: '', gross_weight: '',
+        yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
+        extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
         net_weight: '', weight_attr_id: '', bobin: '', remark: ''
       }]
     });
@@ -272,8 +272,8 @@ export default {
 
     const addItem = () => {
       serviceInfo.dataItem.push({
-        yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: '',
-        extra_quantity: '', extra_quantity_price: '', color_id: '', gross_weight: '',
+        yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
+        extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
         net_weight: '', weight_attr_id: '', bobin: '', remark: ''
       });
     };
@@ -283,8 +283,8 @@ export default {
         serviceInfo.dataItem.splice(index, 1);
       } else {
         Object.assign(serviceInfo.dataItem[0], {
-          yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: '',
-          extra_quantity: '', extra_quantity_price: '', color_id: '', gross_weight: '',
+          yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
+          extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
           net_weight: '', weight_attr_id: '', bobin: '', remark: ''
         });
       }
@@ -366,14 +366,11 @@ const totalBobin = computed(() =>
   serviceInfo.dataItem.reduce((sum, item) => sum + (item.bobin || 0), 0)
 );
     const hasAddedItems = computed(() => {
-      // An item is considered "added" or "meaningful" if it has a yarn_count_id selected.
-      // This aligns with the logic for showing the "Added Items" table and
-      // handles the fact that dataItem always has at least one (potentially blank) entry.
       return serviceInfo.dataItem.some(item => item.yarn_count_id);
     });
 
     const submitForm = async () => {
-      console.log('Submitting Service Order:', serviceInfo);
+      // console.log('Submitting Service Order:', serviceInfo);
       const formData = new FormData();
       Object.keys(serviceInfo).forEach(key => {
         if (key == 'dataItem') {
@@ -386,11 +383,11 @@ const totalBobin = computed(() =>
       });
 
       try {
-        const response = await Axistance.post('purchase', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        const response = await Axistance.post('service', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         alert(response.data.message);
         resetForm();
-        //redirect to purchase list
-        window.location.href = 'purchase-list';
+        //redirect to service list
+        window.location.href = 'service-list';
 
       } catch (error) {
         alert(error.response?.data?.message || 'An error occurred');
@@ -399,8 +396,8 @@ const totalBobin = computed(() =>
 
     const resetForm = () => {
       serviceInfo.dataItem = [{
-        yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: '',
-        extra_quantity: '', extra_quantity_price: '', color_id: '', gross_weight: '',
+        yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
+        extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
         net_weight: '', weight_attr_id: '', bobin: '', remark: ''
       }];
       serviceInfo.customer_id = '';
@@ -410,7 +407,7 @@ const totalBobin = computed(() =>
       serviceInfo.total_amount = 0;
       serviceInfo.payment_status = 0;
       serviceInfo.discount = 0;
-      serviceInfo.discount_type = null;
+      serviceInfo.discount_type = 0;
       serviceInfo.status = 0;
       serviceInfo.description = '';
       showModal.value = false; // Close the modal after resetting

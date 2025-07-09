@@ -46,4 +46,12 @@ class ServiceItem extends Model
     {
         return $this->belongsTo(Attribute::class);
     }
+    public function getUnitPriceAttribute($value)
+    {
+        return number_format($value, 2);
+    }
+    public function getTotalPriceAttribute($value)
+    {
+        return number_format($value, 2);
+    }
 }
