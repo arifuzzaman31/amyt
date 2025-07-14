@@ -4,14 +4,14 @@
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title" id="editServiceModalLabel">Edit Purchase</h5>
+                    <h5 class="modal-title" id="editServiceModalLabel">Edit Service</h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close" @click="closeModal">
                         <span aria-hidden="true">&times;</span>
                     </button>
                 </div>
                 <div class="modal-body">
                     <div class="statbox widget box box-shadow">
-                        <form id="service-form" @submit.prevent="submitForm()">
+                        <form id="service-form" @submit.prevent="submitUpdateForm()">
                             <div class="row">
                                 <div class="col-xl-12 col-lg-12 col-md-12">
                                     <div class="info section form-section-styled">
@@ -149,7 +149,7 @@
                                     </div>
                                 </div>
                                 <div class="col-xl-4 offset-4 col-lg-4 col-md-4">
-                                    <button type="submit" class="btn btn-success btn-block">Submit</button>
+                                    <button type="submit" class="btn btn-success btn-block">Update</button>
                                 </div>
                             </div>
                         </form>
@@ -301,7 +301,7 @@ const emit = defineEmits(['service-updated', 'close-modal']);
 const yarnCounts = ref([]);
 
 const form = ref({
-    customer_id: '',
+      customer_id: '',
       service_date: '',
       invoice_no: '',
       document_link: null,
@@ -320,7 +320,9 @@ const form = ref({
 
 watch(() => props.service, (newVal) => {
     if (newVal) {
-        form.value = { ...newVal, items: newVal.items && newVal.items.length ? newVal.items : [{ yarn_count_id: '', quantity: '', unit_price: '' }] };
+        form.value = { ...newVal, items: newVal.items && newVal.items.length ? newVal.items : [{yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
+        extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
+        net_weight: '', weight_attr_id: '', bobin: '', remark: ''}] };
         nextTick(() => {
             $('#editServiceModal').modal('show');
         });
@@ -328,7 +330,7 @@ watch(() => props.service, (newVal) => {
 }, { immediate: true, deep: true });
 
 const subTotal = computed(() => {
-    return form.value.items.reduce((acc, item) => {
+    return form.value.dataItem.reduce((acc, item) => {
         const quantity = parseFloat(item.quantity) || 0;
         const price = parseFloat(item.unit_price) || 0;
         return acc + (quantity * price);
@@ -355,16 +357,18 @@ watch(grandTotal, (newTotal) => {
 
 
 const addItem = () => {
-    form.value.items.push({ yarn_count_id: '', quantity: '', unit_price: '' });
+    form.value.dataItem.push({yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
+        extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
+        net_weight: '', weight_attr_id: '', bobin: '', remark: ''});
 };
 
 const removeItem = (index) => {
-    if (form.value.items.length > 1) {
-        form.value.items.splice(index, 1);
+    if (form.value.dataItem.length > 1) {
+        form.value.dataItem.splice(index, 1);
     }
 };
 
-const submitForm = async () => {
+const submitUpdateForm = async () => {
     await Axistance.put(`service/${form.value.id}`, form.value);
     emit('service-updated');
     closeModal();

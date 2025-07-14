@@ -180,9 +180,14 @@
                                 {{ attr.name }}
                               </option>
                             </select>
+                            <input v-model.number="item.unit_price" class="form-control form-control-sm" type="number"
+                              placeholder="Unit Price">
                           </td>
                           <td><input v-model.number="item.extra_quantity" class="form-control" type="number"
-                              placeholder="Extra Quantity"></td>
+                              placeholder="Extra Quantity">
+                            <input v-model.number="item.extra_quantity_price" class="form-control form-control-sm" type="number"
+                              placeholder="Extra Quantity Price">
+                            </td>
                           <td><input v-model.number="item.gross_weight" class="form-control form-control-sm"
                               type="number" placeholder="Gross Weight">
                             <select v-model="item.weight_attr_id" class="form-control form-control-sm mt-1">

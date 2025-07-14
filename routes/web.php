@@ -14,12 +14,8 @@ use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\YarnController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('welcome');
-});
-
 Route::prefix('admin')->group(function () {
-    Route::view('dashboard','pages.dashboard');
+    Route::view('dashboard', 'pages.dashboard');
     Route::resource('customer', CustomerController::class);
     Route::view('customer-list', 'pages.customer.customer')->name('customer-list');
     Route::resource('customer-groups', CustomerGroupController::class);
@@ -45,7 +41,7 @@ Route::prefix('admin')->group(function () {
     Route::view('customer-stock-list', 'pages.stock.customer_stock')->name('customer-stock-list');
     Route::get('stock-list', [AmytStockController::class, 'stockList'])->name('stock-list');
     Route::post('purchase-to-stock/{id}', [AmytStockController::class, 'purchaseToStock'])->name('purchase-to-stock');
-    Route::view('customer-stock-page','pages.stock.create_stock')->name('customer-stock-page');
+    Route::view('customer-stock-page', 'pages.stock.create_stock')->name('customer-stock-page');
     Route::post('customer-stock-in', [CustomerStockController::class, 'stockIn'])->name('customer-stock-in');
     Route::post('customer-item-to-stock/{id}', [CustomerStockController::class, 'loadTostockIn'])->name('customer-item-to-stock');
     // Route for Service creation
@@ -54,18 +50,12 @@ Route::prefix('admin')->group(function () {
     Route::resource('attribute', AttributeController::class);
 });
 
-// Removing the 'api' prefix group that was added
-// Route::prefix('api')->group(function () {
-//     Route::resource('yarns', YarnController::class)->except(['create', 'edit']);
-//     Route::get('all-yarns', [YarnController::class, 'allYarns']);
-// });
-
 Route::get('logout', [AdminController::class, 'logout'])->name('logout');
 Route::view('change-password', 'admin.change_password')->name('change-password');
 Route::post('change-password', [AdminController::class, 'changePassword']);
 Route::redirect('/', 'login');
 
-Route::get('get-token', [AdminController::class,'testa']);
+Route::get('get-token', [AdminController::class, 'testa']);
 
 Route::get('login', function () {
     return view('admin.login');
@@ -74,5 +64,5 @@ Route::get('login', function () {
 Route::post('login', [AdminController::class, 'login'])->name('login');
 Route::view('forgot-password', 'admin.forgot_password')->name('forgot-password');
 Route::post('send-reset-mail', [AdminController::class, 'resetMail'])->name('send-reset-mail');
-Route::get('enter-password', [AdminController::class,'enterPassword'])->name('reset.password.enter');
-Route::post('enter-password', [AdminController::class,'store'])->name('reset.password.enter');
+Route::get('enter-password', [AdminController::class, 'enterPassword'])->name('reset.password.enter');
+Route::post('enter-password', [AdminController::class, 'store'])->name('reset.password.enter');
