@@ -65,21 +65,13 @@ const fetchServices = async () => {
   serviceList.value = res.data
 }
 const openEditModal = (service) => {
-    selectedService.value = service;
+    fetchSingleService(service.id)
+    // selectedService.value = service;
 }
-const submitForm = async () => {
-  if (editingId.value) {
-    await Axistance.put(`service/${editingId.value}`, form.value)
-  } else {
-    await Axistance.post('service', form.value)
-  }
-
-  form.value.name = ''
-  editingId.value = null
-  fetchServices()
-  $('#serviceModal').modal('hide')
+const fetchSingleService = async (id) => {
+  const res = await Axistance.get(`service/${id}`)
+  selectedService.value = res.data
 }
-
 const editGroup = (service) => {
   form.value.name = service.name
   editingId.value = service.id

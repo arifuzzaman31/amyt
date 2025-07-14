@@ -113,6 +113,6 @@ class SalesService
 
     public function getServiceItems($serviceId)
     {
-        return $this->serviceItemModel::where('service_id', $serviceId)->get();
+        return $this->serviceModel::with('items')->findOrFail($serviceId);
     }
 }

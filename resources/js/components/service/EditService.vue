@@ -83,10 +83,9 @@
                                                     Item</button>
                                             </div>
 
-                                            <div class="modal-backdrop fade show" v-if="showModal"
-                                                @click="showModal = false"></div>
+                                            <div class="modal-backdrop fade show"></div>
                                             <!-- Display Added Items -->
-                                            <div class="work-section mt-3" v-if="hasAddedItems">
+                                            <div class="work-section mt-3">
                                                 <h6>Added Items:</h6>
                                                 <div class="table-responsive">
                                                     <table class="table table-bordered table-striped mb-4">
@@ -141,9 +140,7 @@
                                                     </table>
                                                 </div>
                                             </div>
-                                            <div v-else class="work-section mt-3">
-                                                <p>No items added yet.</p>
-                                            </div>
+                                           
 
                                         </div>
                                     </div>
@@ -154,13 +151,13 @@
                             </div>
                         </form>
                         <!-- Modal -->
-                        <div class="modal fade" :class="{ 'show d-block': showModal }" tabindex="-1" role="dialog"
+                        <div class="modal fade" tabindex="-1" role="dialog"
                             aria-labelledby="addItemModalLabel" aria-hidden="true">
                             <div class="modal-dialog modal-xl" role="document">
                                 <div class="modal-content">
                                     <div class="modal-header">
                                         <h5 class="modal-title" id="addItemModalLabel">Add/Edit Items</h5>
-                                        <button type="button" class="close" @click="showModal = false"
+                                        <button type="button" class="close"
                                             aria-label="Close">
                                             <span aria-hidden="true">&times;</span>
                                         </button>
@@ -273,7 +270,7 @@
                                     </div>
                                     <div class="modal-footer">
                                         <button type="button" class="btn btn-secondary"
-                                            @click="showModal = false">Close</button>
+                                            >Close</button>
                                         <button type="button" class="btn btn-primary" @click="saveItems">Done</button>
                                     </div>
                                 </div>
@@ -299,8 +296,9 @@ const props = defineProps({
 
 const emit = defineEmits(['service-updated', 'close-modal']);
 const yarnCounts = ref([]);
-
-const form = ref({
+const customers = ref([]);
+const attributes = ref([]);
+const serviceInfo = ref({
       customer_id: '',
       service_date: '',
       invoice_no: '',
@@ -311,16 +309,12 @@ const form = ref({
       discount_type: 0, // 0 for percentage, 1 for fixed
       status: 0,
       description: '',
-      dataItem: [{
-        yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
-        extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
-        net_weight: '', weight_attr_id: '', bobin: '', remark: ''
-      }]
+      dataItem: []
 });
 
 watch(() => props.service, (newVal) => {
     if (newVal) {
-        form.value = { ...newVal, items: newVal.items && newVal.items.length ? newVal.items : [{yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
+        serviceInfo.value = { ...newVal, dataItem: newVal.items && newVal.items.length ? newVal.items : [{yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
         extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
         net_weight: '', weight_attr_id: '', bobin: '', remark: ''}] };
         nextTick(() => {
@@ -329,47 +323,40 @@ watch(() => props.service, (newVal) => {
     }
 }, { immediate: true, deep: true });
 
-const subTotal = computed(() => {
-    return form.value.dataItem.reduce((acc, item) => {
-        const quantity = parseFloat(item.quantity) || 0;
-        const price = parseFloat(item.unit_price) || 0;
-        return acc + (quantity * price);
-    }, 0);
-});
 
-const discountAmount = computed(() => {
-    const discountValue = parseFloat(form.value.discount) || 0;
-    if (form.value.discount_type == 0) { // Percentage
-        return (subTotal.value * discountValue) / 100;
-    } else if (form.value.discount_type == 1) { // Fixed
-        return discountValue;
-    }
-    return 0;
-});
+const getYarnCountName = (id) => {
+      const found = yarnCounts.value.find(yc => yc.id == id);
+      return found ? found.name : 'N/A';
+    };
 
-const grandTotal = computed(() => {
-    return subTotal.value - discountAmount.value;
-});
+    const getAttrName = (id, attr) => {
+      const found = attributes.value?.[attr]?.find(yc => yc.id == id);
+      return found ? found.name : 'N/A';
+    };
 
-watch(grandTotal, (newTotal) => {
-    form.value.total_amount = newTotal;
-});
-
+const getCustomer = async () => {
+      try {
+        const response = await Axistance.get('customer');
+        customers.value = response.data;
+      } catch (error) {
+        console.error('Error fetching customer:', error);
+      }
+    };
 
 const addItem = () => {
-    form.value.dataItem.push({yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
+    serviceInfo.value.dataItem.push({yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
         extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
         net_weight: '', weight_attr_id: '', bobin: '', remark: ''});
 };
 
 const removeItem = (index) => {
-    if (form.value.dataItem.length > 1) {
-        form.value.dataItem.splice(index, 1);
+    if (serviceInfo.value.dataItem.length > 1) {
+        serviceInfo.value.dataItem.splice(index, 1);
     }
 };
 
 const submitUpdateForm = async () => {
-    await Axistance.put(`service/${form.value.id}`, form.value);
+    await Axistance.put(`service/${serviceInfo.value.id}`, serviceInfo.value);
     emit('service-updated');
     closeModal();
 };
@@ -390,6 +377,7 @@ const getYarnCounts = async () => {
 
 onMounted(() => {
     getYarnCounts();
+    getCustomer();
     $('#editServiceModal').on('hidden.bs.modal', () => {
         emit('close-modal');
     });

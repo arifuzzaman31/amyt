@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class AdminController extends Controller
 {
@@ -17,8 +18,9 @@ class AdminController extends Controller
         try {
             $credentials = $request->only('email', 'password');
             if (Auth::attempt($credentials)) {
-                return redirect()->route('admin.dashboard');
+                return redirect('admin/dashboard');
             }
+            return "Invalid credentials";
             return redirect()->back()->withErrors(['email' => 'Invalid credentials'])->withInput($request->only('email'));
         } catch (\Throwable $th) {
             return redirect()->back()->withErrors(['error' => 'An error occurred while logging in'])->withInput($request->only('email'));
@@ -29,7 +31,6 @@ class AdminController extends Controller
     public function logout()
     {
         Auth::logout();
-        return redirect()->route('login');
         return redirect()->route('login');
     }
 
