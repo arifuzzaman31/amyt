@@ -95,7 +95,8 @@
                               <td>{{ getAttrName(addedItem.color_id, 'color') }}</td>
                               <td>{{ addedItem.quantity }} {{ getAttrName(addedItem.unit_attr_id, 'weight') }}</td>
                               <td>{{ addedItem.extra_quantity }}</td>
-                              <td>{{ addedItem.gross_weight }} {{ getAttrName(addedItem.weight_attr_id, 'weight') }}</td>
+                              <td>{{ addedItem.gross_weight }} {{ getAttrName(addedItem.weight_attr_id, 'weight') }}
+                              </td>
                               <td>{{ addedItem.net_weight }} {{ getAttrName(addedItem.weight_attr_id, 'weight') }}</td>
                               <td>{{ addedItem.bobin }}</td>
                               <td>{{ addedItem.remark }}</td>
@@ -104,10 +105,13 @@
                           <tfoot>
                             <tr class="font-weight-bold">
                               <td colspan="2" class="text-right">Total:</td>
-                              <td>{{ totalQuantity }}/{{ getAttrName(serviceInfo.dataItem[0].unit_attr_id, 'weight') }}</td>
+                              <td>{{ totalQuantity }}/{{ getAttrName(serviceInfo.dataItem[0].unit_attr_id, 'weight') }}
+                              </td>
                               <td>{{ totalExtraQuantity }}</td>
-                              <td>{{ totalGrossWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id, 'weight') }}</td>
-                              <td>{{ totalNetWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id, 'weight') }}</td>
+                              <td>{{ totalGrossWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id,
+                                'weight') }}</td>
+                              <td>{{ totalNetWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id, 'weight')
+                                }}</td>
                               <td>{{ totalBobin }}</td>
                               <td></td>
                             </tr>
@@ -185,9 +189,9 @@
                           </td>
                           <td><input v-model.number="item.extra_quantity" class="form-control" type="number"
                               placeholder="Extra Quantity">
-                            <input v-model.number="item.extra_quantity_price" class="form-control form-control-sm" type="number"
-                              placeholder="Extra Quantity Price">
-                            </td>
+                            <input v-model.number="item.extra_quantity_price" class="form-control form-control-sm"
+                              type="number" placeholder="Extra Quantity Price">
+                          </td>
                           <td><input v-model.number="item.gross_weight" class="form-control form-control-sm"
                               type="number" placeholder="Gross Weight">
                             <select v-model="item.weight_attr_id" class="form-control form-control-sm mt-1">
@@ -264,9 +268,9 @@ export default {
       status: 0,
       description: '',
       dataItem: [{
-        yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
-        extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
-        net_weight: '', weight_attr_id: '', bobin: '', remark: ''
+        yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
+        extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
+        net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
       }]
     });
 
@@ -277,9 +281,9 @@ export default {
 
     const addItem = () => {
       serviceInfo.dataItem.push({
-        yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
-        extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
-        net_weight: '', weight_attr_id: '', bobin: '', remark: ''
+        yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
+        extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
+        net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
       });
     };
 
@@ -288,9 +292,9 @@ export default {
         serviceInfo.dataItem.splice(index, 1);
       } else {
         Object.assign(serviceInfo.dataItem[0], {
-          yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
-          extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
-          net_weight: '', weight_attr_id: '', bobin: '', remark: ''
+          yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
+          extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
+          net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
         });
       }
     };
@@ -352,24 +356,24 @@ export default {
 
     // Computed Properties for Totals
     const totalQuantity = computed(() =>
-  serviceInfo.dataItem.reduce((sum, item) => sum + (item.quantity || 0), 0)
-);
+      serviceInfo.dataItem.reduce((sum, item) => sum + (item.quantity || 0), 0)
+    );
 
-const totalExtraQuantity = computed(() =>
-  serviceInfo.dataItem.reduce((sum, item) => sum + (item.extra_quantity || 0), 0)
-);
+    const totalExtraQuantity = computed(() =>
+      serviceInfo.dataItem.reduce((sum, item) => sum + (item.extra_quantity || 0), 0)
+    );
 
-const totalGrossWeight = computed(() =>
-  serviceInfo.dataItem.reduce((sum, item) => sum + (item.gross_weight || 0), 0)
-);
+    const totalGrossWeight = computed(() =>
+      serviceInfo.dataItem.reduce((sum, item) => sum + (item.gross_weight || 0), 0)
+    );
 
-const totalNetWeight = computed(() =>
-  serviceInfo.dataItem.reduce((sum, item) => sum + (item.net_weight || 0), 0)
-);
+    const totalNetWeight = computed(() =>
+      serviceInfo.dataItem.reduce((sum, item) => sum + (item.net_weight || 0), 0)
+    );
 
-const totalBobin = computed(() =>
-  serviceInfo.dataItem.reduce((sum, item) => sum + (item.bobin || 0), 0)
-);
+    const totalBobin = computed(() =>
+      serviceInfo.dataItem.reduce((sum, item) => sum + (item.bobin || 0), 0)
+    );
     const hasAddedItems = computed(() => {
       return serviceInfo.dataItem.some(item => item.yarn_count_id);
     });
@@ -401,9 +405,9 @@ const totalBobin = computed(() =>
 
     const resetForm = () => {
       serviceInfo.dataItem = [{
-        yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
-        extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
-        net_weight: '', weight_attr_id: '', bobin: '', remark: ''
+        yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
+        extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
+        net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
       }];
       serviceInfo.customer_id = '';
       serviceInfo.service_date = '';

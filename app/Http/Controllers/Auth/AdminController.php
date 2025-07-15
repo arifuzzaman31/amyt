@@ -20,7 +20,6 @@ class AdminController extends Controller
             if (Auth::attempt($credentials)) {
                 return redirect('admin/dashboard');
             }
-            return "Invalid credentials";
             return redirect()->back()->withErrors(['email' => 'Invalid credentials'])->withInput($request->only('email'));
         } catch (\Throwable $th) {
             return redirect()->back()->withErrors(['error' => 'An error occurred while logging in'])->withInput($request->only('email'));

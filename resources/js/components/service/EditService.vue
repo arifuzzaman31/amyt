@@ -1,6 +1,6 @@
 <template>
-    <div class="modal fade" id="editServiceModal" tabindex="-1" role="dialog" aria-labelledby="editServiceModalLabel"
-        aria-hidden="true">
+    <div class="modal animated rotateInDownLeft custo-rotateInDownLeft show" id="editServiceModal" tabindex="-1"
+        role="dialog" aria-labelledby="editServiceModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-xl" role="document">
             <div class="modal-content">
                 <div class="modal-header">
@@ -77,13 +77,6 @@
                                     <!-- Item List Section -->
                                     <div class="section item-list-section form-section-styled">
                                         <div class="info">
-                                            <div class="d-flex justify-content-between align-items-center">
-                                                <h5 class="">Item List</h5>
-                                                <button type="button" class="btn btn-primary" @click="openModal">Add
-                                                    Item</button>
-                                            </div>
-
-                                            <div class="modal-backdrop fade show"></div>
                                             <!-- Display Added Items -->
                                             <div class="work-section mt-3">
                                                 <h6>Added Items:</h6>
@@ -99,25 +92,115 @@
                                                                 <th>Net Weight</th>
                                                                 <th>Bobin</th>
                                                                 <th>Remark</th>
+                                                                <th>Remove</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
-                                                            <tr v-for="addedItem in serviceInfo.dataItem"
-                                                                :key="addedItem.yarn_count_id">
-                                                                <td>{{ getYarnCountName(addedItem.yarn_count_id) }}</td>
-                                                                <td>{{ getAttrName(addedItem.color_id, 'color') }}</td>
-                                                                <td>{{ addedItem.quantity }} {{
-                                                                    getAttrName(addedItem.unit_attr_id, 'weight') }}
+                                                            <tr v-for="(addedItem, index) in serviceInfo.dataItem"
+                                                                :key="index">
+                                                                <td>
+                                                                    <select v-model="addedItem.yarn_count_id"
+                                                                        class="form-control">
+                                                                        <option value="">Select Yarn Count</option>
+                                                                        <option v-for="yc in yarnCounts" :key="yc.id"
+                                                                            :value="yc.id">
+                                                                            {{ yc.name }}
+                                                                            <!-- Assuming yarn count object has a 'name' property -->
+                                                                        </option>
+                                                                    </select>
                                                                 </td>
-                                                                <td>{{ addedItem.extra_quantity }}</td>
-                                                                <td>{{ addedItem.gross_weight }} {{
-                                                                    getAttrName(addedItem.weight_attr_id, 'weight') }}
+                                                                <td>
+                                                                    <select v-model="addedItem.color_id"
+                                                                        class="form-control">
+                                                                        <option value="">Select Color</option>
+                                                                        <option v-for="attr in attributes?.color"
+                                                                            :key="attr.id" :value="attr.id">
+                                                                            {{ attr.name }}
+                                                                        </option>
+                                                                    </select>
                                                                 </td>
-                                                                <td>{{ addedItem.net_weight }} {{
-                                                                    getAttrName(addedItem.weight_attr_id, 'weight') }}
+                                                                <td>
+                                                                    <input v-model.number="addedItem.quantity"
+                                                                        class="form-control form-control-sm"
+                                                                        type="number" placeholder="Quantity">
+                                                                    <select v-model="addedItem.unit_attr_id"
+                                                                        class="form-control form-control-sm my-1">
+                                                                        <option value="">Select Unit</option>
+                                                                        <option v-for="attr in attributes?.weight"
+                                                                            :key="attr.id" :value="attr.id">
+                                                                            {{ attr.name }}
+                                                                        </option>
+                                                                    </select>
+                                                                    <input v-model.number="addedItem.unit_price"
+                                                                        class="form-control form-control-sm"
+                                                                        type="number" placeholder="Unit Price">
                                                                 </td>
-                                                                <td>{{ addedItem.bobin }}</td>
-                                                                <td>{{ addedItem.remark }}</td>
+                                                                <td>
+                                                                    <input v-model.number="addedItem.extra_quantity"
+                                                                        class="form-control" type="number"
+                                                                        placeholder="Extra Quantity">
+                                                                    <input
+                                                                        v-model.number="addedItem.extra_quantity_price"
+                                                                        class="form-control form-control-sm"
+                                                                        type="number"
+                                                                        placeholder="Extra Quantity Price">
+                                                                </td>
+                                                                <td>
+                                                                    <input v-model.number="addedItem.gross_weight"
+                                                                        class="form-control form-control-sm"
+                                                                        type="number" placeholder="Gross Weight">
+                                                                    <select v-model="addedItem.weight_attr_id"
+                                                                        class="form-control form-control-sm mt-1">
+                                                                        <option value="">Select Unit</option>
+                                                                        <option v-for="attr in attributes?.weight"
+                                                                            :key="attr.id" :value="attr.id">
+                                                                            {{ attr.name }}
+                                                                        </option>
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <input v-model.number="addedItem.net_weight"
+                                                                        class="form-control form-control-sm"
+                                                                        type="number" placeholder="Net Weight">
+                                                                    <select v-model="addedItem.weight_attr_id"
+                                                                        class="form-control form-control-sm mt-1">
+                                                                        <option value="">Select Unit</option>
+                                                                        <option v-for="attr in attributes?.weight"
+                                                                            :key="attr.id" :value="attr.id">
+                                                                            {{ attr.name }}
+                                                                        </option>
+                                                                    </select>
+                                                                </td>
+                                                                <td>
+                                                                    <input v-model.number="addedItem.bobin"
+                                                                        class="form-control" type="number"
+                                                                        placeholder="Bobin">
+                                                                </td>
+                                                                <td>
+                                                                    <input v-model.number="addedItem.remark"
+                                                                        class="form-control" type="text"
+                                                                        placeholder="Remark">
+                                                                </td>
+                                                                <td><a href="javascript:void(0)" type="button"
+                                                                        class="btn btn-danger btn-sm"
+                                                                        @click.prevent="removeItem(index)"><svg
+                                                                            xmlns="http://www.w3.org/2000/svg"
+                                                                            width="24" height="24" viewBox="0 0 24 24"
+                                                                            fill="none" stroke="currentColor"
+                                                                            stroke-width="2" stroke-linecap="round"
+                                                                            stroke-linejoin="round"
+                                                                            class="feather feather-trash-2">
+                                                                            <polyline points="3 6 5 6 21 6"></polyline>
+                                                                            <path
+                                                                                d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                                                            </path>
+                                                                            <line x1="10" y1="11" x2="10" y2="17">
+                                                                            </line>
+                                                                            <line x1="14" y1="11" x2="14" y2="17">
+                                                                            </line>
+                                                                        </svg></a>
+                                                                </td>
+
                                                             </tr>
                                                         </tbody>
                                                         <tfoot>
@@ -125,22 +208,25 @@
                                                                 <td colspan="2" class="text-right">Total:</td>
                                                                 <td>{{ totalQuantity }}/{{
                                                                     getAttrName(serviceInfo.dataItem[0].unit_attr_id,
-                                                                    'weight') }}</td>
+                                                                        'weight') }}</td>
                                                                 <td>{{ totalExtraQuantity }}</td>
                                                                 <td>{{ totalGrossWeight }} {{
                                                                     getAttrName(serviceInfo.dataItem[0].weight_attr_id,
-                                                                    'weight') }}</td>
+                                                                        'weight') }}</td>
                                                                 <td>{{ totalNetWeight }} {{
                                                                     getAttrName(serviceInfo.dataItem[0].weight_attr_id,
-                                                                    'weight') }}</td>
+                                                                        'weight') }}</td>
                                                                 <td>{{ totalBobin }}</td>
-                                                                <td></td>
+                                                                <td colspan="2"></td>
                                                             </tr>
                                                         </tfoot>
                                                     </table>
                                                 </div>
+                                                <button type="button" class="btn btn-info mt-2"
+                                                    @click.prevent="addItem">Add Another
+                                                    Item</button>
                                             </div>
-                                           
+
 
                                         </div>
                                     </div>
@@ -150,132 +236,6 @@
                                 </div>
                             </div>
                         </form>
-                        <!-- Modal -->
-                        <div class="modal fade" tabindex="-1" role="dialog"
-                            aria-labelledby="addItemModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-xl" role="document">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="addItemModalLabel">Add/Edit Items</h5>
-                                        <button type="button" class="close"
-                                            aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="table-responsive">
-                                            <table class="table table-hover">
-                                                <thead>
-                                                    <tr>
-                                                        <th>Yarn Count</th>
-                                                        <th>Color</th>
-                                                        <th>Quantity</th>
-                                                        <th>Extra Quantity</th>
-                                                        <th>Gross Weight</th>
-                                                        <th>Net Weight</th>
-                                                        <th>Bobin</th>
-                                                        <th>Remark</th>
-                                                        <th>Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr v-for="(item, index) in serviceInfo.dataItem" :key="index">
-                                                        <td>
-                                                            <select v-model="item.yarn_count_id" class="form-control">
-                                                                <option value="">Select Yarn Count</option>
-                                                                <option v-for="yc in yarnCounts" :key="yc.id"
-                                                                    :value="yc.id">
-                                                                    {{ yc.name }}
-                                                                    <!-- Assuming yarn count object has a 'name' property -->
-                                                                </option>
-                                                            </select>
-                                                        </td>
-                                                        <td>
-                                                            <select v-model="item.color_id" class="form-control">
-                                                                <option value="">Select Color</option>
-                                                                <option v-for="attr in attributes?.color" :key="attr.id"
-                                                                    :value="attr.id">
-                                                                    {{ attr.name }}
-                                                                </option>
-                                                            </select>
-                                                        </td>
-                                                        <td><input v-model.number="item.quantity"
-                                                                class="form-control form-control-sm" type="number"
-                                                                placeholder="Quantity">
-                                                            <select v-model="item.unit_attr_id"
-                                                                class="form-control form-control-sm mt-1">
-                                                                <option value="">Select Unit</option>
-                                                                <option v-for="attr in attributes?.weight"
-                                                                    :key="attr.id" :value="attr.id">
-                                                                    {{ attr.name }}
-                                                                </option>
-                                                            </select>
-                                                        </td>
-                                                        <td><input v-model.number="item.extra_quantity"
-                                                                class="form-control" type="number"
-                                                                placeholder="Extra Quantity"></td>
-                                                        <td><input v-model.number="item.gross_weight"
-                                                                class="form-control form-control-sm" type="number"
-                                                                placeholder="Gross Weight">
-                                                            <select v-model="item.weight_attr_id"
-                                                                class="form-control form-control-sm mt-1">
-                                                                <option value="">Select Unit</option>
-                                                                <option v-for="attr in attributes?.weight"
-                                                                    :key="attr.id" :value="attr.id">
-                                                                    {{ attr.name }}
-                                                                </option>
-                                                            </select>
-                                                        </td>
-                                                        <td><input v-model.number="item.net_weight"
-                                                                class="form-control form-control-sm" type="number"
-                                                                placeholder="Net Weight">
-                                                            <select v-model="item.weight_attr_id"
-                                                                class="form-control form-control-sm mt-1">
-                                                                <option value="">Select Unit</option>
-                                                                <option v-for="attr in attributes?.weight"
-                                                                    :key="attr.id" :value="attr.id">
-                                                                    {{ attr.name }}
-                                                                </option>
-                                                            </select>
-                                                        </td>
-                                                        <td><input v-model.number="item.bobin" class="form-control"
-                                                                type="number" placeholder="Bobin">
-                                                        </td>
-                                                        <td><input v-model.number="item.remark" class="form-control"
-                                                                type="text" placeholder="Remark">
-                                                        </td>
-                                                        <td>
-                                                            <a href="javascript:void(0)" type="button"
-                                                                class="btn btn-danger btn-sm"
-                                                                @click="removeItem(index)"><svg
-                                                                    xmlns="http://www.w3.org/2000/svg" width="24"
-                                                                    height="24" viewBox="0 0 24 24" fill="none"
-                                                                    stroke="currentColor" stroke-width="2"
-                                                                    stroke-linecap="round" stroke-linejoin="round"
-                                                                    class="feather feather-trash-2">
-                                                                    <polyline points="3 6 5 6 21 6"></polyline>
-                                                                    <path
-                                                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                                                    </path>
-                                                                    <line x1="10" y1="11" x2="10" y2="17"></line>
-                                                                    <line x1="14" y1="11" x2="14" y2="17"></line>
-                                                                </svg></a>
-                                                        </td>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
-                                        </div>
-                                        <button type="button" class="btn btn-info mt-2" @click="addItem">Add Another
-                                            Item</button>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary"
-                                            >Close</button>
-                                        <button type="button" class="btn btn-primary" @click="saveItems">Done</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </div>
                 </div>
             </div>
@@ -299,57 +259,81 @@ const yarnCounts = ref([]);
 const customers = ref([]);
 const attributes = ref([]);
 const serviceInfo = ref({
-      customer_id: '',
-      service_date: '',
-      invoice_no: '',
-      document_link: null,
-      total_amount: 0, // This will be upservice_dated by grandTotal watcher
-      payment_status: 0,
-      discount: 0,
-      discount_type: 0, // 0 for percentage, 1 for fixed
-      status: 0,
-      description: '',
-      dataItem: []
+    customer_id: '',
+    service_date: '',
+    invoice_no: '',
+    document_link: null,
+    total_amount: 0,
+    payment_status: 0,
+    discount: 0,
+    discount_type: 0,
+    status: 0,
+    description: '',
+    dataItem: [] // Initialize dataItem as an empty array
 });
 
 watch(() => props.service, (newVal) => {
     if (newVal) {
-        serviceInfo.value = { ...newVal, dataItem: newVal.items && newVal.items.length ? newVal.items : [{yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
-        extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
-        net_weight: '', weight_attr_id: '', bobin: '', remark: ''}] };
+        serviceInfo.value = {
+            ...newVal, dataItem: newVal.items && newVal.items.length ? newVal.items : [{
+                yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
+                extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
+                net_weight: 0, weight_attr_id: '', bobin: 0, remark: ''
+            }]
+        };
         nextTick(() => {
             $('#editServiceModal').modal('show');
         });
     }
 }, { immediate: true, deep: true });
 
+const getAttribute = async () => {
+    try {
+        const response = await Axistance.get('attribute'); // Ensure this endpoint is correct
+        const grouped = response.data;
+        attributes.value = grouped.reduce((acc, item) => {
+            if (!acc[item.type]) {
+                acc[item.type] = [];
+            }
+            acc[item.type].push(item);
+            return acc;
+        }, {});
+        // console.log('Attributes fetched:', attributes.value);
+    } catch (error) {
+        console.error('Error fetching yarn counts:', error);
+    }
+};
 
 const getYarnCountName = (id) => {
-      const found = yarnCounts.value.find(yc => yc.id == id);
-      return found ? found.name : 'N/A';
-    };
+    const found = yarnCounts.value.find(yc => yc.id == id);
+    return found ? found.name : 'N/A';
+};
 
-    const getAttrName = (id, attr) => {
-      const found = attributes.value?.[attr]?.find(yc => yc.id == id);
-      return found ? found.name : 'N/A';
-    };
+const getAttrName = (id, attr) => {
+    const found = attributes.value?.[attr]?.find(yc => yc.id == id);
+    return found ? found.name : 'N/A';
+};
 
 const getCustomer = async () => {
-      try {
+    try {
         const response = await Axistance.get('customer');
         customers.value = response.data;
-      } catch (error) {
+    } catch (error) {
         console.error('Error fetching customer:', error);
-      }
-    };
+    }
+};
 
 const addItem = () => {
-    serviceInfo.value.dataItem.push({yarn_count_id: '', unit_attr_id: '', quantity: '', unit_price: 0,
-        extra_quantity: '', extra_quantity_price: 0, color_id: '', gross_weight: '',
-        net_weight: '', weight_attr_id: '', bobin: '', remark: ''});
+    serviceInfo.value.dataItem.push({
+        yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
+        extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
+        net_weight: 0, weight_attr_id: '', bobin: 0, remark: ''
+    });
 };
 
 const removeItem = (index) => {
+    // console.log(index)
+    // return;
     if (serviceInfo.value.dataItem.length > 1) {
         serviceInfo.value.dataItem.splice(index, 1);
     }
@@ -375,9 +359,31 @@ const getYarnCounts = async () => {
     }
 };
 
+const totalQuantity = computed(() => {
+    return (serviceInfo.value.dataItem || []).reduce((sum, item) => sum + (Number(item.quantity) || 0), 0);
+});
+
+const totalExtraQuantity = computed(() => {
+    return (serviceInfo.value.dataItem || []).reduce((sum, item) => sum + (Number(item.extra_quantity) || 0), 0);
+});
+
+const totalGrossWeight = computed(() => {
+    return (serviceInfo.value.dataItem || []).reduce((sum, item) => sum + (Number(item.gross_weight) || 0), 0);
+});
+
+const totalNetWeight = computed(() => {
+    return (serviceInfo.value.dataItem || []).reduce((sum, item) => sum + (Number(item.net_weight) || 0), 0);
+});
+
+const totalBobin = computed(() => {
+    return (serviceInfo.value.dataItem || []).reduce((sum, item) => sum + (Number(item.bobin) || 0), 0);
+});
+
+
 onMounted(() => {
     getYarnCounts();
     getCustomer();
+    getAttribute();
     $('#editServiceModal').on('hidden.bs.modal', () => {
         emit('close-modal');
     });
