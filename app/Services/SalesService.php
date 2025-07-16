@@ -71,24 +71,51 @@ class SalesService
                 }
                 $data['document_link'] = storeFile($data['document_link'], 'services/documents');
             }
-
-            $data['dataItem'] = json_decode($data['dataItem'], true);
-            $service->update($data);
-
+            // --- Logic for deleting items not in $data['dataItem'] ---
             if (isset($data['dataItem']) && is_array($data['dataItem'])) {
-                // Delete existing items
-                $this->serviceItemModel::where('service_id', $id)->delete();
-                // Create new items
-                foreach ($data['dataItem'] as $item) {
-                    $item['service_id'] = $id; // Associate the service item with the updated service
-                    $this->serviceItemModel::create($item);
+                $incomingItemIds = collect($data['dataItem'])
+                                    ->pluck('id')
+                                    ->filter() // Remove nulls (for new items without an ID)
+                                    ->all();
+
+                $existingItemIds = $service->items()->pluck('id')->all(); // Assuming 'items' is the relationship name
+
+                $itemsToDelete = array_diff($existingItemIds, $incomingItemIds);
+
+                if (!empty($itemsToDelete)) {
+                    $this->serviceItemModel::whereIn('id', $itemsToDelete)->delete();
                 }
+
+                foreach ($data['dataItem'] as $key => $item) {
+                    if (isset($item['id']) && $item['id']) {
+                        // Update existing item
+                        $existingItem = $this->serviceItemModel::find($item['id']);
+                        if ($existingItem) {
+                            $existingItem->update($item);
+                        }
+                    } else {
+                        // Create new item
+                        $item['service_id'] = $service->id;
+                        $this->serviceItemModel::create($item);
+                    }
+                }
+            } else {
+                // If $data['dataItem'] is not set or not an array, it means all existing items should be deleted.
+                $service->items()->delete();
             }
+            // --- End of deletion logic ---
+            unset($data['dataItem']); // Remove dataItem from the main data array to avoid updating service with it
+            $service->update($data);
             DB::commit();
-            return $service->load('items'); // Load items relationship
+            return [
+                'status' => true,
+                'message' => 'Service updated successfully',
+                'service' => $service->load('items')
+            ];
         } catch (\Throwable $th) {
             DB::rollBack();
             return [
+                'status' => false,
                 'message' => 'Failed to update service',
                 'error' => $th->getMessage()
             ];
