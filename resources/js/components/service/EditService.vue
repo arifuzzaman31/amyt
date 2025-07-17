@@ -80,8 +80,8 @@
                                             <!-- Display Added Items -->
                                             <div class="work-section mt-3">
                                                 <h6>Added Items:</h6>
-                                                <div class="table-responsive">
-                                                    <table class="table table-bordered table-striped mb-4">
+                                                <div class="table-responsive" style="max-width: 99%; overflow-x: auto;">
+                                                    <table class="table table-bordered table-striped mb-4" style="width: 100%;">
                                                         <thead>
                                                             <tr>
                                                                 <th>Yarn Count</th>
@@ -141,7 +141,7 @@
                                                                         placeholder="Extra Quantity">
                                                                     <input
                                                                         v-model.number="addedItem.extra_quantity_price"
-                                                                        class="form-control form-control-sm"
+                                                                        class="form-control form-control-sm my-1"
                                                                         type="number"
                                                                         placeholder="Extra Quantity Price">
                                                                 </td>
@@ -304,10 +304,6 @@ const getAttribute = async () => {
     }
 };
 
-const getYarnCountName = (id) => {
-    const found = yarnCounts.value.find(yc => yc.id == id);
-    return found ? found.name : 'N/A';
-};
 
 const getAttrName = (id, attr) => {
     const found = attributes.value?.[attr]?.find(yc => yc.id == id);
@@ -332,15 +328,35 @@ const addItem = () => {
 };
 
 const removeItem = (index) => {
-    // console.log(index)
-    // return;
     if (serviceInfo.value.dataItem.length > 1) {
         serviceInfo.value.dataItem.splice(index, 1);
     }
 };
 
 const submitUpdateForm = async () => {
-    await Axistance.put(`service/${serviceInfo.value.id}`, serviceInfo.value);
+    const response = await Axistance.put(`service/${serviceInfo.value.id}`, serviceInfo.value);
+    if (response.status !== 201) {
+        console.error('Error updating service:', response);
+        return;
+    }
+
+    serviceInfo.value = {
+        customer_id: '',
+        service_date: '',
+        invoice_no: '',
+        document_link: null,
+        total_amount: 0,
+        payment_status: 0,
+        discount: 0,
+        discount_type: 0,
+        status: 0,
+        description: '',
+        dataItem: [{
+            yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
+            extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
+            net_weight: 0, weight_attr_id: '', bobin: 0, remark: ''
+        }]
+    };
     emit('service-updated');
     closeModal();
 };
