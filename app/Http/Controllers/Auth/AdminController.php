@@ -40,11 +40,11 @@ class AdminController extends Controller
             'new_password' => 'required|min:6|confirmed',
         ]);
 
-        if (!Auth::attempt(['email' => Auth::user()->email, 'password' => $req->current_password])) {
+        if ((Hash::check($req->current_password, Auth::user()->password)) == false) {
             return redirect()->back()->withErrors(['current_password' => 'Current password is incorrect']);
         }
-
         Auth::user()->update(['password' => bcrypt($req->new_password)]);
-        return redirect()->back()->with('status', 'Password changed successfully');
+        Auth::logout();
+        return redirect()->route('login')->with('status', 'Password changed successfully, please login again');
     }
 }
