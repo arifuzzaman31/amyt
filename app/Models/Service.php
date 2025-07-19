@@ -20,9 +20,9 @@ class Service extends Model
         'status',
         'addition_info'
     ];
-    // protected $casts = [
-    //     'service_date' => 'datetime'
-    // ];
+    protected $casts = [
+        'service_date' => 'date',
+    ];
     public function customer()
     {
         return $this->belongsTo(Customer::class);

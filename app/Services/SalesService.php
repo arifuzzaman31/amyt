@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\CustomConst\AllStatic;
 use App\Models\Service;
 use App\Models\ServiceItem;
 use Illuminate\Support\Facades\DB;
@@ -71,14 +72,13 @@ class SalesService
                 }
                 $data['document_link'] = storeFile($data['document_link'], 'services/documents');
             }
-            // --- Logic for deleting items not in $data['dataItem'] ---
             if (isset($data['dataItem']) && is_array($data['dataItem'])) {
                 $incomingItemIds = collect($data['dataItem'])
                                     ->pluck('id')
-                                    ->filter() // Remove nulls (for new items without an ID)
+                                    ->filter()
                                     ->all();
 
-                $existingItemIds = $service->items()->pluck('id')->all(); // Assuming 'items' is the relationship name
+                $existingItemIds = $service->items()->pluck('id')->all();
 
                 $itemsToDelete = array_diff($existingItemIds, $incomingItemIds);
 
@@ -88,23 +88,20 @@ class SalesService
 
                 foreach ($data['dataItem'] as $key => $item) {
                     if (isset($item['id']) && $item['id']) {
-                        // Update existing item
                         $existingItem = $this->serviceItemModel::find($item['id']);
                         if ($existingItem) {
                             $existingItem->update($item);
                         }
                     } else {
-                        // Create new item
                         $item['service_id'] = $service->id;
                         $this->serviceItemModel::create($item);
                     }
                 }
             } else {
-                // If $data['dataItem'] is not set or not an array, it means all existing items should be deleted.
                 $service->items()->delete();
             }
-            // --- End of deletion logic ---
-            unset($data['dataItem']); // Remove dataItem from the main data array to avoid updating service with it
+ 
+            unset($data['dataItem']);
             $service->update($data);
             DB::commit();
             return [
@@ -122,6 +119,28 @@ class SalesService
         }
     }
 
+    public function approveService($id)
+    {
+        try {
+            DB::beginTransaction();
+            $service = $this->serviceModel::findOrFail($id);
+            // decrease from auth user yarn count
+            
+            $service->status = AllStatic::PURCHASE_STATUS_APPROVED ; // Assuming 1 means approved
+            $service->save();
+            return [
+                'status' => true,
+                'message' => 'Service approved successfully',
+                'service' => $service
+            ];
+        } catch (\Throwable $th) {
+            return [
+                'status' => false,
+                'message' => 'Failed to approve service',
+                'error' => $th->getMessage()
+            ];
+        }
+    }
     public function deleteService($id)
     {
         try {

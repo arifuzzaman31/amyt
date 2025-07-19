@@ -55,7 +55,7 @@ class CustomerStockService
             if (!empty($customerItemsData) && is_array($customerItemsData)) {
                 foreach ($customerItemsData as $itemData) {
                     $item = new \App\Models\CustomerStockHistory($itemData);
-                    $stockItem->items()->save($item);
+                    $stockItem->customerStockHistories()->save($item);
                 }
             }
             $stockItem->load('items.yarnCount'); // Eager load items after creation
@@ -69,7 +69,7 @@ class CustomerStockService
     public function itemStockIn($id)
     {
         try {
-            $result = \App\Models\CustomerItem::with('items')->find($id);
+            $result = \App\Models\CustomerItem::with('customerStockHistories')->find($id);
             if (!$result) {
                 return ['status'=>false, 'message' =>'No items found' ];
             }

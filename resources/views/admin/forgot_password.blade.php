@@ -15,7 +15,7 @@
                 <div class="form-container">
                     <div class="form-content">
 
-                        <img src="{{asset('admin-assets/assets/img/aranya-logo-dark.png')}}" height="60px" width="110px" bottom="10px"class="navbar-logo" alt="logo">
+                        <img src="{{asset('admin-assets/assets/img/90x90.jpg')}}" height="60px" width="110px" bottom="10px"class="navbar-logo" alt="logo">
                         <p class="text-muted">Enter your Email and instructions will be sent to you! </p>
 
                         <form class="text-left" method="post" role="form" action="{{route('send-reset-mail')}}">

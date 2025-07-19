@@ -1,5 +1,5 @@
 @extends('layout.app')
-@section('title', 'Order Details | Aranya')
+@section('title', 'Order Details | AMYT')
 @section('content')
 <div id="tableHover" class="col-lg-12 col-12 layout-spacing" style="padding: 15px 0;">
 <div class="statbox widget box box-shadow">

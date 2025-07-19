@@ -122,7 +122,7 @@
                                                                 <td>
                                                                     <input v-model.number="addedItem.quantity"
                                                                         class="form-control form-control-sm"
-                                                                        type="number" placeholder="Quantity">
+                                                                        type="number" placeholder="Quantity" />
                                                                     <select v-model="addedItem.unit_attr_id"
                                                                         class="form-control form-control-sm my-1">
                                                                         <option value="">Select Unit</option>
@@ -133,7 +133,7 @@
                                                                     </select>
                                                                     <input v-model.number="addedItem.unit_price"
                                                                         class="form-control form-control-sm"
-                                                                        type="number" placeholder="Unit Price">
+                                                                        type="number" placeholder="Unit Price" />
                                                                 </td>
                                                                 <td>
                                                                     <input v-model.number="addedItem.extra_quantity"
@@ -150,7 +150,7 @@
                                                                         class="form-control form-control-sm"
                                                                         type="number" placeholder="Gross Weight">
                                                                     <select v-model="addedItem.weight_attr_id"
-                                                                        class="form-control form-control-sm mt-1">
+                                                                        class="form-control form-control-sm my-1">
                                                                         <option value="">Select Unit</option>
                                                                         <option v-for="attr in attributes?.weight"
                                                                             :key="attr.id" :value="attr.id">
@@ -163,7 +163,7 @@
                                                                         class="form-control form-control-sm"
                                                                         type="number" placeholder="Net Weight">
                                                                     <select v-model="addedItem.weight_attr_id"
-                                                                        class="form-control form-control-sm mt-1">
+                                                                        class="form-control form-control-sm my-1">
                                                                         <option value="">Select Unit</option>
                                                                         <option v-for="attr in attributes?.weight"
                                                                             :key="attr.id" :value="attr.id">

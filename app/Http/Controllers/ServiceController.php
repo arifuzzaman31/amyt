@@ -36,6 +36,12 @@ class ServiceController extends Controller
         return response()->json($result, $result['status'] ? 201 : 400);
     }
 
+    public function serviceStatus($id)
+    {
+        $response = $this->salesService->approveService($id);
+        return response()->json($response, $response['status'] ? 200 : 400);
+    }
+
     public function destroy($id)
     {
         $response = $this->salesService->deleteService($id);

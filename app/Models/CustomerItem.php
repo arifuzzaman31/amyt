@@ -21,6 +21,9 @@ class CustomerItem extends Model
         'description',
         'is_stocked'
     ];
+    protected $casts = [
+        'in_date' => 'date',
+    ];
 
     public function customer()
     {
@@ -32,7 +35,7 @@ class CustomerItem extends Model
         return $this->belongsTo(Yarn::class);
     }
 
-    public function items()
+    public function customerStockHistories()
     {
         return $this->hasMany(CustomerStockHistory::class);
     }

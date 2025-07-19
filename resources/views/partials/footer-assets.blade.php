@@ -15,7 +15,6 @@
     });
 </script>
 <script src="{{ asset('admin-assets/assets/js/custom.js')}}"></script>
-<!-- END GLOBAL MANDATORY SCRIPTS online@aranya.com.bd Online@aranya123-->
 
 <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
 <script src="{{ asset('admin-assets/assets/js/scrollspyNav.js')}}"></script>

@@ -1,5 +1,5 @@
 @extends('layout.app')
-@section('title', 'Create Role | Aranya')
+@section('title', 'Create Role | AMYT')
 @section('content')
 <div id="tableHover" class="col-lg-12 col-12 layout-spacing" style="padding: 25px 0;">
     <create-role :permissions="{{ $permissions }}" />

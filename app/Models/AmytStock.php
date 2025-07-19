@@ -16,6 +16,7 @@ class AmytStock extends Model
     /**
      * Get the yarn count associated with the stock.
      */
+
     public function yarnCount()
     {
         return $this->belongsTo(Yarn::class, 'yarn_count_id');

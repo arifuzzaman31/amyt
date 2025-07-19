@@ -9,9 +9,11 @@ use App\Http\Controllers\CustomerStockController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PurchaseController;
+use App\Http\Controllers\ReportController;
 use App\Http\Controllers\ServiceController;
 use App\Http\Controllers\SupplierController;
 use App\Http\Controllers\YarnController;
+use App\Http\Controllers\YarnStockController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->group(function () {
@@ -32,6 +34,7 @@ Route::prefix('admin')->group(function () {
     Route::view('purchase-list', 'pages.purchase.purchase')->name('purchase-list');
     Route::resource('service', ServiceController::class);
     Route::view('service-list', 'pages.service.service')->name('service-list');
+    Route::get('service/{id}/approve', [ServiceController::class, 'serviceStatus'])->name('service-approve');
     Route::resource('yarn-count', YarnController::class); // Restoring original resource route
     Route::get('all-yarn-counts', [YarnController::class, 'allYarns'])->name('all-yarn-counts'); // Route for fetching all yarns
     Route::view('yarn-count-list', 'pages.yarn.yarn_list')->name('yarn-count-list');
@@ -47,6 +50,9 @@ Route::prefix('admin')->group(function () {
     // Route for Service creation
     Route::view('create-service', 'pages.service.create_service')->name('create-service');
     Route::view('attribute-list', 'pages.attribute.attribute')->name('attribute-list');
+    Route::view('show-stock-report', 'pages.report.total_current_stock')->name('show-stock.report');
+    Route::get('amyt-customer-stock-list', [ReportController::class, 'totalStockList'])->name('amyt-customer-stock-list');
+    Route::get('customer-individual', [YarnStockController::class, 'showStockStatement'])->name('amyt-customer-stock-list');
     Route::resource('attribute', AttributeController::class);
 });
 
@@ -66,3 +72,4 @@ Route::view('forgot-password', 'admin.forgot_password')->name('forgot-password')
 Route::post('send-reset-mail', [AdminController::class, 'resetMail'])->name('send-reset-mail');
 Route::get('enter-password', [AdminController::class, 'enterPassword'])->name('reset.password.enter');
 Route::post('enter-password', [AdminController::class, 'store'])->name('reset.password.enter');
+// view invoice

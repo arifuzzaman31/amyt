@@ -23,7 +23,8 @@
                         <div class="col-md-4">
                           <div class="form-group">
                             <label for="customer_id">Select Customer</label>
-                            <select v-model="serviceInfo.customer_id" class="form-control mb-4" id="customer_id">
+                            <select v-model="serviceInfo.customer_id" class="form-control mb-4" id="customer_id"
+                              @change="getCustomerYarnCounts">
                               <option value="">Select Customer</option>
                               <option v-for="s in customers" :key="s.id" :value="s.id">
                                 {{ s.name }} - {{ s.company_name }}
@@ -99,7 +100,7 @@
                               </td>
                               <td>{{ addedItem.net_weight }} {{ getAttrName(addedItem.weight_attr_id, 'weight') }}</td>
                               <td>{{ addedItem.bobin }}</td>
-                              <td>{{ addedItem.remark }}</td>
+                              <td class="text-wrap">{{ addedItem.remark }}</td>
                             </tr>
                           </tbody>
                           <tfoot>
@@ -132,7 +133,7 @@
             </div>
           </form>
           <!-- Modal -->
-          <div class="modal fade" :class="{ 'show d-block': showModal }" tabindex="-1" role="dialog"
+          <div class="modal animated fadeInRight custo-fadeInRight show" :class="{ 'show d-block': showModal }" tabindex="-1" role="dialog"
             aria-labelledby="addItemModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
               <div class="modal-content">
@@ -164,9 +165,11 @@
                             <select v-model="item.yarn_count_id" class="form-control">
                               <option value="">Select Yarn Count</option>
                               <option v-for="yc in yarnCounts" :key="yc.id" :value="yc.id">
-                                {{ yc.name }} <!-- Assuming yarn count object has a 'name' property -->
+                                {{ yc.name }}
                               </option>
                             </select>
+                            <!-- //customer stock of selected yarn count -->
+                            <p>{{ getYarnQuantity(item) }}</p>
                           </td>
                           <td>
                             <select v-model="item.color_id" class="form-control">
@@ -178,7 +181,7 @@
                           </td>
                           <td><input v-model.number="item.quantity" class="form-control form-control-sm" type="number"
                               placeholder="Quantity">
-                            <select v-model="item.unit_attr_id" class="form-control form-control-sm mt-1">
+                            <select v-model="item.unit_attr_id" class="form-control form-control-sm my-1">
                               <option value="">Select Unit</option>
                               <option v-for="attr in attributes?.weight" :key="attr.id" :value="attr.id">
                                 {{ attr.name }}
@@ -189,12 +192,12 @@
                           </td>
                           <td><input v-model.number="item.extra_quantity" class="form-control" type="number"
                               placeholder="Extra Quantity">
-                            <input v-model.number="item.extra_quantity_price" class="form-control form-control-sm"
+                            <input v-model.number="item.extra_quantity_price" class="form-control form-control-sm mt-1"
                               type="number" placeholder="Extra Quantity Price">
                           </td>
                           <td><input v-model.number="item.gross_weight" class="form-control form-control-sm"
                               type="number" placeholder="Gross Weight">
-                            <select v-model="item.weight_attr_id" class="form-control form-control-sm mt-1">
+                            <select v-model="item.weight_attr_id" class="form-control form-control-sm my-1">
                               <option value="">Select Unit</option>
                               <option v-for="attr in attributes?.weight" :key="attr.id" :value="attr.id">
                                 {{ attr.name }}
@@ -203,7 +206,7 @@
                           </td>
                           <td><input v-model.number="item.net_weight" class="form-control form-control-sm" type="number"
                               placeholder="Net Weight">
-                            <select v-model="item.weight_attr_id" class="form-control form-control-sm mt-1">
+                            <select v-model="item.weight_attr_id" class="form-control form-control-sm my-1">
                               <option value="">Select Unit</option>
                               <option v-for="attr in attributes?.weight" :key="attr.id" :value="attr.id">
                                 {{ attr.name }}
@@ -254,6 +257,7 @@ export default {
     const customers = ref([]);
     const yarnCounts = ref([]);
     const attributes = ref([]);
+    const customerYarnCounts = ref([]);
     const showModal = ref(false);
 
     const serviceInfo = reactive({
@@ -269,20 +273,43 @@ export default {
       description: '',
       dataItem: [{
         yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
-        extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
+        extra_quantity: 0, extra_quantity_price:0, color_id: '', gross_weight: 0,
         net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
       }]
     });
+
+    const getCustomerYarnCounts = () => {
+      // Fetch yarn counts for the selected customer from customer stock
+      resetForm();
+      if (serviceInfo.customer_id) {
+        Axistance.get(`customer/${serviceInfo.customer_id}`)
+          .then(response => {
+            customerYarnCounts.value = response.data?.customer_stock;
+          })
+          .catch(error => {
+            console.error('Error fetching yarn counts for customer:', error);
+          });
+      } else {
+        yarnCounts.value = [];
+      }
+    };
 
     const openModal = (event) => {
       event.stopPropagation();
       showModal.value = true;
     };
 
+    const getYarnQuantity = (item) => {
+      if (!customerYarnCounts.value || !item.yarn_count_id) return 'N/A';
+      const yarnCount = customerYarnCounts.value.find(yc => yc.yarn_count_id == item.yarn_count_id);
+      const amytStock = yarnCounts.value.find(yc => yc.id == item.yarn_count_id).amyt_stock?.quantity || 0;
+      return yarnCount ? `client:${yarnCount.quantity},amyt:${amytStock}` : 0;
+    };
+
     const addItem = () => {
       serviceInfo.dataItem.push({
         yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
-        extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
+        extra_quantity: 0, extra_quantity_price:0, color_id: '', gross_weight: 0,
         net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
       });
     };
@@ -293,7 +320,7 @@ export default {
       } else {
         Object.assign(serviceInfo.dataItem[0], {
           yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
-          extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
+          extra_quantity: 0, extra_quantity_price:0, color_id: '', gross_weight: 0,
           net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
         });
       }
@@ -314,8 +341,8 @@ export default {
 
     const getYarnCounts = async () => {
       try {
-        const response = await Axistance.get('yarn-count'); // Ensure this endpoint is correct
-        yarnCounts.value = response.data.data;
+        const response = await Axistance.get('yarn-count?isPaginate=no&relation[]=amytStock'); // Ensure this endpoint is correct
+        yarnCounts.value = response.data;
       } catch (error) {
         console.error('Error fetching yarn counts:', error);
       }
@@ -441,8 +468,11 @@ export default {
       handleFileUpload,
       getYarnCountName,
       getAttrName,
+      getCustomerYarnCounts,
       submitForm,
+      getYarnQuantity,
       showModal,
+      customerYarnCounts,
       totalQuantity,
       totalExtraQuantity,
       totalGrossWeight,

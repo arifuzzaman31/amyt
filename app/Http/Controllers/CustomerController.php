@@ -23,7 +23,7 @@ class CustomerController extends Controller
 
     public function show($id)
     {
-        return Customer::findOrFail($id);
+        return Customer::with('customer_stock')->findOrFail($id);
     }
 
     public function update(Request $request, $id)

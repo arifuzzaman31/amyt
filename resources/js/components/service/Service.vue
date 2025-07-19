@@ -1,6 +1,7 @@
 <template>
-  <div id="tableCaption" class="col-lg-12 col-12 layout-spacing">
-    <div class="widget-header">
+  <div id="tableCaption" class="layout-spacing">
+
+    <div class="widget-content widget-content-area">
       <div class="row">
         <div class="col-xl-12 col-md-12 col-sm-12 col-12 d-flex justify-content-between">
           <h4>Service</h4>
@@ -9,10 +10,6 @@
           </a>
         </div>
       </div>
-    </div>
-
-    <!-- Table -->
-    <div class="widget-content widget-content-area">
       <div class="table-responsive">
         <table class="table table-bordered">
           <thead>
@@ -27,9 +24,9 @@
           </thead>
           <tbody>
             <tr v-for="(service, ind) in serviceList" :key="service.id">
-              <td>{{ ind++ }}</td>
+              <td>{{ ++ind }}</td>
               <td>{{ service.invoice_no }}</td>
-              <td>{{ service.service_date }}</td>
+              <td>{{ formatDate(service.service_date) }}</td>
               <td>{{ service.customer?.name }}</td>
               <td>
                 <span :class="getStatusClass(service.status)">
@@ -37,8 +34,17 @@
                 </span>
               </td>
               <td class="text-center">
-                <button class="btn btn-sm btn-warning mr-2" @click="openEditModal(service)">Edit</button>
-                <button class="btn btn-sm btn-danger" @click="deleteService(service.id)">Delete</button>
+                <div class="dropdown custom-dropdown">
+                      <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
+                      </a>
+
+                      <div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
+                          <a type="button" :class="'dropdown-item ' + (getStatusLabel(service.status) == 'Approved' ? 'disabled text-muted' : '')" @click="updateStatus(service.id)" href="javascript:void(0);">Approved</a>
+                          <a type="button" class="dropdown-item" @click="openEditModal(service)" href="javascript:void(0);">Edit</a>
+                          <a type="button" class="dropdown-item" @click="deleteService(service.id)" href="javascript:void(0);">Delete</a>
+                      </div>
+                  </div>
               </td>
             </tr>
           </tbody>
@@ -72,10 +78,27 @@ const fetchSingleService = async (id) => {
   const res = await Axistance.get(`service/${id}`)
   selectedService.value = res.data
 }
-const editGroup = (service) => {
-  form.value.name = service.name
-  editingId.value = service.id
-  $('#serviceModal').modal('show')
+
+const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
+    });
+}
+const updateStatus = (id) => {
+    if (confirm('Are you sure you want to approve this service?')) {
+        Axistance.get(`service/${id}/approve`)
+            .then((response) => {
+                alert(response.data.message || 'Service approved successfully.');
+                fetchServices();
+            })
+            .catch(error => {
+                console.error('Error approving purchase:', error);
+                // Here you could add user-facing error handling, e.g., a toast notification.
+            });
+    }
 }
 
 const deleteService = async (id) => {

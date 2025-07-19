@@ -81,10 +81,6 @@ const openEditModal = (purchase) => {
     selectedStock.value = purchase;
 }
 
-const closeEditModal = () => {
-    selectedStock.value = null;
-}
-
 const fetchCustomerStock = async () => {
     try {
         const res = await Axistance.get('stock-list?vendor=customer');
@@ -111,19 +107,14 @@ const loadToStock = (id) => {
     if (confirm('Are you sure you want to load this customer to stock?')) {
         Axistance.post(`customer-item-to-stock/${id}`)
             .then((response,error) => {
-                alert(response.data.message || 'Purchase loaded to stock successfully.');
-                fetchPurchase();
+                alert(response.data.message || 'Customer item loaded to stock successfully.');
+                fetchCustomerStock();
             })
             .catch(error => {
-                console.error('Error loading purchase to stock:', error);
+                console.error('Error loading Customer item to stock:', error);
                 // Here you could add user-facing error handling, e.g., a toast notification.
             });
     }
-}
-
-const handlePurchaseUpdated = () => {
-    fetchCustomerStock();
-    closeEditModal();
 }
 
 /**

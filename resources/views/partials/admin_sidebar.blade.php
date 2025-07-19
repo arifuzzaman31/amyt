@@ -250,7 +250,7 @@
                                 <a href="">Service Report </a>
                             </li>
                             <li>
-                                <a href="">Stock Report </a>
+                                <a href="{{ route('show-stock.report')}}">Stock Report </a>
                             </li>
                             <li>
                                 <a href="">Service Payment </a>

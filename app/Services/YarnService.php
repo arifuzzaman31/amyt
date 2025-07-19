@@ -14,9 +14,24 @@ class YarnService
      * @param int $perPage
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
-    public function getAllPaginated(int $perPage = 3)
+    public function getAllPaginated(int $perPage = 3,$query = [])
     {
-        return Yarn::latest()->paginate($perPage);
+       $data = Yarn::latest();
+         if (!empty($query['relations'])) {
+            $relations = $query['relations'];
+    
+            if (in_array('customerStock', $relations)) {
+                $data->with(['customerStock:id,yarn_count_id,quantity']);
+            }
+    
+            if (in_array('amytStock', $relations)) {
+                $data->with(['amytStock:id,yarn_count_id,quantity']);
+            }
+        }
+        if (isset($query['isPaginate']) && $query['isPaginate'] == true) {
+            return $data->paginate($perPage);
+        }
+        return $data->get();
     }
 
     /**

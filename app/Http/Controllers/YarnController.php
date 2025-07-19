@@ -20,7 +20,13 @@ class YarnController extends Controller
     public function index(Request $request): JsonResponse
     {
         $perPage = $request->query('per_page', 10); // Default to 10 items per page
-        $yarns = $this->yarnService->getAllPaginated((int)$perPage);
+        $relations = $request->query('relation', []); // this will be an array
+        $isPaginate = $request->query('isPaginate', 'yes'); // this will be an array
+        $query = [
+            'relations' => $relations,
+            'isPaginate' => $isPaginate == 'yes' ? true : false, // Convert to boolean
+        ];
+        $yarns = $this->yarnService->getAllPaginated((int) $perPage, $query);
         return response()->json($yarns);
     }
 

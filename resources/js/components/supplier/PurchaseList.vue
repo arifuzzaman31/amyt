@@ -88,9 +88,6 @@ const closeEditModal = () => {
     selectedPurchase.value = null;
 }
 const updateStatus = (id) => {
-    // need to open a modal and take payment details and status then approve the purchase
-    // For now, we will just approve the purchase directly
-    // Uncomment the following lines to enable the approval functionality
     if (confirm('Are you sure you want to approve this purchase?')) {
         Axistance.post(`purchase/${id}/approve`)
             .then((response) => {

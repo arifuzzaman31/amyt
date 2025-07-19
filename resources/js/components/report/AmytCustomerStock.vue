@@ -17,45 +17,20 @@
                             <tr>
                                 <th class="">#</th>
                                 <th>Yarn</th>
-                                <th>Customer Name</th>
+                                <th>Type</th>
                                 <th>Customer Qty</th>
                                 <th>Amyt Qty</th>
-                                <!-- <th class="text-center">Action</th> -->
+                                <th>Total Qty</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="stock in amytCustomerStockList" :key="stock.id">
-                                <td>{{ stock.id }}</td>
-                                <td>{{ stock.yarn_count_id }}</td>
-                                <td>{{ stock.customer_id }}</td>
-                                <td>{{ stock.quantity }}</td>
-                                <!-- <td>{{ (stock.customer?.name || 'N/A') }}</td> -->
-                                <td>{{ formatCurrency(stock.total_amount) }}</td>
-                                <td>
-                                    <span :class="getStatusClass(stock.is_stocked)">
-                                        {{ stock.is_stocked == 0 ? 'Not Yet' : 'Stocked' }}
-                                    </span>
-                                </td>
-                                <td>
-                                    <span :class="getStatusClass(stock.status)">
-                                        {{ getStatusLabel(stock.status) }}
-                                    </span>
-                                </td>
-                                <td class="text-center">
-                                    <div class="dropdown custom-dropdown">
-                                        <a class="dropdown-toggle" href="#" role="button" id="dropdownMenuLink1" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-more-horizontal"><circle cx="12" cy="12" r="1"></circle><circle cx="19" cy="12" r="1"></circle><circle cx="5" cy="12" r="1"></circle></svg>
-                                        </a>
-
-                                        <div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
-                                            <a type="button" :class="'dropdown-item ' + (getStatusLabel(stock.status) == 'Approved' ? 'disabled text-muted' : '')" @click="updateStatus(stock.id)" href="javascript:void(0);">Approved</a>
-                                            <a type="button" :class="'dropdown-item ' + (stock.is_stocked == 1 ? 'disabled text-muted' : '')" @click="loadToStock(stock.id)" href="javascript:void(0);">Load to Stock</a>
-                                            <a type="button" class="dropdown-item" @click="openEditModal(purchase)" href="javascript:void(0);">Edit</a>
-                                            <a type="button" class="dropdown-item" @click="deletePurchase(stock.id)" href="javascript:void(0);">Delete</a>
-                                        </div>
-                                    </div>
-                                    
-                                </td>
+                            <tr v-for="(stock,index) in amytCustomerStockList" :key="index">
+                                <td>{{ ++index }}</td>
+                                <td>{{ stock.name }}</td>
+                                <td>{{ stock.type }}</td>
+                                <td>{{ stock.customer_stock_quantity }}</td>
+                                <td>{{ stock.amyt_stock_quantity }}</td>
+                                <td>{{ Number(stock.customer_stock_quantity)+Number(stock.amyt_stock_quantity) }}</td>
                             </tr>
                         </tbody>
                     </table>
@@ -70,21 +45,13 @@ import { ref, onMounted } from 'vue'
 import Axistance from '../../Axistance'
 
 const amytCustomerStockList = ref([])
-const selectedStock = ref(null);
 const url = ref(baseUrl)
 
-const openEditModal = (purchase) => {
-    selectedStock.value = purchase;
-}
-
-const closeEditModal = () => {
-    selectedStock.value = null;
-}
-
-const fetchCustomerStock = async () => {
+const fetchAmytCustomerStock = async () => {
     try {
-        const res = await Axistance.get('stock-list?vendor=customer');
+        const res = await Axistance.get('amyt-customer-stock-list?vendor=customer');
         amytCustomerStockList.value = res.data.data
+        console.log('Fetched Amyt Customer Stock:', res.data.data);
     } catch (error) {
         console.error('Error fetching purchases:', error);
         // Here you could add user-facing error handling, e.g., a toast notification.
@@ -95,31 +62,12 @@ const deleteCustomerStock = async (id) => {
     if (confirm('Are you sure?')) {
         try {
             await Axistance.delete(baseUrl + `purchase/${id}`);
-            fetchCustomerStock();
+            fetchAmytCustomerStock();
         } catch (error) {
             console.error('Error deleting purchase:', error);
             // Here you could add user-facing error handling.
         }
     }
-}
-
-const loadToStock = (id) => {
-    if (confirm('Are you sure you want to load this customer to stock?')) {
-        Axistance.post(`customer-item-to-stock/${id}`)
-            .then((response,error) => {
-                alert(response.data.message || 'Purchase loaded to stock successfully.');
-                fetchPurchase();
-            })
-            .catch(error => {
-                console.error('Error loading purchase to stock:', error);
-                // Here you could add user-facing error handling, e.g., a toast notification.
-            });
-    }
-}
-
-const handlePurchaseUpdated = () => {
-    fetchCustomerStock();
-    closeEditModal();
 }
 
 /**
@@ -167,7 +115,7 @@ const getStatusClass = (status) => {
 }
 
 onMounted(() => {
-    fetchCustomerStock()
+    fetchAmytCustomerStock()
 })
 </script>
 

@@ -1,174 +1,225 @@
 <!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Invoice</title>
-    <link href="https://cdn.usebootstrap.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" />
+    <title>AL-Makkah Yarn Thread - Stock Statement</title>
+    <!-- Bootstrap 4 CSS -->
+    <link href="{{ asset('admin-assets/bootstrap/css/bootstrap.min.css')}}" rel="stylesheet" type="text/css" />
+    <!-- Tailwind CSS for additional styling (e.g., rounded corners, custom fonts) -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body{margin-top:20px;color: #484b51;}.text-secondary-d1 {color: #728299!important;}.page-header {margin: 0 0 1rem;padding-bottom: 1rem;padding-top: .5rem;border-bottom: 1px dotted #e2e2e2;display: -ms-flexbox;display: flex;-ms-flex-pack: justify;justify-content: space-between;-ms-flex-align: center;align-items: center;}.page-title {padding: 0;margin: 0;font-size: 1.75rem;font-weight: 300;}.brc-default-l1 {border-color: #dce9f0!important;}.ml-n1, .mx-n1 {margin-left: -.25rem!important;}.mr-n1, .mx-n1 {margin-right: -.25rem!important;}.mb-4, .my-4 {margin-bottom: 1.5rem!important;}hr {margin-top: 1rem;margin-bottom: 1rem;border: 0;border-top: 1px solid rgba(0,0,0,.1);}.text-grey-m2 {color: #888a8d!important;}.text-success-m2 {color: #86bd68!important;}.font-bolder, .text-600 {font-weight: 600!important;}.text-110 {font-size: 110%!important;}.text-blue {color: #478fcc!important;}.pb-25, .py-25 {padding-bottom: .75rem!important;}.pt-25, .py-25 {padding-top: .75rem!important;}.bgc-default-tp1 {background-color: rgba(121,169,197,.92)!important;}.bgc-default-l4, .bgc-h-default-l4:hover {background-color: #f3f8fa!important;}.page-header .page-tools {-ms-flex-item-align: end;align-self: flex-end;}.btn-light {color: #757984;background-color: #f5f6f9;border-color: #dddfe4;}.w-2 {width: 1rem;}.text-120 {font-size: 120%!important;}.text-primary-m1 {color: #4087d4!important;}.text-danger-m1 {color: #dd4949!important;}.text-blue-m2 {color: #68a3d5!important;}.text-150 {font-size: 150%!important;}.text-60 {font-size: 60%!important;}.text-grey-m1 {color: #7b7d81!important;}.align-bottom {vertical-align: bottom!important;}
+        body {
+            font-family: "Inter", sans-serif;
+            background-color: #f8f9fa;
+        }
+        .container-fluid {
+            max-width: 1200px;
+            margin-top: 20px;
+            margin-bottom: 20px;
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: bold;
+            color: #343a40;
+            margin-bottom: 5px;
+        }
+        .header h2 {
+            font-size: 1.5rem;
+            color: #6c757d;
+            margin-top: 0;
+        }
+        .info-section {
+            font-size: 0.9rem;
+            margin-bottom: 20px;
+        }
+        .table-responsive {
+            margin-top: 20px;
+        }
+        .table-bordered th, .table-bordered td {
+            border: 1px solid #dee2e6;
+            padding: 8px;
+            vertical-align: middle;
+        }
+        .table-bordered thead th {
+            background-color: #e9ecef;
+            font-weight: bold;
+            text-align: center;
+        }
+        .table-bordered tbody tr:nth-child(even) {
+            background-color: #f2f2f2;
+        }
+        .table-bordered tbody td:first-child {
+            text-align: center; /* Center SL.No */
+        }
+        .table-bordered .highlight-row td {
+            background-color: #fff3cd; /* Light yellow for highlighted row */
+        }
+        .table-bordered .highlight-cell {
+            background-color: #ffc107; /* Orange for highlighted cell */
+            font-weight: bold;
+        }
+        .total-row td {
+            font-weight: bold;
+            background-color: #e9ecef;
+            text-align: right;
+        }
+        .total-summary-table {
+            width: auto; /* Make table fit content */
+            margin-top: 30px;
+            margin-left: auto; /* Align to right */
+            margin-right: 0;
+            border: 1px solid #dee2e6;
+            border-radius: 5px;
+            overflow: hidden; /* For rounded corners */
+        }
+        .total-summary-table td {
+            padding: 8px 15px;
+            border: none;
+            font-weight: bold;
+        }
+        .total-summary-table tr:first-child td {
+            border-bottom: 1px solid #dee2e6;
+        }
+        .total-summary-table tr:last-child td {
+            border-top: 1px solid #dee2e6;
+        }
+        .total-summary-table td:first-child {
+            background-color: #f2f2f2;
+            text-align: left;
+        }
+        .total-summary-table td:last-child {
+            text-align: right;
+        }
+        .footer-section {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
     </style>
 </head>
-
 <body>
-    <div class="page-content container">
-        <div class="page-header text-blue-d2">
-            <h1 class="page-title text-secondary-d1">
-                Invoice
-                <small class="page-info">
-                    <i class="fa fa-angle-double-right text-80"></i>
-                    ID: #45674574545
-                </small>
-            </h1>
-            <div class="page-tools">
-            <div class="action-buttons">
-                <a class="btn bg-white btn-light mx-1px text-95" href="#">
-                    aranya.com.bd
-                </a>
-               
-            </div>
-        </div>
+    <div class="container-fluid rounded-lg shadow-lg">
+        <!-- Header Section -->
+        <div class="header">
+            <h1 class="text-gray-800">AL-Makkah Yarn Thread</h1>
+            <h2 class="text-gray-600">Yarn Stock Statement & Delivery Info - January-25</h2>
         </div>
 
-        <div class="container px-0">
-            <div class="row mt-4">
-                <div class="col-12 col-lg-12">
-                    <div class="row">
-                        <div class="col-12">
-                            <div class="text-center text-150">
-                                <i class="fa fa-book fa-2x text-success-m2 mr-1"></i>
-                                <img src="https://staging.aranya.com.bd/assets/headerLogo.png" alt="aranya logo" width="100px">
-                            </div>
-                        </div>
-                    </div>
-                    <!-- .row -->
-
-                    <hr class="row brc-default-l1 mx-n1 mb-4" />
-
-                    <div class="row">
-                        <div class="col-sm-6">
-                            <div>
-                                <span class="text-sm text-grey-m2 align-middle">To:</span>
-                                <span class="text-600 text-110 text-blue align-middle">Kabira</span>
-                            </div>
-                            <div class="text-grey-m2">
-                                <div class="my-1">
-                                Gulshan-1,Dhaka
-                                </div>
-                                <div class="my-1">
-                                    Bangladesh
-                                </div>
-                                <div class="my-1"><i class="fa fa-phone fa-flip-horizontal text-secondary"></i> <b class="text-600">01854698754</b></div>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-
-                        <div class="text-95 col-sm-6 align-self-start d-sm-flex justify-content-end">
-                            <hr class="d-sm-none" />
-                            <div class="text-grey-m2">
-                                <div class="mt-1 mb-2 text-secondary-m1 text-600 text-125">
-                                    Invoice
-                                </div>
-
-                                <div class="my-2"><i class="fa fa-circle text-blue-m2 text-xs mr-1"></i> <span class="text-600 text-90">ID:</span> #64563563214</div>
-
-                                <div class="my-2"><i class="fa fa-circle text-blue-m2 text-xs mr-1"></i> <span class="text-600 text-90">Order Date:</span> 2023-05-16</div>
-
-                                <div class="my-2"><i class="fa fa-circle text-blue-m2 text-xs mr-1"></i> <span class="text-600 text-90">Status:</span> <span class="badge rounded-pill alert-warning badge-pill px-25">Paid</span></div>
-                            </div>
-                        </div>
-                        <!-- /.col -->
-                    </div>
-
-                    <div class="mt-4">
-                        <div class="row text-600 text-white bgc-default-tp1 py-25">
-                            <div class="d-none d-sm-block col-1">#</div>
-                            <div class="col-9 col-sm-5">Product</div>
-                            <div class="d-none d-sm-block col-4 col-sm-2">Qty</div>
-                            <div class="d-none d-sm-block col-sm-2">Unit Price</div>
-                            <div class="col-2">Amount</div>
-                        </div>
-
-                        <div class="text-95 text-secondary-d3">
-                                <div class="row mb-2 mb-sm-0 py-25">
-                                    <div class="d-none d-sm-block col-1">1</div>
-                                    <div class="col-9 col-sm-5">product name 1</div>
-                                    <div class="d-none d-sm-block col-2">2</div>
-                                    <div class="d-none d-sm-block col-2 text-95">200</div>
-                                    <div class="col-2 text-secondary-d2">400</div>
-                                </div>
-                                <div class="row mb-2 mb-sm-0 py-25 bgc-default-l4">
-                                    <div class="d-none d-sm-block col-1">2</div>
-                                    <div class="col-9 col-sm-5">product name 2</div>
-                                    <div class="d-none d-sm-block col-2">1</div>
-                                    <div class="d-none d-sm-block col-2 text-95">300</div>
-                                    <div class="col-2 text-secondary-d2">300</div>
-                                </div>
-                                <div class="row mb-2 mb-sm-0 py-25">
-                                    <div class="d-none d-sm-block col-1">3</div>
-                                    <div class="col-9 col-sm-5">product name 3</div>
-                                    <div class="d-none d-sm-block col-2">2</div>
-                                    <div class="d-none d-sm-block col-2 text-95">200</div>
-                                    <div class="col-2 text-secondary-d2">400</div>
-                                </div>
-                         
-                        </div>
-
-                        <div class="row border-b-2 brc-default-l2"></div>
-
-                        <div class="row d-flex justify-content-end mt-3">
-                            <!-- <div class="col-12 col-sm-7 text-grey-d2 text-95 mt-2 mt-lg-0">
-                                Extra note such as company or payment information...
-                            </div> -->
-
-                            <div class="col-12 col-sm-5 text-grey text-90 order-first order-sm-last">
-                                <div class="row my-2">
-                                    <div class="col-7 text-right">
-                                        SubTotal
-                                    </div>
-                                    <div class="col-5">
-                                        <span class="text-120 text-secondary-d1">846</span>
-                                    </div>
-                                </div>
-
-                                <div class="row my-2">
-                                    <div class="col-7 text-right">
-                                        Tax
-                                    </div>
-                                    <div class="col-5">
-                                        <span class="text-110 text-secondary-d1">180</span>
-                                    </div>
-                                </div>
-
-                                <div class="row my-2">
-                                    <div class="col-7 text-right">
-                                        Shipping Charge
-                                    </div>
-                                    <div class="col-5">
-                                        <span class="text-110 text-secondary-d1">120</span>
-                                    </div>
-                                </div>
-
-                                <div class="row my-2 align-items-center bgc-primary-l3 p-2">
-                                    <div class="col-7 text-right">
-                                        Total Amount
-                                    </div>
-                                    <div class="col-5">
-                                        <span class="text-150 text-success-d3 opacity-2">1150</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr />
-
-                        <div>
-                            <!-- <span class="text-secondary-d1 text-105">Thank you for your business</span> -->
-                        </div>
-                    </div>
-                </div>
+        <!-- Party and Date Info -->
+        <div class="row info-section">
+            <div class="col-md-6">
+                <p><strong>Party Name:</strong> {{ $customer->name ?? 'N/A' }}</p>
+                <p><strong>Address:</strong> {{ $customer->address ?? 'N/A' }}</p>
             </div>
+            <div class="col-md-6 text-md-right">
+                <p><strong>Date:</strong> {{ \Carbon\Carbon::now()->format('d/m/Y') }}</p>
+            </div>
+        </div>
+
+        <!-- Yarn Delivery Info Table -->
+        <div class="table-responsive">
+            <table class="table table-bordered table-sm">
+                <thead>
+                    <tr>
+                        <th rowspan="2">SL.No.</th>
+                        <th rowspan="2">Delivery Challan Date</th>
+                        <th rowspan="2">Delivery Challan No.</th>
+                        <th rowspan="2">Yarn Count</th>
+                        <th rowspan="2">Delivery Quantity In KG</th>
+                        <th colspan="3">Yarn Receive Info.</th>
+                    </tr>
+                    <tr>
+                        <th>Yarn Receive Date</th>
+                        <th>Yarn Receive Challan No.</th>
+                        <th>Yarn Receive Qty. in KG</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @php
+                        $slNo = 0;
+                    @endphp
+                    @foreach($combinedData as $item)
+                        @if($item['is_previous_statement'] ?? false)
+                            <tr class="highlight-row">
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td></td>
+                                <td>From Previous Statement</td>
+                                <td></td>
+                                <td class="highlight-cell">{{ number_format($item['yarn_receive_qty_kg'], 1) }}</td>
+                            </tr>
+                        @else
+                            <tr>
+                                <td>{{ ++$slNo }}</td>
+                                @if($item['type'] === 'delivery')
+                                    <td>{{ $item['data']['delivery_challan_date'] }}</td>
+                                    <td>{{ $item['data']['delivery_challan_no'] }}</td>
+                                    <td>{{ $item['data']['yarn_count'] }}</td>
+                                    <td>{{ number_format($item['data']['delivery_quantity_kg'], 1) }}</td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                @elseif($item['type'] === 'receive')
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td></td>
+                                    <td>{{ $item['data']['yarn_receive_date'] }}</td>
+                                    <td>{{ $item['data']['yarn_receive_challan_no'] }}</td>
+                                    <td>{{ number_format($item['data']['yarn_receive_qty_kg'], 1) }}</td>
+                                @endif
+                            </tr>
+                        @endif
+                    @endforeach
+                    <!-- Total Delivery Row -->
+                    <tr class="total-row">
+                        <td colspan="4" class="text-right">Total Delivery</td>
+                        <td>{{ number_format($totalDelivery, 2) }}</td>
+                        <td colspan="2" class="text-right">Total Receive</td>
+                        <td>{{ number_format($totalReceive, 1) }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Total Summary Table -->
+        <table class="total-summary-table table table-sm">
+            <tbody>
+                <tr>
+                    <td>Total Receive</td>
+                    <td>{{ number_format($totalReceive, 1) }}</td>
+                </tr>
+                <tr>
+                    <td>Total Delivery</td>
+                    <td>{{ number_format($totalDelivery, 2) }}</td>
+                </tr>
+                <tr>
+                    <td>Present Stock</td>
+                    <td>{{ number_format($presentStock, 2) }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <!-- Footer Section -->
+        <div class="footer-section">
+            <p>Thanks & Regards</p>
         </div>
     </div>
+
+    <!-- Bootstrap 4 JS and dependencies (optional, for interactive components if added later) -->
+    <script src="{{ asset('admin-assets/assets/js/libs/jquery-3.1.1.min.js')}}"></script>
+    <script src="{{ asset('admin-assets/bootstrap/js/bootstrap.min.js')}}"></script>
 </body>
 </html>
