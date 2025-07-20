@@ -112,7 +112,7 @@
                               <td>{{ totalGrossWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id,
                                 'weight') }}</td>
                               <td>{{ totalNetWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id, 'weight')
-                                }}</td>
+                              }}</td>
                               <td>{{ totalBobin }}</td>
                               <td></td>
                             </tr>
@@ -133,8 +133,8 @@
             </div>
           </form>
           <!-- Modal -->
-          <div class="modal animated fadeInRight custo-fadeInRight show" :class="{ 'show d-block': showModal }" tabindex="-1" role="dialog"
-            aria-labelledby="addItemModalLabel" aria-hidden="true">
+          <div class="modal animated fadeInRight custo-fadeInRight show" :class="{ 'show d-block': showModal }"
+            tabindex="-1" role="dialog" aria-labelledby="addItemModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
               <div class="modal-content">
                 <div class="modal-header">
@@ -162,14 +162,13 @@
                       <tbody>
                         <tr v-for="(item, index) in serviceInfo.dataItem" :key="index">
                           <td>
-                            <select v-model="item.yarn_count_id" class="form-control">
-                              <option value="">Select Yarn Count</option>
-                              <option v-for="yc in yarnCounts" :key="yc.id" :value="yc.id">
-                                {{ yc.name }}
-                              </option>
-                            </select>
-                            <!-- //customer stock of selected yarn count -->
-                            <p>{{ getYarnQuantity(item) }}</p>
+                              <small style="font-size: 12px; color: #555;">{{ getYarnQuantity(item) }}</small>
+                              <select v-model="item.yarn_count_id" class="form-control">
+                                <option value="">Select Yarn Count</option>
+                                <option v-for="yc in yarnCounts" :key="yc.id" :value="yc.id">
+                                  {{ yc.name }}
+                                </option>
+                              </select>
                           </td>
                           <td>
                             <select v-model="item.color_id" class="form-control">
@@ -273,14 +272,14 @@ export default {
       description: '',
       dataItem: [{
         yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
-        extra_quantity: 0, extra_quantity_price:0, color_id: '', gross_weight: 0,
+        extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
         net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
       }]
     });
 
     const getCustomerYarnCounts = () => {
       // Fetch yarn counts for the selected customer from customer stock
-      resetForm();
+      // resetForm();
       if (serviceInfo.customer_id) {
         Axistance.get(`customer/${serviceInfo.customer_id}`)
           .then(response => {
@@ -300,16 +299,16 @@ export default {
     };
 
     const getYarnQuantity = (item) => {
-      if (!customerYarnCounts.value || !item.yarn_count_id) return 'N/A';
       const yarnCount = customerYarnCounts.value.find(yc => yc.yarn_count_id == item.yarn_count_id);
-      const amytStock = yarnCounts.value.find(yc => yc.id == item.yarn_count_id).amyt_stock?.quantity || 0;
-      return yarnCount ? `client:${yarnCount.quantity},amyt:${amytStock}` : 0;
+      const foundYarn = yarnCounts.value.find(yc => yc.id == item.yarn_count_id);
+      const amytStock = foundYarn?.amyt_stock?.quantity ?? 0;
+      return `client:${yarnCount?.quantity ?? 0},amyt:${amytStock}`;
     };
 
     const addItem = () => {
       serviceInfo.dataItem.push({
         yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
-        extra_quantity: 0, extra_quantity_price:0, color_id: '', gross_weight: 0,
+        extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
         net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
       });
     };
@@ -320,7 +319,7 @@ export default {
       } else {
         Object.assign(serviceInfo.dataItem[0], {
           yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
-          extra_quantity: 0, extra_quantity_price:0, color_id: '', gross_weight: 0,
+          extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
           net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
         });
       }

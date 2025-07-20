@@ -13,7 +13,7 @@ class AllStatic
 
     const DISCOUNT_TYPE_PERCENTAGE = 0;
     const DISCOUNT_TYPE_FIXED_AMOUNT = 1;
-
+    const DRAFT = 3;
     const ALL_STATIC = [
         'PURCHASE_STATUS' => [
             'PENDING' => self::PURCHASE_STATUS_PENDING,
@@ -31,6 +31,12 @@ class AllStatic
         'IS_STOCK' => [
             'NOT_STOCK' => 0,
             'STOCK' => 1,
+        ],
+        'SERVICE_STATUS' => [
+            'PENDING' => self::PURCHASE_STATUS_PENDING,
+            'APPROVED' => self::PURCHASE_STATUS_APPROVED,
+            'REJECTED' => self::PURCHASE_STATUS_REJECTED,
+            'DRAFT' => self::DRAFT,
         ],
     ];
 }

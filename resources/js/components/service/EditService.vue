@@ -49,13 +49,16 @@
                                                     </div>
 
                                                     <!-- New fields based on schema -->
-                                                    <div class="col-md-4">
+                                                    <div class="col-md-8">
                                                         <div class="form-group">
                                                             <label for="document_link">Document (e.g., Invoice
                                                                 PDF)</label>
+                                                                <a class="ml-4" v-if="serviceInfo.document_link"
+                                                                :href="serviceInfo.document_link" target="_blank">View Document</a>
                                                             <!-- Using a simple file input for now. Dropify was here before, can be re-integrated if needed -->
                                                             <input type="file" class="form-control-file mb-4"
                                                                 id="document_link" @change="handleFileUpload">
+                                                           
                                                         </div>
                                                     </div>
                                                     <div class="col-md-12">
@@ -263,6 +266,7 @@ const serviceInfo = ref({
     service_date: '',
     invoice_no: '',
     document_link: null,
+    update_document_link: null,
     total_amount: 0,
     payment_status: 0,
     discount: 0,
@@ -304,6 +308,12 @@ const getAttribute = async () => {
     }
 };
 
+const handleFileUpload = (event) => {
+      const file = event.target.files[0];
+      if (file) {
+        serviceInfo.update_document_link = file;
+      }
+    };
 
 const getAttrName = (id, attr) => {
     const found = attributes.value?.[attr]?.find(yc => yc.id == id);

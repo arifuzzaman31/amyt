@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class AmytStock extends Model
 {
     // use SoftDeletes;
-    // one to one relationship with YarnCount
     protected $fillable = [
         'yarn_count_id',
         'quantity', // Current stock quantity

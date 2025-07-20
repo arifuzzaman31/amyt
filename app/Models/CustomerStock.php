@@ -10,6 +10,7 @@ class CustomerStock extends Model
     // one to one relationship with YarnCount
     protected $fillable = [
         'yarn_count_id',
+        'customer_id', // ID of the customer
         'quantity', // Current stock quantity
     ];
     /**
