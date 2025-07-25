@@ -288,7 +288,7 @@ export default {
 
     const getSuppliers = async () => {
       try {
-        const response = await Axistance.get(baseUrl + 'supplier');
+        const response = await Axistance.get('supplier');
         suppliers.value = response.data;
       } catch (error) {
         console.error('Error fetching suppliers:', error);
@@ -297,7 +297,7 @@ export default {
 
     const getYarnCounts = async () => {
       try {
-        const response = await Axistance.get(baseUrl + 'yarn-count'); // Ensure this endpoint is correct
+        const response = await Axistance.get('yarn-count'); // Ensure this endpoint is correct
         yarnCounts.value = response.data.data;
       } catch (error) {
         console.error('Error fetching yarn counts:', error);
@@ -365,11 +365,11 @@ export default {
       });
     
       try {
-        const response = await Axistance.post(baseUrl + 'purchase', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        const response = await Axistance.post('purchase', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         alert(response.data.message);
         resetForm();
         //redirect to purchase list
-        window.location.href = baseUrl + 'purchase-list';
+        window.location.href = 'purchase-list';
 
       } catch (error) {
         alert(error.response?.data?.message || 'An error occurred');

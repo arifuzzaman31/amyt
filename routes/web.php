@@ -47,6 +47,7 @@ Route::prefix('admin')->group(function () {
     Route::view('customer-stock-page', 'pages.stock.create_stock')->name('customer-stock-page');
     Route::post('customer-stock-in', [CustomerStockController::class, 'stockIn'])->name('customer-stock-in');
     Route::post('customer-item-to-stock/{id}', [CustomerStockController::class, 'loadTostockIn'])->name('customer-item-to-stock');
+    Route::delete('customer-stock/{id}',[CustomerStockController::class,'destroyChallan']);
     // Route for Service creation
     Route::view('create-service', 'pages.service.create_service')->name('create-service');
     Route::view('attribute-list', 'pages.attribute.attribute')->name('attribute-list');

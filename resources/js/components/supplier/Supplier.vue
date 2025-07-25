@@ -139,9 +139,9 @@ const openEditModal = (supplier) => {
 }
 const submitSupplierForm = async () => {
     if (editingId.value) {
-        await axios.put(baseUrl + `supplier/${editingId.value}`, form.value)
+        await axios.put(`supplier/${editingId.value}`, form.value)
     } else {
-        await axios.post(baseUrl + 'supplier', form.value)
+        await axios.post('supplier', form.value)
     }
     clearData()
     fetchSupplier()
@@ -160,13 +160,13 @@ const editSupplier = (supplier) => {
 }
 
 const fetchSupplier = async () => {
-    const res = await axios.get(baseUrl + 'supplier')
+    const res = await axios.get('supplier')
     supplierList.value = res.data
 }
 
 const deleteSupplier = async (id) => {
     if (confirm('Are you sure?')) {
-        await axios.delete(baseUrl + `supplier/${id}`)
+        await axios.delete(`supplier/${id}`)
     }
 }
 onMounted(() => {

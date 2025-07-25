@@ -61,7 +61,7 @@ const fetchAmytCustomerStock = async () => {
 const deleteCustomerStock = async (id) => {
     if (confirm('Are you sure?')) {
         try {
-            await Axistance.delete(baseUrl + `purchase/${id}`);
+            await Axistance.delete(`purchase/${id}`);
             fetchAmytCustomerStock();
         } catch (error) {
             console.error('Error deleting purchase:', error);

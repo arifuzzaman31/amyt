@@ -80,7 +80,7 @@ const form = ref({ name: '' })
 const editingId = ref(null)
 
 const fetchExpenseCategory = async () => {
-    const res = await axios.get(baseUrl + 'expense/category')
+    const res = await axios.get('expense/category')
     expenseCategories.value = res.data
 }
 const openEditModal = (group) => {
@@ -90,9 +90,9 @@ const openEditModal = (group) => {
 }
 const submitForm = async () => {
     if (editingId.value) {
-        await axios.put(baseUrl + `expense/category/${editingId.value}`, form.value)
+        await axios.put(`expense/category/${editingId.value}`, form.value)
     } else {
-        await axios.post(baseUrl + 'expense/category', form.value)
+        await axios.post('expense/category', form.value)
     }
 
     form.value.name = ''
@@ -109,7 +109,7 @@ const editCategory = (group) => {
 
 const deleteCategory = async (id) => {
     if (confirm('Are you sure?')) {
-        await axios.delete(baseUrl + `expense/category/${id}`)
+        await axios.delete(`expense/category/${id}`)
         fetchExpenseCategory()
     }
 }

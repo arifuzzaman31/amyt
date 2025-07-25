@@ -1,11 +1,13 @@
 <?php
+
 namespace App\Services;
 
 use App\CustomConst\AllStatic;
 use App\Models\CustomerItem;
+use App\Models\CustomerStock;
 use Illuminate\Support\Facades\DB;
 
-class CustomerStockService 
+class CustomerStockService
 {
     public function getAll($data)
     {
@@ -58,7 +60,7 @@ class CustomerStockService
                     $stockItem->customerStockHistories()->save($item);
                 }
             }
-            $stockItem->load('items.yarnCount'); // Eager load items after creation
+            $stockItem->load('customerStockHistories'); // Eager load items after creation
             DB::commit();
             return $stockItem;
         } catch (\Throwable $th) {
@@ -66,22 +68,58 @@ class CustomerStockService
             throw $th;
         }
     }
+
+    public function destroyItems($id)
+    {
+        DB::beginTransaction();
+        try {
+            $challan = CustomerItem::with('customerStockHistories')->findOrFail($id);
+
+            foreach ($challan->customerStockHistories as $history) {
+                // Reduce quantity from customer_stocks
+                $customerStock = CustomerStock::where('customer_id', $challan->customer_id)
+                    ->where('yarn_count_id', $history->yarn_count_id)
+                    ->first();
+
+                if ($customerStock) {
+                    $customerStock->quantity -= $history->quantity;
+                    if ($customerStock->quantity < 0) {
+                        $customerStock->quantity = 0; // Prevent negative stock
+                    }
+                    $customerStock->save();
+                }
+                // Delete stock history
+                $history->delete();
+            }
+
+            // Delete the main CustomerItem
+            $challan->delete();
+
+            DB::commit();
+
+            return ['success' => true, 'message' => 'Challan and related data deleted successfully.'];
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            throw $th; // Let controller catch and return proper error
+        }
+    }
+
     public function itemStockIn($id)
     {
         try {
             $result = \App\Models\CustomerItem::with('customerStockHistories')->find($id);
             if (!$result) {
-                return ['status'=>false, 'message' =>'No items found' ];
+                return ['status' => false, 'message' => 'No items found'];
             }
             // Create or update the stock entry
-            $result->items()->each(function ($item) use ($result) {
+            $result->customerStockHistories()->each(function ($item) use ($result) {
                 $stock = \App\Models\CustomerStock::firstOrNew([
                     'yarn_count_id' => $item->yarn_count_id,
                     'customer_id' => $result->customer_id
                 ]);
                 $stock->customer_id = $result->customer_id;
                 $stock->quantity += $item->quantity; // Increment the quantity
-                
+
                 $stock->save();
             });
             $result->is_stocked = AllStatic::ALL_STATIC['IS_STOCK']['STOCK'];
@@ -113,7 +151,7 @@ class CustomerStockService
     public function stockUpdate($data, $id)
     {
         $stock = \App\Models\CustomerStock::findOrFail($id);
-        
+
         $data = $data->validate([
             'customer_id' => 'required|exists:customers,id',
             'yarn_count_id' => 'required|exists:yarn_counts,id',
@@ -147,7 +185,7 @@ class CustomerStockService
     public function stockHistoryUpdate($data, $id)
     {
         $stockHistory = \App\Models\CustomerStockHistory::findOrFail($id);
-        
+
         $data = $data->validate([
             'yarn_count_id' => 'required|exists:yarn_counts,id',
             'quantity' => 'required|numeric|min:0',

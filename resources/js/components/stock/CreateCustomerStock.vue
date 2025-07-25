@@ -76,7 +76,7 @@
                         <div class="modal-dialog modal-lg" role="document">
                           <div class="modal-content">
                             <div class="modal-header">
-                              <h5 class="modal-title" id="addItemModalLabel">Add/Edit Items</h5>
+                              <h5 class="modal-title" id="addItemModalLabel">Add Items</h5>
                               <button type="button" class="close" @click="showModal = false" aria-label="Close">
                                 <span aria-hidden="true">&times;</span>
                               </button>
@@ -174,7 +174,7 @@
                               <div class="col-sm-7">
                                 <select v-model="customerItems.discount_type" class="form-control form-control-sm"
                                   id="discount_type">
-                                  <option :value="null">Select Type</option>
+                                  <option value="">Select Type</option>
                                   <option value="0">Percentage (%)</option>
                                   <option value="1">Fixed Amount</option>
                                 </select>
@@ -259,8 +259,8 @@
         total_amount: 0, // This will be updated by grandTotal watcher
         payment_status: 0,
         discount: 0,
-        discount_type: null, // 0 for percentage, 1 for fixed
-        status: 0,
+        discount_type: '', // 0 for percentage, 1 for fixed
+        status: 3,
         description: '',
         dataItem: [{ yarn_count_id: '', quantity: '', unit_price: '' }]
       });
@@ -385,8 +385,8 @@
         customerItems.total_amount = 0;
         customerItems.payment_status = 0;
         customerItems.discount = 0;
-        customerItems.discount_type = null;
-        customerItems.status = 0;
+        customerItems.discount_type = '';
+        customerItems.status = 3;
         customerItems.description = '';
         showModal.value = false; // Close the modal after resetting
       };

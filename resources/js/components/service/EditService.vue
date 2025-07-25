@@ -378,7 +378,7 @@ const closeModal = () => {
 
 const getYarnCounts = async () => {
     try {
-        const response = await Axistance.get(baseUrl + 'yarn-count');
+        const response = await Axistance.get('yarn-count');
         yarnCounts.value = response.data.data;
     } catch (error) {
         console.error('Error fetching yarn counts:', error);

@@ -55,7 +55,7 @@
                                             <a type="button" :class="'dropdown-item ' + (getStatusLabel(stock.status) == 'Approved' ? 'disabled text-muted' : '')" @click="updateStatus(stock.id)" href="javascript:void(0);">Approved</a>
                                             <a type="button" :class="'dropdown-item ' + (stock.is_stocked == 1 ? 'disabled text-muted' : '')" @click="loadToStock(stock.id)" href="javascript:void(0);">Load to Stock</a>
                                             <a type="button" class="dropdown-item" @click="openEditModal(purchase)" href="javascript:void(0);">Edit</a>
-                                            <a type="button" class="dropdown-item" @click="deletePurchase(stock.id)" href="javascript:void(0);">Delete</a>
+                                            <a type="button" class="dropdown-item" @click="deleteCustomerStock(stock.id)" href="javascript:void(0);">Delete</a>
                                         </div>
                                     </div>
                                     
@@ -94,7 +94,7 @@ const fetchCustomerStock = async () => {
 const deleteCustomerStock = async (id) => {
     if (confirm('Are you sure?')) {
         try {
-            await Axistance.delete(baseUrl + `purchase/${id}`);
+            await Axistance.delete(`purchase/${id}`);
             fetchCustomerStock();
         } catch (error) {
             console.error('Error deleting purchase:', error);

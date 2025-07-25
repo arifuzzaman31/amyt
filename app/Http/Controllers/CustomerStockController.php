@@ -83,6 +83,16 @@ class CustomerStockController extends Controller
 
         return response()->json(['message' => 'Stock updated successfully', 'stock' => $stock], 200);
     }
+    public function destroyChallan($id)
+    {
+        try {
+            $purchase = $this->stockService->destroyItems($id);
+            return response()->json($purchase, Response::HTTP_OK);
+        } catch (\Throwable $th) {
+            return response()->json(['message' => $th->getMessage()], Response::HTTP_NOT_FOUND);
+        }
+    }
+
     public function stockHistory($id)
     {
         $stockHistories = \App\Models\CustomerStockHistory::where('customer_item_id', $id)
@@ -140,4 +150,5 @@ class CustomerStockController extends Controller
 
         return response()->json(['message' => 'Stock history created successfully', 'stock_history' => $stockHistory], 201);
     }
+
 }

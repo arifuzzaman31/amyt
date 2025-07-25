@@ -143,7 +143,7 @@ const clearData = () => {
 }
 
 const fetchCustomers = async () => {
-    const res = await axios.get(baseUrl + 'customer')
+    const res = await axios.get('customer')
     customerList.value = res.data
 }
 const openEditModal = (customer) => {
@@ -158,9 +158,9 @@ const openEditModal = (customer) => {
 }
 const submitCustomerForm = async () => {
     if (editingId.value) {
-        await axios.put(baseUrl + `customer/${editingId.value}`, form.value)
+        await axios.put(`customer/${editingId.value}`, form.value)
     } else {
-        await axios.post(baseUrl + 'customer', form.value)
+        await axios.post('customer', form.value)
     }
     clearData()
     fetchCustomers()
@@ -179,13 +179,13 @@ const editCustomer = (group) => {
 }
 
 const fetchGroups = async () => {
-    const res = await axios.get(baseUrl + 'customer-groups')
+    const res = await axios.get('customer-groups')
     customerGroups.value = res.data
 }
 
 const deleteCustomer = async (id) => {
     if (confirm('Are you sure?')) {
-        await axios.delete(baseUrl + `customer/${id}`)
+        await axios.delete(`customer/${id}`)
         fetchCustomers()
     }
 }

@@ -125,7 +125,7 @@ const clearData = () => {
 }
 
 const fetchExpenseCategory = async () => {
-    const res = await axios.get(baseUrl + 'expense/category')
+    const res = await axios.get('expense/category')
     expenseCategories.value = res.data
 }
 const openEditModal = (customer) => {
@@ -138,9 +138,9 @@ const openEditModal = (customer) => {
 }
 const submitCustomerForm = async () => {
     if (editingId.value) {
-        await axios.put(baseUrl + `expense/${editingId.value}`, form.value)
+        await axios.put(`expense/${editingId.value}`, form.value)
     } else {
-        await axios.post(baseUrl + 'expense', form.value)
+        await axios.post('expense', form.value)
     }
     clearData()
     fetchExpense()
@@ -157,13 +157,13 @@ const editExpense = (group) => {
 }
 
 const fetchExpense = async () => {
-    const res = await axios.get(baseUrl + 'expense')
+    const res = await axios.get('expense')
     expenseList.value = res.data
 }
 
 const deleteCustomer = async (id) => {
     if (confirm('Are you sure?')) {
-        await axios.delete(baseUrl + `expense/${id}`)
+        await axios.delete(`expense/${id}`)
         fetchExpenseCategory()
     }
 }
