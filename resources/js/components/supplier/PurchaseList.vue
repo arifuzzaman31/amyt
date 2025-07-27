@@ -88,30 +88,48 @@ const closeEditModal = () => {
     selectedPurchase.value = null;
 }
 const updateStatus = (id) => {
-    if (confirm('Are you sure you want to approve this purchase?')) {
-        Axistance.post(`purchase/${id}/approve`)
-            .then((response) => {
-                alert(response.data.message || 'Purchase approved successfully.');
-                fetchPurchase();
-            })
-            .catch(error => {
-                console.error('Error approving purchase:', error);
-                // Here you could add user-facing error handling, e.g., a toast notification.
-            });
-    }
+    swal({
+      title: 'Are you sure?',
+      text: "Approve this purchase?",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      padding: '2em'
+    }).then(async function(result) {
+        if (result.value) {
+            await Axistance.post(`purchase/${id}/approve`)
+          .then(response => {
+            swal(
+              'Loaded!',
+              response.data.message,
+              response.data.status
+            )
+            fetchPurchase();
+        })
+      }
+    })
 }
 const loadToStock = (id) => {
-    if (confirm('Are you sure you want to load this purchase to stock?')) {
-        Axistance.post(`purchase-to-stock/${id}`)
-            .then((response,error) => {
-                alert(response.data.message || 'Purchase loaded to stock successfully.');
-                fetchPurchase();
-            })
-            .catch(error => {
-                console.error('Error loading purchase to stock:', error);
-                // Here you could add user-facing error handling, e.g., a toast notification.
-            });
-    }
+    swal({
+      title: 'Are you sure?',
+      text: "Load this purchase to stock?",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      padding: '2em'
+    }).then(async function(result) {
+      if (result.value) {
+        await Axistance.post(`purchase-to-stock/${id}`)
+          .then(response => {
+            swal(
+              'Loaded!',
+              response.data.message,
+              response.data.status
+            )
+            fetchPurchase();
+        })
+      }
+    })
 }
 
 const fetchPurchase = async () => {

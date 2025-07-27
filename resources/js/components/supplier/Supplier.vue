@@ -111,7 +111,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import Axistance from '../../Axistance'
 
 const supplierList = ref([])
 const form = ref({ name: '',company_name:'', address: '', email: '', phone: '', status: 1 })
@@ -139,9 +139,9 @@ const openEditModal = (supplier) => {
 }
 const submitSupplierForm = async () => {
     if (editingId.value) {
-        await axios.put(`supplier/${editingId.value}`, form.value)
+        await Axistance.put(`supplier/${editingId.value}`, form.value)
     } else {
-        await axios.post('supplier', form.value)
+        await Axistance.post('supplier', form.value)
     }
     clearData()
     fetchSupplier()
@@ -160,13 +160,13 @@ const editSupplier = (supplier) => {
 }
 
 const fetchSupplier = async () => {
-    const res = await axios.get('supplier')
+    const res = await Axistance.get('supplier')
     supplierList.value = res.data
 }
 
 const deleteSupplier = async (id) => {
     if (confirm('Are you sure?')) {
-        await axios.delete(`supplier/${id}`)
+        await Axistance.delete(`supplier/${id}`)
     }
 }
 onMounted(() => {

@@ -80,7 +80,7 @@
           <tr v-if="yarnList.length === 0">
             <td colspan="5" class="text-center">No yarns found.</td>
           </tr>
-          <tr v-for="yarn in yarnList" :key="yarn.id">
+          <tr v-for="yarn in yarnList.data" :key="yarn.id">
             <td>{{ yarn.id }}</td>
             <td>{{ yarn.name }}</td>
             <td>{{ yarn.count }}</td>
@@ -101,7 +101,7 @@
     <!-- Pagination -->
   
       <vue-awesome-paginate
-        :total-items="totalItems"
+        :total-items="yarnList.total"
         :items-per-page="itemsPerPage"
         :max-pages-shown="2"
         v-model="currentPage"
@@ -114,34 +114,28 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue';
 import Axistance from '../../Axistance';
-import 'vue-awesome-paginate/dist/style.css'; // Import the styles
-import VueAwesomePaginate from 'vue-awesome-paginate'; // Import the component
 
 const yarnList = ref([]);
 const form = ref({ name: '', count: '', type: '' });
 const editingId = ref(null);
-const showModal = ref(false); // To control modal visibility programmatically if needed
-
 // Pagination state
-const currentPage = ref(1);
-const totalItems = ref(0);
-const itemsPerPage = ref(3); // Default, can be made dynamic
-const API_PATH = 'yarn-count'; // Define your API path prefix
+const currentPage = ref(1)
+const itemsPerPage = 10
 
-const fetchYarns = async (page = 1) => {
+const API_PATH = 'yarn-count';
+
+const fetchYarns = async () => {
   try {
-    const res = await Axistance.get(`${API_PATH}?page=${page}&per_page=${itemsPerPage.value}`);
-    yarnList.value = res.data.data || []; // Ensure it's an array
-    totalItems.value = res.data.total || 0;
-    currentPage.value = res.data.current_page || 1;
-    // Preserve client-side itemsPerPage if backend doesn't specify, or if it differs.
-    // Ideally, backend should always return the per_page it used.
-    itemsPerPage.value = res.data.per_page || itemsPerPage.value;
+    const res = await Axistance.get(`${API_PATH}`, {
+        params: {
+            page: currentPage.value,
+            limit: itemsPerPage
+        }
+    });
+    yarnList.value = res.data;
   } catch (error) {
     console.error('Error fetching yarns:', error.response ? error.response.data : error.message);
-    yarnList.value = []; // Reset on error
-    totalItems.value = 0;
-    // Handle error (e.g., show a notification to the user)
+    yarnList.value = [];
   }
 };
 
@@ -178,7 +172,7 @@ const submitForm = async () => {
       // Add success notification
     }
     resetForm();
-    fetchYarns(currentPage.value); // Fetch current page after add/edit
+    fetchYarns(); // Fetch current page after add/edit
     $('#yarnModal').modal('hide');
   } catch (error) {
     console.error('Error submitting form:', error.response ? error.response.data : error.message);
@@ -187,21 +181,33 @@ const submitForm = async () => {
 };
 
 const deleteYarn = async (id) => {
-  if (confirm('Are you sure you want to delete this yarn?')) {
-    try {
-      await Axistance.delete(`${API_PATH}/${id}`);
-      fetchYarns(currentPage.value); // Refresh list, consider if it should go to page 1 or stay
-      // Add success notification
-    } catch (error) {
-      console.error('Error deleting yarn:', error);
-      // Handle error
-    }
-  }
+  swal({
+      title: 'Are you sure?',
+      text: "This data wont be revert!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      padding: '2em'
+    }).then(async function(result) {
+      if (result.value) {
+        await Axistance.delete(`${API_PATH}/${id}`)
+          .then(response => {
+            swal(
+              'Deleted!',
+              response.data.message,
+              response.data.status
+            )
+            fetchYarns()
+        })
+      }
+    })
 };
-
+watch(currentPage, () => {
+  fetchYarns()
+})
 const onClickHandler = (page) => {
-  fetchYarns(page);
-};
+    currentPage.value = page
+}
 
 onMounted(() => {
   fetchYarns(currentPage.value);

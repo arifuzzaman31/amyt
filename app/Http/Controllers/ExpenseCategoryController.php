@@ -10,10 +10,22 @@ class ExpenseCategoryController extends Controller
 
     public function __construct(private ExpenseCategory $model = new ExpenseCategory()) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        return $this->model::get();
+        $perPage = $request->input('limit') ?? 5; // You can adjust this as needed
+        $search = $request->input('search');
+
+        $query = ExpenseCategory::orderBy('name','desc');
+
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+
+        return $query->paginate($perPage);
     }
+
     public function store(Request $request)
     {
         $request->validate([

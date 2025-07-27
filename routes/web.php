@@ -16,7 +16,7 @@ use App\Http\Controllers\YarnController;
 use App\Http\Controllers\YarnStockController;
 use Illuminate\Support\Facades\Route;
 
-Route::prefix('admin')->group(function () {
+Route::prefix('admin')->middleware('AuthCheck')->group(function () {
     Route::view('dashboard', 'pages.dashboard');
     Route::resource('customer', CustomerController::class);
     Route::view('customer-list', 'pages.customer.customer')->name('customer-list');
@@ -29,7 +29,7 @@ Route::prefix('admin')->group(function () {
     Route::resource('supplier', SupplierController::class);
     Route::view('supplier-list', 'pages.supplier.supplier')->name('supplier-list');
     Route::resource('purchase', PurchaseController::class);
-    Route::post('purchase/{id}/approve', [PurchaseController::class, 'purchaseStatus'])->name('purchase-to-stock');
+    Route::post('purchase/{id}/approve', [PurchaseController::class, 'purchaseStatus']);
     Route::view('create-purchase', 'pages.purchase.create_purchase')->name('create-purchase');
     Route::view('purchase-list', 'pages.purchase.purchase')->name('purchase-list');
     Route::resource('service', ServiceController::class);

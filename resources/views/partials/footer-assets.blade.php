@@ -24,4 +24,26 @@
     </script>
 <script src="{{ asset('admin-assets/plugins/apex/apexcharts.min.js')}}"></script>
 <script src="{{ asset('admin-assets/assets/js/dashboard/dash_1.js')}}"></script>
+<script src="{{ asset('admin-assets/plugins/sweetalerts/sweetalert2.min.js')}}"></script>
+<script src="{{ asset('admin-assets/plugins/sweetalerts/custom-sweetalert.js')}}"></script>
+<script>
+    const notifier = (data) => {
+  const toast = swal.mixin({
+    toast: true,
+    position: 'top-end',
+    showConfirmButton: false,
+    timer: 3000,
+    padding: '2em'
+  });
 
+  toast({
+    type: data.status,
+    title: data.message,
+    padding: '2em',
+  })
+}
+
+const confirmNotify = () =>{
+    
+}
+</script>

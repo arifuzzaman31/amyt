@@ -109,7 +109,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import Axistance from '../../Axistance'
 
 const expenseCategories = ref([])
 const expenseList = ref([])
@@ -125,7 +125,7 @@ const clearData = () => {
 }
 
 const fetchExpenseCategory = async () => {
-    const res = await axios.get('expense/category')
+    const res = await Axistance.get('expense/category')
     expenseCategories.value = res.data
 }
 const openEditModal = (customer) => {
@@ -138,9 +138,9 @@ const openEditModal = (customer) => {
 }
 const submitCustomerForm = async () => {
     if (editingId.value) {
-        await axios.put(`expense/${editingId.value}`, form.value)
+        await Axistance.put(`expense/${editingId.value}`, form.value)
     } else {
-        await axios.post('expense', form.value)
+        await Axistance.post('expense', form.value)
     }
     clearData()
     fetchExpense()
@@ -157,15 +157,31 @@ const editExpense = (group) => {
 }
 
 const fetchExpense = async () => {
-    const res = await axios.get('expense')
+    const res = await Axistance.get('expense')
     expenseList.value = res.data
 }
 
 const deleteCustomer = async (id) => {
-    if (confirm('Are you sure?')) {
-        await axios.delete(`expense/${id}`)
-        fetchExpenseCategory()
-    }
+    swal({
+      title: 'Are you sure?',
+      text: "This data wont be revert!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      padding: '2em'
+    }).then(async function(result) {
+      if (result.value) {
+        await Axistance.delete(`expense/${id}`)
+          .then(response => {
+            swal(
+              'Deleted!',
+              response.data.message,
+              response.data.status
+            )
+            fetchExpense()
+        })
+      }
+    })
 }
 onMounted(() => {
     fetchExpense()

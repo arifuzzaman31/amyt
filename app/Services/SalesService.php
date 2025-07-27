@@ -174,14 +174,16 @@ class SalesService
 
             $service->status = AllStatic::ALL_STATIC['SERVICE_STATUS']['APPROVED']; // Assuming 1 means approved
             $service->save();
+            DB::commit();
             return [
-                'status' => true,
+                'status' => 'success',
                 'message' => 'Service approved successfully',
                 'service' => $service
             ];
         } catch (\Throwable $th) {
+            DB::rollBack();
             return [
-                'status' => false,
+                'status' => 'error',
                 'message' => 'Failed to approve service',
                 'error' => $th->getMessage()
             ];
@@ -192,12 +194,12 @@ class SalesService
         try {
             $result = $this->serviceModel::destroy($id);
             return [
-                'status' => $result ? true : false,
+                'status' => $result ? 'success' : 'error',
                 'message' => $result ? 'Service deleted successfully' : 'Service not found'
             ];
         } catch (\Throwable $th) {
             return [
-                'status' => false,
+                'status' => 'error',
                 'message' => $th->getMessage()
             ];
         }

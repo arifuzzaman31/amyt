@@ -58,8 +58,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="expense in expenseCategories" :key="expense.id">
-                        <td>{{ expense.id }}</td>
+                    <tr v-for="(expense,ind) in expenseCategories.data" :key="ind">
+                        <td>{{ ++ind }}</td>
                         <td>{{ expense.name }}</td>
                         <td>
                             <button class="btn btn-sm btn-warning mr-2" @click="openEditModal(expense)">Edit</button>
@@ -68,19 +68,27 @@
                     </tr>
                 </tbody>
             </table>
+            <vue-awesome-paginate :total-items="expenseCategories.total" :items-per-page="itemsPerPage" :max-pages-shown="5"
+                    v-model="currentPage" @click="onClickHandler" />
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-
+import { ref, onMounted,watch } from 'vue'
+import Axistance from '../../Axistance'
 const expenseCategories = ref([])
 const form = ref({ name: '' })
 const editingId = ref(null)
-
+const currentPage = ref(1)
+const itemsPerPage = 10
 const fetchExpenseCategory = async () => {
-    const res = await axios.get('expense/category')
+    const res = await Axistance.get('expense/category', {
+        params: {
+            page: currentPage.value,
+            limit: itemsPerPage
+        }
+    })
     expenseCategories.value = res.data
 }
 const openEditModal = (group) => {
@@ -90,9 +98,9 @@ const openEditModal = (group) => {
 }
 const submitForm = async () => {
     if (editingId.value) {
-        await axios.put(`expense/category/${editingId.value}`, form.value)
+        await Axistance.put(`expense/category/${editingId.value}`, form.value)
     } else {
-        await axios.post('expense/category', form.value)
+        await Axistance.post('expense/category', form.value)
     }
 
     form.value.name = ''
@@ -108,12 +116,33 @@ const editCategory = (group) => {
 }
 
 const deleteCategory = async (id) => {
-    if (confirm('Are you sure?')) {
-        await axios.delete(`expense/category/${id}`)
-        fetchExpenseCategory()
-    }
+    swal({
+      title: 'Are you sure?',
+      text: "This data wont be revert!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      padding: '2em'
+    }).then(async function(result) {
+      if (result.value) {
+        await Axistance.delete(`expense/category/${id}`)
+          .then(response => {
+            swal(
+              'Deleted!',
+              response.data.message,
+              response.data.status
+            )
+            fetchExpenseCategory()
+        })
+      }
+    })
 }
-
+watch(currentPage, () => {
+    fetchCustomers()
+})
+const onClickHandler = (page) => {
+    currentPage.value = page
+}
 onMounted(fetchExpenseCategory)
 </script>
 

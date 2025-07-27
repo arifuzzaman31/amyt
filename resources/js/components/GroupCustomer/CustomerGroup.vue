@@ -68,14 +68,14 @@
   
   <script setup>
   import { ref, onMounted } from 'vue'
-  import axios from 'axios'
+  import Axistance from '../../Axistance'
   
   const customerGroups = ref([])
   const form = ref({ name: '' })
   const editingId = ref(null)
   
   const fetchGroups = async () => {
-    const res = await axios.get(baseUrl+'customer-groups')
+    const res = await Axistance.get('customer-groups')
     customerGroups.value = res.data
   }
   const openEditModal = (group) => {
@@ -85,9 +85,9 @@
   }
   const submitForm = async () => {
     if (editingId.value) {
-      await axios.put(baseUrl+`customer-groups/${editingId.value}`, form.value)
+      await Axistance.put(`customer-groups/${editingId.value}`, form.value)
     } else {
-      await axios.post(baseUrl+'customer-groups', form.value)
+      await Axistance.post('customer-groups', form.value)
     }
   
     form.value.name = ''
@@ -103,10 +103,26 @@
   }
   
   const deleteGroup = async (id) => {
-    if (confirm('Are you sure?')) {
-      await axios.delete(baseUrl+`customer-groups/${id}`)
-      fetchGroups()
-    }
+    swal({
+      title: 'Are you sure?',
+      text: "This Data wont be revert!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      padding: '2em'
+    }).then(async function(result) {
+      if (result.value) {
+        await Axistance.delete(`customer-groups/${id}`)
+          .then(response => {
+            swal(
+              'Deleted!',
+              response.data.message,
+              response.data.status
+            )
+            fetchGroups()
+        })
+      }
+    })
   }
   
   onMounted(fetchGroups)

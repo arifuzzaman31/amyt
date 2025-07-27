@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\CustomConst\AllStatic;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AmytStockController extends Controller
 {
@@ -21,6 +22,7 @@ class AmytStockController extends Controller
     public function purchaseToStock($id)
     {
         try {
+            DB::beginTransaction();
             $purchase = \App\Models\Purchase::with('items')->find($id);
             if (!$purchase) {
                 return redirect()->back()->with('error', 'No purchase items found for this purchase.');
@@ -32,14 +34,17 @@ class AmytStockController extends Controller
                 $stock->save();
             });
             $purchase->is_stocked = AllStatic::ALL_STATIC['IS_STOCK']['STOCK'];
+            $purchase->update();
+            DB::commit();
             return response()->json([
-                'success' => true,
+                'success' => 'success',
                 'message' => 'Stock updated successfully.'
             ]);
             //code...
         } catch (\Throwable $th) {
+            DB::rollBack();
             return response()->json([
-                'success' => false,
+                'success' => 'error',
                 'message' => $th->getMessage()
             ], 500);
         }

@@ -22,14 +22,23 @@
                         </div>
                         <div class="col-md-4">
                           <div class="form-group">
-                            <label for="customer_id">Select Customer</label>
-                            <select v-model="serviceInfo.customer_id" class="form-control mb-4" id="customer_id"
-                              @change="getCustomerYarnCounts">
-                              <option value="">Select Customer</option>
-                              <option v-for="s in customers" :key="s.id" :value="s.id">
-                                {{ s.name }} - {{ s.company_name }}
-                              </option>
-                            </select>
+                            <div>
+                              <label for="customer_id">Select Customer</label>
+                              <multiselect v-model="serviceInfo.customer_id" :options="customers" :track-by="'id'"
+                                :label="c => `${c.name} - ${c.company_name}`" :searchable="true" :loading="loading"
+                                :reduce="c => c.id" placeholder="Select Customer" @search-change="onSearch"
+                                @scroll="onScrollLoadMore">
+                                <!-- Custom label for dropdown options -->
+                                <template #option="{ option }">
+                                  {{ option.name }} - {{ option.company_name }}
+                                </template>
+
+                                <!-- Custom label for selected item (lookup by ID) -->
+                                <template #singleLabel="{ option }">
+                                  {{ getCustomerLabelById(option) }}
+                                </template>
+                              </multiselect>
+                            </div>
                           </div>
                         </div>
                         <div class="col-md-4">
@@ -112,7 +121,7 @@
                               <td>{{ totalGrossWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id,
                                 'weight') }}</td>
                               <td>{{ totalNetWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id, 'weight')
-                              }}</td>
+                                }}</td>
                               <td>{{ totalBobin }}</td>
                               <td></td>
                             </tr>
@@ -162,13 +171,13 @@
                       <tbody>
                         <tr v-for="(item, index) in serviceInfo.dataItem" :key="index">
                           <td>
-                              <small style="font-size: 12px; color: #555;">{{ getYarnQuantity(item) }}</small>
-                              <select v-model="item.yarn_count_id" class="form-control">
-                                <option value="">Select Yarn Count</option>
-                                <option v-for="yc in yarnCounts" :key="yc.id" :value="yc.id">
-                                  {{ yc.name }}
-                                </option>
-                              </select>
+                            <small style="font-size: 12px; color: #555;">{{ getYarnQuantity(item) }}</small>
+                            <select v-model="item.yarn_count_id" class="form-control">
+                              <option value="">Select Yarn Count</option>
+                              <option v-for="yc in yarnCounts" :key="yc.id" :value="yc.id">
+                                {{ yc.name }}
+                              </option>
+                            </select>
                           </td>
                           <td>
                             <select v-model="item.color_id" class="form-control">
@@ -249,18 +258,24 @@
 </template>
 
 <script>
+import Multiselect from 'vue-multiselect';
+import 'vue-multiselect/dist/vue-multiselect.min.css';
 import { ref, reactive, onMounted, computed, watch } from 'vue'; // Added computed and watch
 import Axistance from '../../Axistance';
 export default {
+  components: { Multiselect },
   setup() {
     const customers = ref([]);
     const yarnCounts = ref([]);
     const attributes = ref([]);
+    const hasMore = ref(true);
+    const loading = ref(false);
+    const page = ref(1);
     const customerYarnCounts = ref([]);
     const showModal = ref(false);
 
     const serviceInfo = reactive({
-      customer_id: '',
+      customer_id: null,
       service_date: '',
       invoice_no: '',
       document_link: null,
@@ -277,7 +292,7 @@ export default {
       }]
     });
 
-    const getCustomerYarnCounts = () => {
+    const fetchCustomersYarnCounts = () => {
       // Fetch yarn counts for the selected customer from customer stock
       // resetForm();
       if (serviceInfo.customer_id) {
@@ -329,13 +344,42 @@ export default {
       showModal.value = false;
     };
 
-    const getCustomer = async () => {
+    const fetchCustomers = async (search = '', isSearch = false) => {
+      if (loading.value || (!hasMore.value && !isSearch)) return;
+      loading.value = true;
+
       try {
-        const response = await Axistance.get('customer');
-        customers.value = response.data;
-      } catch (error) {
-        console.error('Error fetching customer:', error);
+        const res = await Axistance.get('/customer', {
+          params: { page: page.value, search }
+        });
+
+        if (isSearch) {
+          customers.value = res.data.data;
+        } else {
+          [...customers.value?.push(...res.data.data)];
+        }
+        console.log(customers.value)
+        hasMore.value = res.data.current_page < res.data.last_page;
+        page.value++;
+      } catch (e) {
+        console.error('Error loading customers', e);
+      } finally {
+        loading.value = false;
       }
+    };
+
+
+    const onScrollLoadMore = () => {
+      fetchCustomers();
+    };
+    const getCustomerLabelById = (data) => {
+      const customer = customers.value.find(c => c.id == data.id);
+      return customer ? `${customer.name} - ${customer.company_name}` : 'Loading...';
+    };
+    const onSearch = (term) => {
+      page.value = 1;
+      hasMore.value = true;
+      fetchCustomers(term, true);
     };
 
     const getYarnCounts = async () => {
@@ -435,7 +479,7 @@ export default {
         extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
         net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
       }];
-      serviceInfo.customer_id = '';
+      serviceInfo.customer_id = null;
       serviceInfo.service_date = '';
       serviceInfo.invoice_no = '';
       serviceInfo.document_link = null;
@@ -449,7 +493,7 @@ export default {
     };
 
     onMounted(() => {
-      getCustomer();
+      fetchCustomers();
       getYarnCounts();
       getAttribute();
     });
@@ -463,14 +507,19 @@ export default {
       addItem,
       removeItem,
       saveItems,
-      getCustomer,
+      fetchCustomers,
+      getCustomerLabelById,
       handleFileUpload,
       getYarnCountName,
       getAttrName,
-      getCustomerYarnCounts,
+      fetchCustomersYarnCounts,
+      onScrollLoadMore,
       submitForm,
       getYarnQuantity,
       showModal,
+      hasMore,
+      onSearch,
+      loading,
       customerYarnCounts,
       totalQuantity,
       totalExtraQuantity,

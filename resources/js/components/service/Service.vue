@@ -88,24 +88,49 @@ const formatDate = (dateString) => {
     });
 }
 const updateStatus = (id) => {
-    if (confirm('Are you sure you want to approve this service?')) {
-        Axistance.get(`service/${id}/approve`)
-            .then((response) => {
-                alert(response.data.message || 'Service approved successfully.');
-                fetchServices();
-            })
-            .catch(error => {
-                console.error('Error approving purchase:', error);
-                // Here you could add user-facing error handling, e.g., a toast notification.
-            });
-    }
+  swal({
+      title: 'Are you sure?',
+      text: "Approve this service?!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      padding: '2em'
+    }).then(async function(result) {
+      if (result.value) {
+        await Axistance.get(`service/${id}/approve`)
+          .then(response => {
+            swal(
+              'Approved!',
+              response.data.message,
+              response.data.status
+            )
+            fetchServices()
+        })
+      }
+    })
 }
 
 const deleteService = async (id) => {
-  if (confirm('Are you sure?')) {
-    await Axistance.delete(`service/${id}`)
-    fetchServices()
-  }
+  swal({
+      title: 'Are you sure?',
+      text: "You won't be able to revert this!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      padding: '2em'
+    }).then(async function(result) {
+      if (result.value) {
+        await Axistance.delete(`service/${id}`)
+          .then(response => {
+            swal(
+              'Deleted!',
+              response.data.message,
+              response.data.status
+            )
+            fetchServices()
+        })
+      }
+    })
 }
 const getStatusClass = (status) => {
   const classMap = {

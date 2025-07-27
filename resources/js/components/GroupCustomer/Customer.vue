@@ -56,8 +56,8 @@
 
                                             <div class="form-group">
                                                 <label for="address">Address</label>
-                                                <input v-model="form.address" type="text" class="form-control" id="address"
-                                                    placeholder="Enter address" />
+                                                <input v-model="form.address" type="text" class="form-control"
+                                                    id="address" placeholder="Enter address" />
                                             </div>
                                             <div class="form-group">
                                                 <label for="email">Email</label>
@@ -76,7 +76,8 @@
                         </div>
 
                         <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-dismiss="modal" @click="clearData">Discard</button>
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal"
+                                @click="clearData">Discard</button>
                             <button type="button" class="btn btn-primary" @click="submitCustomerForm">
                                 {{ editingId ? 'Update' : 'Add' }}
                             </button>
@@ -101,37 +102,42 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="customer in customerList" :key="customer.id">
+                            <tr v-for="customer in customerList.data" :key="customer.id">
                                 <td>{{ customer.id }}</td>
-                                <td>{{ customer.name }}</td> 
-                                <td>{{ customer.company_name }}</td> 
-                                <td>{{ customer.customer_group.name }}</td>
+                                <td>{{ customer.name }}</td>
+                                <td>{{ customer.company_name }}</td>
+                                <td>{{ customer.customer_group?.name }}</td>
                                 <td>{{ customer.email }}</td>
                                 <td>{{ customer.phone }}</td>
-                                <td class=""><span class=" shadow-none badge outline-badge-primary">{{ customer.status == 1 ? 'active' : 'inactive'}}</span></td>
+                                <td class=""><span class=" shadow-none badge outline-badge-primary">{{ customer.status
+                                    == 1 ? 'active' : 'inactive' }}</span></td>
                                 <td>
-                                    <button class="btn btn-sm btn-warning mr-2" @click="openEditModal(customer)">Edit</button>
-                                    <button class="btn btn-sm btn-danger" @click="deleteCustomer(customer.id)">Delete</button>
+                                    <button class="btn btn-sm btn-warning mr-2"
+                                        @click="openEditModal(customer)">Edit</button>
+                                    <button class="btn btn-sm btn-danger"
+                                        @click="deleteCustomer(customer.id)">Delete</button>
                                 </td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
-
+                <vue-awesome-paginate :total-items="customerList.total" :items-per-page="itemsPerPage" :max-pages-shown="5"
+                    v-model="currentPage" @click="onClickHandler" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
-
+import { ref, onMounted, watch } from 'vue'
+import Axistance from '../../Axistance'
+import "vue-awesome-paginate/dist/style.css";
 const customerGroups = ref([])
 const customerList = ref([])
-const form = ref({ customer_group_id: 0, name: '',company_name:'', address: '', email: '', phone: '' })
+const form = ref({ customer_group_id: 0, name: '', company_name: '', address: '', email: '', phone: '' })
 const editingId = ref(null)
-
+const currentPage = ref(1)
+const itemsPerPage = 10
 const clearData = () => {
     form.value.customer_group_id = 0
     form.value.name = ''
@@ -143,7 +149,12 @@ const clearData = () => {
 }
 
 const fetchCustomers = async () => {
-    const res = await axios.get('customer')
+    const res = await Axistance.get('customer', {
+        params: {
+            page: currentPage.value,
+            limit: itemsPerPage
+        }
+    })
     customerList.value = res.data
 }
 const openEditModal = (customer) => {
@@ -158,9 +169,9 @@ const openEditModal = (customer) => {
 }
 const submitCustomerForm = async () => {
     if (editingId.value) {
-        await axios.put(`customer/${editingId.value}`, form.value)
+        await Axistance.put(`customer/${editingId.value}`, form.value)
     } else {
-        await axios.post('customer', form.value)
+        await Axistance.post('customer', form.value)
     }
     clearData()
     fetchCustomers()
@@ -179,15 +190,38 @@ const editCustomer = (group) => {
 }
 
 const fetchGroups = async () => {
-    const res = await axios.get('customer-groups')
+    const res = await Axistance.get('customer-groups')
     customerGroups.value = res.data
 }
 
 const deleteCustomer = async (id) => {
-    if (confirm('Are you sure?')) {
-        await axios.delete(`customer/${id}`)
-        fetchCustomers()
-    }
+    swal({
+      title: 'Are you sure?',
+      text: "This data wont be revert!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Delete',
+      padding: '2em'
+    }).then(async function(result) {
+      if (result.value) {
+        await Axistance.delete(`customer/${id}`)
+          .then(response => {
+            swal(
+              'Deleted!',
+              response.data.message,
+              response.data.status
+            )
+            fetchCustomers()
+        })
+      }
+    })
+}
+
+watch(currentPage, () => {
+    fetchCustomers()
+})
+const onClickHandler = (page) => {
+    currentPage.value = page
 }
 onMounted(() => {
     fetchGroups()
