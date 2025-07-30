@@ -1,7 +1,6 @@
 <template>
-  <div class="layout-px-spacing">
+  <div class="layout-px- Resultados">
     <div class="account-settings-container layout-top-spacing">
-
       <div class="account-content">
         <div class="scrollspy-example" data-spy="scroll" data-target="#account-settings-scroll" data-offset="-100">
           <form id="service-form" @submit.prevent="submitForm()">
@@ -12,7 +11,6 @@
                     <div class="col-md-11 mx-auto">
                       <h5 class="">Service Details</h5>
                       <div class="row">
-                        <!-- Existing fields: service_date, customer_id, invoice_no -->
                         <div class="col-md-4">
                           <div class="form-group">
                             <label for="service_date">Service Date</label>
@@ -24,20 +22,16 @@
                           <div class="form-group">
                             <div>
                               <label for="customer_id">Select Customer</label>
-                              <multiselect v-model="serviceInfo.customer_id" :options="customers" :track-by="'id'"
-                                :label="c => `${c.name} - ${c.company_name}`" :searchable="true" :loading="loading"
-                                :reduce="c => c.id" placeholder="Select Customer" @search-change="onSearch"
-                                @scroll="onScrollLoadMore">
-                                <!-- Custom label for dropdown options -->
-                                <template #option="{ option }">
-                                  {{ option.name }} - {{ option.company_name }}
-                                </template>
-
-                                <!-- Custom label for selected item (lookup by ID) -->
-                                <template #singleLabel="{ option }">
-                                  {{ getCustomerLabelById(option) }}
-                                </template>
-                              </multiselect>
+                              <Multiselect
+  v-model="serviceInfo.customer_id"
+  :options="fetchCustomers"
+  :searchable="true"
+  :infinite="true"
+  :filter-results="false"
+  :clear-on-search="true"
+  :min-chars="0"
+  :delay="300"
+/>
                             </div>
                           </div>
                         </div>
@@ -49,11 +43,9 @@
                           </div>
                         </div>
 
-                        <!-- New fields based on schema -->
                         <div class="col-md-4">
                           <div class="form-group">
                             <label for="document_link">Document (e.g., Invoice PDF)</label>
-                            <!-- Using a simple file input for now. Dropify was here before, can be re-integrated if needed -->
                             <input type="file" class="form-control-file mb-4" id="document_link"
                               @change="handleFileUpload">
                           </div>
@@ -69,11 +61,9 @@
                     </div>
                   </div>
                 </div>
-
               </div>
 
               <div class="col-xl-12 col-lg-12 col-md-12">
-                <!-- Item List Section -->
                 <div class="section item-list-section form-section-styled">
                   <div class="info">
                     <div class="d-flex justify-content-between align-items-center">
@@ -82,7 +72,6 @@
                     </div>
 
                     <div class="modal-backdrop fade show" v-if="showModal" @click="showModal = false"></div>
-                    <!-- Display Added Items -->
                     <div class="work-section mt-3" v-if="hasAddedItems">
                       <h6>Added Items:</h6>
                       <div class="table-responsive">
@@ -121,7 +110,7 @@
                               <td>{{ totalGrossWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id,
                                 'weight') }}</td>
                               <td>{{ totalNetWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id, 'weight')
-                                }}</td>
+                              }}</td>
                               <td>{{ totalBobin }}</td>
                               <td></td>
                             </tr>
@@ -132,7 +121,6 @@
                     <div v-else class="work-section mt-3">
                       <p>No items added yet.</p>
                     </div>
-
                   </div>
                 </div>
               </div>
@@ -141,7 +129,6 @@
               </div>
             </div>
           </form>
-          <!-- Modal -->
           <div class="modal animated fadeInRight custo-fadeInRight show" :class="{ 'show d-block': showModal }"
             tabindex="-1" role="dialog" aria-labelledby="addItemModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
@@ -227,16 +214,18 @@
                           </td>
                           <td>
                             <a href="javascript:void(0)" type="button" class="btn btn-danger btn-sm"
-                              @click="removeItem(index)"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2">
+                              @click="removeItem(index)">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="feather feather-trash-2">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path
                                   d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
                                 </path>
                                 <line x1="10" y1="11" x2="10" y2="17"></line>
                                 <line x1="14" y1="11" x2="14" y2="17"></line>
-                              </svg></a>
+                              </svg>
+                            </a>
                           </td>
                         </tr>
                       </tbody>
@@ -256,21 +245,18 @@
     </div>
   </div>
 </template>
-
 <script>
-import Multiselect from 'vue-multiselect';
-import 'vue-multiselect/dist/vue-multiselect.min.css';
-import { ref, reactive, onMounted, computed, watch } from 'vue'; // Added computed and watch
+import Multiselect from '@vueform/multiselect';
+import '@vueform/multiselect/themes/default.css';
+import { ref, reactive, onMounted, computed, watch } from 'vue';
 import Axistance from '../../Axistance';
+
 export default {
   components: { Multiselect },
   setup() {
-    const customers = ref([]);
     const yarnCounts = ref([]);
     const attributes = ref([]);
-    const hasMore = ref(true);
-    const loading = ref(false);
-    const page = ref(1);
+    const pageNo = ref(1);
     const customerYarnCounts = ref([]);
     const showModal = ref(false);
 
@@ -279,10 +265,10 @@ export default {
       service_date: '',
       invoice_no: '',
       document_link: null,
-      total_amount: 0, // This will be upservice_dated by grandTotal watcher
+      total_amount: 0,
       payment_status: 0,
       discount: 0,
-      discount_type: 0, // 0 for percentage, 1 for fixed
+      discount_type: 0,
       status: 0,
       description: '',
       dataItem: [{
@@ -293,8 +279,6 @@ export default {
     });
 
     const fetchCustomersYarnCounts = () => {
-      // Fetch yarn counts for the selected customer from customer stock
-      // resetForm();
       if (serviceInfo.customer_id) {
         Axistance.get(`customer/${serviceInfo.customer_id}`)
           .then(response => {
@@ -304,7 +288,8 @@ export default {
             console.error('Error fetching yarn counts for customer:', error);
           });
       } else {
-        yarnCounts.value = [];
+        // You might want to clear existing yarnCounts if no customer is selected
+        customerYarnCounts.value = [];
       }
     };
 
@@ -344,47 +329,40 @@ export default {
       showModal.value = false;
     };
 
-    const fetchCustomers = async (search = '', isSearch = false) => {
-      if (loading.value || (!hasMore.value && !isSearch)) return;
-      loading.value = true;
+    const fetchCustomers = async (search, callback, context) => {
+  try {
+    const limit = context?.limit || 20;
+    const offset = context?.offset || 0;
+    const page = Math.floor(offset / limit) + 1;
 
-      try {
-        const res = await Axistance.get('/customer', {
-          params: { page: page.value, search }
-        });
-
-        if (isSearch) {
-          customers.value = res.data.data;
-        } else {
-          [...customers.value?.push(...res.data.data)];
-        }
-        console.log(customers.value)
-        hasMore.value = res.data.current_page < res.data.last_page;
-        page.value++;
-      } catch (e) {
-        console.error('Error loading customers', e);
-      } finally {
-        loading.value = false;
+    const res = await Axistance.get('/customer', {
+      params: {
+        search,
+        page,
+        limit,
       }
-    };
+    });
 
+    const customers = res.data?.data || [];
+    const total = res.data?.meta?.total || customers.length;
 
-    const onScrollLoadMore = () => {
-      fetchCustomers();
-    };
-    const getCustomerLabelById = (data) => {
-      const customer = customers.value.find(c => c.id == data.id);
-      return customer ? `${customer.name} - ${customer.company_name}` : 'Loading...';
-    };
-    const onSearch = (term) => {
-      page.value = 1;
-      hasMore.value = true;
-      fetchCustomers(term, true);
-    };
+    callback(
+      customers.map(c => ({
+        value: c.id,
+        label: c.name,
+      })),
+      total > offset + customers.length // has more
+    );
+
+  } catch (err) {
+    console.error('Error in fetchCustomers:', err);
+    callback([], false);
+  }
+};
 
     const getYarnCounts = async () => {
       try {
-        const response = await Axistance.get('yarn-count?isPaginate=no&relation[]=amytStock'); // Ensure this endpoint is correct
+        const response = await Axistance.get('yarn-count?isPaginate=no&relation[]=amytStock');
         yarnCounts.value = response.data;
       } catch (error) {
         console.error('Error fetching yarn counts:', error);
@@ -393,7 +371,7 @@ export default {
 
     const getAttribute = async () => {
       try {
-        const response = await Axistance.get('attribute'); // Ensure this endpoint is correct
+        const response = await Axistance.get('attribute');
         const grouped = response.data;
         attributes.value = grouped.reduce((acc, item) => {
           if (!acc[item.type]) {
@@ -402,11 +380,11 @@ export default {
           acc[item.type].push(item);
           return acc;
         }, {});
-        // console.log('Attributes fetched:', attributes.value);
       } catch (error) {
-        console.error('Error fetching yarn counts:', error);
+        console.error('Error fetching attributes:', error);
       }
     };
+
     const handleFileUpload = (event) => {
       const file = event.target.files[0];
       if (file) {
@@ -424,7 +402,6 @@ export default {
       return found ? found.name : 'N/A';
     };
 
-    // Computed Properties for Totals
     const totalQuantity = computed(() =>
       serviceInfo.dataItem.reduce((sum, item) => sum + (item.quantity || 0), 0)
     );
@@ -444,12 +421,12 @@ export default {
     const totalBobin = computed(() =>
       serviceInfo.dataItem.reduce((sum, item) => sum + (item.bobin || 0), 0)
     );
+
     const hasAddedItems = computed(() => {
       return serviceInfo.dataItem.some(item => item.yarn_count_id);
     });
 
     const submitForm = async () => {
-      // console.log('Submitting Service Order:', serviceInfo);
       const formData = new FormData();
       Object.keys(serviceInfo).forEach(key => {
         if (key == 'dataItem') {
@@ -465,9 +442,7 @@ export default {
         const response = await Axistance.post('service', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         alert(response.data.message);
         resetForm();
-        //redirect to service list
         window.location.href = 'service-list';
-
       } catch (error) {
         alert(error.response?.data?.message || 'An error occurred');
       }
@@ -489,17 +464,17 @@ export default {
       serviceInfo.discount_type = 0;
       serviceInfo.status = 0;
       serviceInfo.description = '';
-      showModal.value = false; // Close the modal after resetting
+      showModal.value = false;
     };
 
     onMounted(() => {
-      fetchCustomers();
+      // No need to call fetchCustomers here, Multiselect will call it on open
       getYarnCounts();
       getAttribute();
     });
 
     return {
-      customers,
+      // customers, // No longer returned as Multiselect manages options internally
       yarnCounts,
       serviceInfo,
       attributes,
@@ -507,92 +482,27 @@ export default {
       addItem,
       removeItem,
       saveItems,
-      fetchCustomers,
-      getCustomerLabelById,
+      fetchCustomers, // Now passed directly to Multiselect as the options function
       handleFileUpload,
       getYarnCountName,
       getAttrName,
       fetchCustomersYarnCounts,
-      onScrollLoadMore,
       submitForm,
       getYarnQuantity,
       showModal,
-      hasMore,
-      onSearch,
-      loading,
+      // hasMore, // No longer needed
+      // onSearch, // Multiselect handles search input
+      // loading, // No longer needed
       customerYarnCounts,
       totalQuantity,
       totalExtraQuantity,
       totalGrossWeight,
       totalNetWeight,
       totalBobin,
-      hasAddedItems    // Expose new computed property
+      hasAddedItems,
+      // loadMore, // No longer needed
+      // onDropdownOpen // No longer needed
     };
   }
 };
 </script>
-
-<style scoped>
-.modal-xl {
-  max-width: 90%;
-}
-
-.form-section-styled {
-  background-color: #fdfdfd;
-  /* Slightly off-white for brightness */
-  padding: 25px;
-  border-radius: 8px;
-  border: 1px solid #e0e6ed;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-  margin-bottom: 30px;
-}
-
-.form-section-styled h5 {
-  margin: 10px 0px 20px;
-  color: #3b3f5c;
-}
-
-/* Adjust modal backdrop to ensure it's behind the modal if z-index issues arise */
-.modal-backdrop {
-  z-index: 1040;
-  /* Default Bootstrap backdrop z-index */
-}
-
-.modal {
-  z-index: 1050;
-  /* Default Bootstrap modal z-index */
-}
-
-/* Add some spacing to form groups within the styled sections for better readability */
-.form-section-styled .form-group {
-  margin-bottom: 1.5rem;
-  /* Increased bottom margin for form groups */
-}
-
-/* Ensure labels are clear */
-.form-section-styled label {
-  font-weight: 600;
-  color: #3b3f5c;
-}
-
-/* Style the table within the item list section for consistency */
-.item-list-section .table {
-  margin-top: 15px;
-}
-
-.totals-section .form-group label {
-  font-weight: 500;
-  /* Slightly less bold for totals section labels */
-}
-
-.totals-section .form-control-plaintext {
-  padding-top: 0.375rem;
-  /* Align with form-control-sm */
-  padding-bottom: 0.375rem;
-}
-
-.totals-section hr {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-}
-</style>

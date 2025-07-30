@@ -19,7 +19,7 @@ class YarnController extends Controller
      */
     public function index(Request $request): JsonResponse
     {
-        $perPage = $request->query('per_page', 10); // Default to 10 items per page
+        $perPage = $request->input('limit') ?? 5; // Default to 10 items per page
         $relations = $request->query('relation', []); // this will be an array
         $isPaginate = $request->query('isPaginate', 'yes'); // this will be an array
         $query = [
