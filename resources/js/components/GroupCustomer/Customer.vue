@@ -102,8 +102,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="customer in customerList.data" :key="customer.id">
-                                <td>{{ customer.id }}</td>
+                            <tr v-for="(customer,ind) in customerList.data" :key="customer.id">
+                                <td>{{ ((currentPage-1)*itemsPerPage)+ ++ind }}</td>
                                 <td>{{ customer.name }}</td>
                                 <td>{{ customer.company_name }}</td>
                                 <td>{{ customer.customer_group?.name }}</td>

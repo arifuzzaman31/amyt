@@ -10,9 +10,9 @@ class ServiceController extends Controller
 {
     public function __construct(private SalesService $salesService) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        return $this->salesService->getAllServices();
+        return $this->salesService->getAllServices($request->all());
     }
 
     public function store(Request $request)

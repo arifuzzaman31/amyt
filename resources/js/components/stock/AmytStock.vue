@@ -24,26 +24,30 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="stock in stockList" :key="stock.id">
-                                <td>{{ stock.id }}</td>
+                            <tr v-for="(stock,ind) in stockList.data" :key="stock.id">
+                                <td>{{ ((currentPage-1)*itemsPerPage)+ ++ind }}</td>
                                 <td>{{ stock.yarn_count?.name }}</td>
                                 <td>{{ stock.quantity}}</td>
                             </tr>
                         </tbody>
                     </table>
                 </div>
+               <vue-awesome-paginate :total-items="stockList.total" :items-per-page="itemsPerPage" :max-pages-shown="5"
+                    v-model="currentPage" @click="onClickHandler" />
                </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import Axistance from '../../Axistance'
-
+import "vue-awesome-paginate/dist/style.css";
 const stockList = ref([])
 const selectedStock = ref(null);
 const url = ref(baseUrl)
+const currentPage = ref(1)
+const itemsPerPage = 10
 
 const openEditModal = (purchase) => {
     selectedStock.value = purchase;
@@ -52,11 +56,21 @@ const openEditModal = (purchase) => {
 const closeEditModal = () => {
     selectedStock.value = null;
 }
-
+watch(currentPage, () => {
+    fetchStock()
+})
+const onClickHandler = (page) => {
+    currentPage.value = page
+}
 const fetchStock = async () => {
     try {
-        const res = await Axistance.get('stock-list?vendor=amyt');
-        stockList.value = res.data.data
+        const res = await Axistance.get('stock-list?vendor=amyt', {
+        params: {
+            page: currentPage.value,
+            per_page: itemsPerPage
+        }
+    });
+        stockList.value = res.data
     } catch (error) {
         console.error('Error fetching purchases:', error);
         // Here you could add user-facing error handling, e.g., a toast notification.

@@ -9,9 +9,11 @@ class SupplierController extends Controller
 {
     public function __construct(private Supplier $model = new Supplier()) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        return $this->model::get();
+        $perPage = $request->input('per_page') ?? 10;
+        $services = $this->model::paginate($perPage);
+        return $services;
     }
     public function store(Request $request)
     {

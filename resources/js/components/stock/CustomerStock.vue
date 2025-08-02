@@ -29,8 +29,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="stock in customerStockList" :key="stock.id">
-                                <td>{{ stock.id }}</td>
+                            <tr v-for="(stock,ind) in customerStockList.data" :key="stock.id">
+                                <td>{{ ((currentPage-1)*itemsPerPage)+ ++ind }}</td>
                                 <td>{{ stock.challan_no }}</td>
                                 <td>{{ new Date(stock.in_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) }}</td>
                                 <td>{{ (stock.customer?.name || 'N/A') }}</td>
@@ -64,33 +64,46 @@
                         </tbody>
                     </table>
                 </div>
+                <vue-awesome-paginate :total-items="customerStockList.total" :items-per-page="itemsPerPage" :max-pages-shown="5"
+                    v-model="currentPage" @click="onClickHandler" />
                </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted,watch } from 'vue'
 import Axistance from '../../Axistance'
-
+import "vue-awesome-paginate/dist/style.css";
 const customerStockList = ref([])
 const selectedStock = ref(null);
 const url = ref(baseUrl)
-
+const currentPage = ref(1)
+const itemsPerPage = 10
 const openEditModal = (purchase) => {
     selectedStock.value = purchase;
 }
 
 const fetchCustomerStock = async () => {
     try {
-        const res = await Axistance.get('stock-list?vendor=customer');
-        customerStockList.value = res.data.data
+        const res = await Axistance.get('stock-list?vendor=customer', {
+        params: {
+            page: currentPage.value,
+            per_page: itemsPerPage
+        }
+    });
+        customerStockList.value = res.data
     } catch (error) {
         console.error('Error fetching purchases:', error);
         // Here you could add user-facing error handling, e.g., a toast notification.
     }
 }
-
+watch(currentPage, () => {
+    fetchCustomerStock()
+})
+const onClickHandler = (page) => {
+    currentPage.value = page
+}
 const deleteCustomerStock = async (id) => {
     if (confirm('Are you sure?')) {
         try {

@@ -9,9 +9,11 @@ class ExpenseController extends Controller
 {
     public function __construct(private Expense $model = new Expense()) {}
 
-    public function index()
+    public function index(Request $request)
     {
-        return $this->model::with('expense_category:id,name')->get();
+        $perPage = $request->input('per_page') ?? 10;
+        $data = $this->model::with('expense_category:id,name')->paginate($perPage);
+        return $data;
     }
     public function store(Request $request)
     {

@@ -14,9 +14,11 @@ class SalesService
 {
     public function __construct(protected Service $serviceModel, protected ServiceItem $serviceItemModel) {}
 
-    public function getAllServices()
+    public function getAllServices($data)
     {
-        return $this->serviceModel::with('customer:id,name')->get();
+        $perPage = $data['per_page'] ?? 10;
+        $services = $this->serviceModel::with('customer:id,name')->paginate($perPage);
+        return $services;
     }
 
     public function createService(array $data)

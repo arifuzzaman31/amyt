@@ -16,9 +16,9 @@ class PurchaseController extends Controller
      *
      * @return JsonResponse
      */
-    public function index(): JsonResponse
+    public function index(Request $request): JsonResponse
     {
-        return response()->json($this->purchaseService->getAll());
+        return response()->json($this->purchaseService->getAll($request->all()));
     }
 
     /**

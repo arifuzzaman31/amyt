@@ -22,16 +22,13 @@
                           <div class="form-group">
                             <div>
                               <label for="customer_id">Select Customer</label>
-                              <Multiselect
-  v-model="serviceInfo.customer_id"
-  :options="fetchCustomers"
-  :searchable="true"
-  :infinite="true"
-  :filter-results="false"
-  :clear-on-search="true"
-  :min-chars="0"
-  :delay="300"
-/>
+                              <Select2Wrapper
+            v-model="serviceInfo.customer_id"
+            :settings="select2Settings"
+            @select="handleCustomerSelect"
+            @change="handleCustomerChange"
+            @unselect="handleCustomerUnselect"
+          />
                             </div>
                           </div>
                         </div>
@@ -42,7 +39,6 @@
                               v-model="serviceInfo.invoice_no" />
                           </div>
                         </div>
-
                         <div class="col-md-4">
                           <div class="form-group">
                             <label for="document_link">Document (e.g., Invoice PDF)</label>
@@ -62,7 +58,6 @@
                   </div>
                 </div>
               </div>
-
               <div class="col-xl-12 col-lg-12 col-md-12">
                 <div class="section item-list-section form-section-styled">
                   <div class="info">
@@ -70,7 +65,6 @@
                       <h5 class="">Item List</h5>
                       <button type="button" class="btn btn-primary" @click="openModal">Add Item</button>
                     </div>
-
                     <div class="modal-backdrop fade show" v-if="showModal" @click="showModal = false"></div>
                     <div class="work-section mt-3" v-if="hasAddedItems">
                       <h6>Added Items:</h6>
@@ -110,7 +104,7 @@
                               <td>{{ totalGrossWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id,
                                 'weight') }}</td>
                               <td>{{ totalNetWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id, 'weight')
-                              }}</td>
+                                }}</td>
                               <td>{{ totalBobin }}</td>
                               <td></td>
                             </tr>
@@ -245,21 +239,21 @@
     </div>
   </div>
 </template>
+
 <script>
-import Multiselect from '@vueform/multiselect';
-import '@vueform/multiselect/themes/default.css';
 import { ref, reactive, onMounted, computed, watch } from 'vue';
+import Select2Wrapper from '../Select2Wrapper.vue';
 import Axistance from '../../Axistance';
 
 export default {
-  components: { Multiselect },
+  components: { Select2Wrapper },
   setup() {
     const yarnCounts = ref([]);
     const attributes = ref([]);
-    const pageNo = ref(1);
     const customerYarnCounts = ref([]);
     const showModal = ref(false);
-
+    const customerOptions = ref([]);
+    
     const serviceInfo = reactive({
       customer_id: null,
       service_date: '',
@@ -278,6 +272,54 @@ export default {
       }]
     });
 
+    const select2Settings = {
+      placeholder: 'Select Customer',
+      allowClear: true,
+      ajax: {
+        url: '/customer',
+        dataType: 'json',
+        delay: 250,
+        data: function (params) {
+          return {
+            search: params.term,
+            page: params.page || 1,
+            limit: 10
+          };
+        },
+        processResults: function (data, params) {
+          params.page = params.page || 1;
+          
+          return {
+            results: data.data.map(customer => ({
+              id: customer.id,
+              text: customer.name || customer.company_name || customer.email
+            })),
+            pagination: {
+              more: (params.page * 10) < data.meta.total
+            }
+          };
+        },
+        cache: true
+      }
+    };
+    
+    const handleCustomerSelect = (customer) => {
+      serviceInfo.customer_id = customer.id;
+      fetchCustomersYarnCounts();
+    };
+    
+    const handleCustomerChange = (value) => {
+      // This handles programmatic changes
+      if (!value) {
+        customerYarnCounts.value = [];
+      }
+    };
+    
+    const handleCustomerUnselect = () => {
+      serviceInfo.customer_id = null;
+      customerYarnCounts.value = [];
+    };
+
     const fetchCustomersYarnCounts = () => {
       if (serviceInfo.customer_id) {
         Axistance.get(`customer/${serviceInfo.customer_id}`)
@@ -288,7 +330,6 @@ export default {
             console.error('Error fetching yarn counts for customer:', error);
           });
       } else {
-        // You might want to clear existing yarnCounts if no customer is selected
         customerYarnCounts.value = [];
       }
     };
@@ -328,37 +369,6 @@ export default {
     const saveItems = () => {
       showModal.value = false;
     };
-
-    const fetchCustomers = async (search, callback, context) => {
-  try {
-    const limit = context?.limit || 20;
-    const offset = context?.offset || 0;
-    const page = Math.floor(offset / limit) + 1;
-
-    const res = await Axistance.get('/customer', {
-      params: {
-        search,
-        page,
-        limit,
-      }
-    });
-
-    const customers = res.data?.data || [];
-    const total = res.data?.meta?.total || customers.length;
-
-    callback(
-      customers.map(c => ({
-        value: c.id,
-        label: c.name,
-      })),
-      total > offset + customers.length // has more
-    );
-
-  } catch (err) {
-    console.error('Error in fetchCustomers:', err);
-    callback([], false);
-  }
-};
 
     const getYarnCounts = async () => {
       try {
@@ -437,7 +447,6 @@ export default {
           formData.append(key, serviceInfo[key]);
         }
       });
-
       try {
         const response = await Axistance.post('service', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
         alert(response.data.message);
@@ -467,14 +476,18 @@ export default {
       showModal.value = false;
     };
 
+    watch(() => serviceInfo.customer_id, (newVal) => {
+      if (newVal) {
+        fetchCustomersYarnCounts();
+      }
+    }, { immediate: true });
+
     onMounted(() => {
-      // No need to call fetchCustomers here, Multiselect will call it on open
       getYarnCounts();
       getAttribute();
     });
 
     return {
-      // customers, // No longer returned as Multiselect manages options internally
       yarnCounts,
       serviceInfo,
       attributes,
@@ -482,7 +495,6 @@ export default {
       addItem,
       removeItem,
       saveItems,
-      fetchCustomers, // Now passed directly to Multiselect as the options function
       handleFileUpload,
       getYarnCountName,
       getAttrName,
@@ -490,9 +502,10 @@ export default {
       submitForm,
       getYarnQuantity,
       showModal,
-      // hasMore, // No longer needed
-      // onSearch, // Multiselect handles search input
-      // loading, // No longer needed
+      customerOptions,
+      select2Settings,
+      handleCustomerSelect,
+      handleCustomerChange,
       customerYarnCounts,
       totalQuantity,
       totalExtraQuantity,
@@ -500,9 +513,11 @@ export default {
       totalNetWeight,
       totalBobin,
       hasAddedItems,
-      // loadMore, // No longer needed
-      // onDropdownOpen // No longer needed
     };
   }
 };
 </script>
+
+<style scoped>
+/* Add any component-specific styles here */
+</style>

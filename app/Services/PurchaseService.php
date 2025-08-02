@@ -14,9 +14,11 @@ class PurchaseService
      *
      * @return \Illuminate\Database\Eloquent\Collection|static[]
      */
-    public function getAll()
+    public function getAll($data)
     {
-        return Purchase::with('supplier', 'items.yarn')->latest()->get();
+        $perPage = $data['per_page'] ?? 10;
+        $purchase = Purchase::with('supplier', 'items.yarn')->latest()->paginate($perPage);
+        return $purchase;
     }
 
     /**

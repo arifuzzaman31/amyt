@@ -23,8 +23,8 @@
             </tr>
           </thead>
           <tbody>
-            <tr v-for="(service, ind) in serviceList" :key="service.id">
-              <td>{{ ++ind }}</td>
+            <tr v-for="(service, ind) in serviceList.data" :key="ind">
+              <td>{{ ((currentPage-1)*itemsPerPage)+ ++ind }}</td>
               <td>{{ service.invoice_no }}</td>
               <td>{{ formatDate(service.service_date) }}</td>
               <td>{{ service.customer?.name }}</td>
@@ -50,24 +50,31 @@
           </tbody>
         </table>
       </div>
+      <vue-awesome-paginate :total-items="serviceList.total" :items-per-page="itemsPerPage" :max-pages-shown="5"
+                    v-model="currentPage" @click="onClickHandler" />
     </div>
     <EditService v-if="selectedService" :service="selectedService" @service-updated="handleServiceUpdated" @close-modal="closeEditModal"/>
   </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import Axistance from '../../Axistance'
 import EditService from './EditService.vue'
-
+import "vue-awesome-paginate/dist/style.css";
 const serviceList = ref([])
-const form = ref({ name: '' })
-const editingId = ref(null)
+const currentPage = ref(1)
+const itemsPerPage = 2
 const selectedService = ref(null)
 const url = ref(baseUrl)
 
 const fetchServices = async () => {
-  const res = await Axistance.get('service')
+  const res = await Axistance.get('service', {
+        params: {
+            page: currentPage.value,
+            per_page: itemsPerPage
+        }
+    })
   serviceList.value = res.data
 }
 const openEditModal = (service) => {
@@ -78,7 +85,9 @@ const fetchSingleService = async (id) => {
   const res = await Axistance.get(`service/${id}`)
   selectedService.value = res.data
 }
-
+const onClickHandler = (page) => {
+    currentPage.value = page
+}
 const formatDate = (dateString) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
@@ -159,6 +168,9 @@ const handleServiceUpdated = () => {
     fetchServices();
     closeEditModal();
 }
+watch(currentPage, () => {
+  fetchServices()
+})
 onMounted(fetchServices)
 </script>
 

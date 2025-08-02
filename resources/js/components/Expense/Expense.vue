@@ -87,8 +87,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="expense in expenseList" :key="expense.id">
-                                <td>{{ expense.id }}</td>
+                            <tr v-for="(expense,ind) in expenseList.data" :key="expense.id">
+                                <td>{{ ((currentPage-1)*itemsPerPage)+ ++ind }}</td>
                                 <td>{{ expense.expense_category.name }}</td>
                                 <td>{{ expense.expense_date }}</td>
                                 <td>{{ expense.amount }}</td>
@@ -101,21 +101,23 @@
                         </tbody>
                     </table>
                 </div>
-
+                <vue-awesome-paginate :total-items="expenseList.total" :items-per-page="itemsPerPage" :max-pages-shown="5"
+                    v-model="currentPage" @click="onClickHandler" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import Axistance from '../../Axistance'
-
+import "vue-awesome-paginate/dist/style.css";
 const expenseCategories = ref([])
 const expenseList = ref([])
 const form = ref({ expense_category_id: 0, expense_date: '', amount: '', description: '' })
 const editingId = ref(null)
-
+const currentPage = ref(1)
+const itemsPerPage = 10
 const clearData = () => {
     form.value.expense_category_id = 0
     form.value.expense_date = ''
@@ -123,10 +125,15 @@ const clearData = () => {
     form.value.description = ''
     editingId.value = ''
 }
-
+const onClickHandler = (page) => {
+    currentPage.value = page
+}
+watch(currentPage, () => {
+    fetchExpense()
+})
 const fetchExpenseCategory = async () => {
     const res = await Axistance.get('expense/category')
-    expenseCategories.value = res.data
+    customerList.value = res.data
 }
 const openEditModal = (customer) => {
     form.value.expense_category_id = customer.expense_category_id
@@ -157,7 +164,12 @@ const editExpense = (group) => {
 }
 
 const fetchExpense = async () => {
-    const res = await Axistance.get('expense')
+    const res = await Axistance.get('expense', {
+        params: {
+            page: currentPage.value,
+            per_page: itemsPerPage
+        }
+    })
     expenseList.value = res.data
 }
 

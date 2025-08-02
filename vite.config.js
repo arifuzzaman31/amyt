@@ -6,10 +6,14 @@ export default defineConfig({
     plugins: [
         laravel({
             input: [
-                'resources/css/app.css', 'resources/js/app.js',
-                'resources/js/customer.js','resources/js/expense.js',
-                'resources/js/supplier.js','resources/js/service.js',
-                'resources/js/stock.js','resources/js/report.js'
+                'resources/css/app.css', 
+                'resources/js/app.js',
+                'resources/js/customer.js',
+                'resources/js/expense.js',
+                'resources/js/supplier.js',
+                'resources/js/service.js',
+                'resources/js/stock.js',
+                'resources/js/report.js'
             ],
             refresh: true,
         }),
@@ -20,4 +24,11 @@ export default defineConfig({
             vue: 'vue/dist/vue.esm-bundler.js',
         },
     },
+    optimizeDeps: {
+        include: ['jquery', 'select2']
+    },
+    define: {
+        global: 'globalThis',
+        'process.env': {},
+    }
 })

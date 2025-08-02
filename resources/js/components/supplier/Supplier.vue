@@ -88,8 +88,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="supplier in supplierList" :key="supplier.id">
-                                <td>{{ supplier.id }}</td>
+                            <tr v-for="(supplier,ind) in supplierList.data" :key="supplier.id">
+                                <td>{{ ((currentPage-1)*itemsPerPage)+ ++ind }}</td>
                                 <td>{{ supplier.name }}</td> 
                                 <td>{{ supplier.company_name }}</td> 
                                 <td>{{ supplier.email }}</td>
@@ -103,20 +103,22 @@
                         </tbody>
                     </table>
                 </div>
-
+                <vue-awesome-paginate :total-items="supplierList.total" :items-per-page="itemsPerPage" :max-pages-shown="5"
+                    v-model="currentPage" @click="onClickHandler" />
             </div>
         </div>
     </div>
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted,watch } from 'vue'
 import Axistance from '../../Axistance'
-
+import "vue-awesome-paginate/dist/style.css";
 const supplierList = ref([])
 const form = ref({ name: '',company_name:'', address: '', email: '', phone: '', status: 1 })
 const editingId = ref(null)
-
+const currentPage = ref(1)
+const itemsPerPage = 10
 const clearData = () => {
     form.value.name = ''
     form.value.company_name = ''
@@ -158,9 +160,19 @@ const editSupplier = (supplier) => {
     editingId.value = supplier.id
     $('#supplierModal').modal('show')
 }
-
+watch(currentPage, () => {
+    fetchSupplier()
+})
+const onClickHandler = (page) => {
+    currentPage.value = page
+}
 const fetchSupplier = async () => {
-    const res = await Axistance.get('supplier')
+    const res = await Axistance.get('supplier', {
+        params: {
+            page: currentPage.value,
+            per_page: itemsPerPage
+        }
+    })
     supplierList.value = res.data
 }
 

@@ -29,8 +29,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="purchase in purchaseList" :key="purchase.id">
-                                <td>{{ purchase.id }}</td>
+                            <tr v-for="(purchase,ind) in purchaseList.data" :key="purchase.id">
+                                <td>{{ ((currentPage-1)*itemsPerPage)+ ++ind }}</td>
                                 <td>{{ purchase.challan_no }}</td>
                                 <td>{{ new Date(purchase.purchase_date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) }}</td>
                                 <td>{{ (purchase.supplier?.name || 'N/A') }}</td>
@@ -63,6 +63,8 @@
                             </tr>
                         </tbody>
                     </table>
+                    <vue-awesome-paginate :total-items="purchaseList.total" :items-per-page="itemsPerPage" :max-pages-shown="5"
+                    v-model="currentPage" @click="onClickHandler" />
                 </div>
                 <EditPurchase v-if="selectedPurchase" :purchase="selectedPurchase" @purchase-updated="handlePurchaseUpdated" @close-modal="closeEditModal"/>
                 <!-- // Add a modal component for editing purchase take payment info then approve -->
@@ -72,18 +74,24 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
 import Axistance from '../../Axistance'
 import EditPurchase from './EditPurchase.vue';
-
+import "vue-awesome-paginate/dist/style.css";
 const purchaseList = ref([])
 const selectedPurchase = ref(null);
 const url = ref(baseUrl)
-
+const currentPage = ref(1)
+const itemsPerPage = 2
 const openEditModal = (purchase) => {
     selectedPurchase.value = purchase;
 }
-
+watch(currentPage, () => {
+    fetchPurchase()
+})
+const onClickHandler = (page) => {
+    currentPage.value = page
+}
 const closeEditModal = () => {
     selectedPurchase.value = null;
 }
@@ -134,7 +142,12 @@ const loadToStock = (id) => {
 
 const fetchPurchase = async () => {
     try {
-        const res = await Axistance.get('purchase')
+        const res = await Axistance.get('purchase', {
+        params: {
+            page: currentPage.value,
+            per_page: itemsPerPage
+        }
+    })
         purchaseList.value = res.data
     } catch (error) {
         console.error('Error fetching purchases:', error);
