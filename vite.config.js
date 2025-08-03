@@ -1,12 +1,15 @@
-import { defineConfig } from 'vite'
-import laravel from 'laravel-vite-plugin'
-import vue from '@vitejs/plugin-vue'
+import { defineConfig } from 'vite';
+import laravel from 'laravel-vite-plugin';
+import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
+    server: {
+        host: true, // This tells Vite to listen on all local network addresses
+    },
     plugins: [
         laravel({
             input: [
-                'resources/css/app.css', 
+                'resources/css/app.css',
                 'resources/js/app.js',
                 'resources/js/customer.js',
                 'resources/js/expense.js',
@@ -21,14 +24,30 @@ export default defineConfig({
     ],
     resolve: {
         alias: {
-            vue: 'vue/dist/vue.esm-bundler.js',
+            'vue': 'vue/dist/vue.esm-bundler.js',
+            // Add a simple alias for the $ symbol
+            '$': 'jquery',
         },
     },
     optimizeDeps: {
-        include: ['jquery', 'select2']
+        esbuildOptions: {
+            plugins: [
+                // This plugin ensures that global $ and jQuery are defined
+                // for CJS modules like Select2
+                {
+                    name: 'jquery-global-shim',
+                    setup(build) {
+                        build.onLoad({ filter: /jquery\.js/ }, async (args) => {
+                            const contents = `
+                                import 'jquery';
+                                window.$ = window.jQuery;
+                                export default window.$;
+                            `;
+                            return { contents, loader: 'js' };
+                        });
+                    },
+                },
+            ],
+        },
     },
-    define: {
-        global: 'globalThis',
-        'process.env': {},
-    }
-})
+});

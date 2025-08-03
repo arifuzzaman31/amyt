@@ -2,7 +2,12 @@
   <div class="layout-px- Resultados">
     <div class="account-settings-container layout-top-spacing">
       <div class="account-content">
-        <div class="scrollspy-example" data-spy="scroll" data-target="#account-settings-scroll" data-offset="-100">
+        <div
+          class="scrollspy-example"
+          data-spy="scroll"
+          data-target="#account-settings-scroll"
+          data-offset="-100"
+        >
           <form id="service-form" @submit.prevent="submitForm()">
             <div class="row">
               <div class="col-xl-12 col-lg-12 col-md-12">
@@ -14,43 +19,61 @@
                         <div class="col-md-4">
                           <div class="form-group">
                             <label for="service_date">Service Date</label>
-                            <input type="date" class="form-control mb-4" id="service_date"
-                              v-model="serviceInfo.service_date" />
+                            <input
+                              type="date"
+                              class="form-control mb-4"
+                              id="service_date"
+                              v-model="serviceInfo.service_date"
+                            />
                           </div>
                         </div>
                         <div class="col-md-4">
                           <div class="form-group">
                             <div>
                               <label for="customer_id">Select Customer</label>
-                              <Select2Wrapper
-            v-model="serviceInfo.customer_id"
-            :settings="select2Settings"
-            @select="handleCustomerSelect"
-            @change="handleCustomerChange"
-            @unselect="handleCustomerUnselect"
-          />
+                              <Select2
+                                :settings="select2Settings"
+                                v-model="serviceInfo.customer_id"
+                                @select="handleCustomerSelect"
+                                @change="handleCustomerChange"
+                                @unselect="handleCustomerUnselect"
+                              />
                             </div>
                           </div>
                         </div>
                         <div class="col-md-4">
                           <div class="form-group">
                             <label for="invoice_no">Invoice No</label>
-                            <input type="text" class="form-control mb-4" id="invoice_no"
-                              v-model="serviceInfo.invoice_no" />
+                            <input
+                              type="text"
+                              class="form-control mb-4"
+                              id="invoice_no"
+                              v-model="serviceInfo.invoice_no"
+                            />
                           </div>
                         </div>
                         <div class="col-md-4">
                           <div class="form-group">
-                            <label for="document_link">Document (e.g., Invoice PDF)</label>
-                            <input type="file" class="form-control-file mb-4" id="document_link"
-                              @change="handleFileUpload">
+                            <label for="document_link"
+                              >Document (e.g., Invoice PDF)</label
+                            >
+                            <input
+                              type="file"
+                              class="form-control-file mb-4"
+                              id="document_link"
+                              @change="handleFileUpload"
+                            />
                           </div>
                         </div>
                         <div class="col-md-12">
                           <div class="form-group">
                             <label for="description">Description</label>
-                            <textarea class="form-control" placeholder="Description for the service order" rows="3"
-                              v-model="serviceInfo.description"></textarea>
+                            <textarea
+                              class="form-control"
+                              placeholder="Description for the service order"
+                              rows="3"
+                              v-model="serviceInfo.description"
+                            ></textarea>
                           </div>
                         </div>
                       </div>
@@ -63,9 +86,15 @@
                   <div class="info">
                     <div class="d-flex justify-content-between align-items-center">
                       <h5 class="">Item List</h5>
-                      <button type="button" class="btn btn-primary" @click="openModal">Add Item</button>
+                      <button type="button" class="btn btn-primary" @click="openModal">
+                        Add Item
+                      </button>
                     </div>
-                    <div class="modal-backdrop fade show" v-if="showModal" @click="showModal = false"></div>
+                    <div
+                      class="modal-backdrop fade show"
+                      v-if="showModal"
+                      @click="showModal = false"
+                    ></div>
                     <div class="work-section mt-3" v-if="hasAddedItems">
                       <h6>Added Items:</h6>
                       <div class="table-responsive">
@@ -83,14 +112,25 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <tr v-for="addedItem in serviceInfo.dataItem" :key="addedItem.yarn_count_id">
+                            <tr
+                              v-for="addedItem in serviceInfo.dataItem"
+                              :key="addedItem.yarn_count_id"
+                            >
                               <td>{{ getYarnCountName(addedItem.yarn_count_id) }}</td>
-                              <td>{{ getAttrName(addedItem.color_id, 'color') }}</td>
-                              <td>{{ addedItem.quantity }} {{ getAttrName(addedItem.unit_attr_id, 'weight') }}</td>
-                              <td>{{ addedItem.extra_quantity }}</td>
-                              <td>{{ addedItem.gross_weight }} {{ getAttrName(addedItem.weight_attr_id, 'weight') }}
+                              <td>{{ getAttrName(addedItem.color_id, "color") }}</td>
+                              <td>
+                                {{ addedItem.quantity }}
+                                {{ getAttrName(addedItem.unit_attr_id, "weight") }}
                               </td>
-                              <td>{{ addedItem.net_weight }} {{ getAttrName(addedItem.weight_attr_id, 'weight') }}</td>
+                              <td>{{ addedItem.extra_quantity }}</td>
+                              <td>
+                                {{ addedItem.gross_weight }}
+                                {{ getAttrName(addedItem.weight_attr_id, "weight") }}
+                              </td>
+                              <td>
+                                {{ addedItem.net_weight }}
+                                {{ getAttrName(addedItem.weight_attr_id, "weight") }}
+                              </td>
                               <td>{{ addedItem.bobin }}</td>
                               <td class="text-wrap">{{ addedItem.remark }}</td>
                             </tr>
@@ -98,13 +138,33 @@
                           <tfoot>
                             <tr class="font-weight-bold">
                               <td colspan="2" class="text-right">Total:</td>
-                              <td>{{ totalQuantity }}/{{ getAttrName(serviceInfo.dataItem[0].unit_attr_id, 'weight') }}
+                              <td>
+                                {{ totalQuantity }}/{{
+                                  getAttrName(
+                                    serviceInfo.dataItem[0].unit_attr_id,
+                                    "weight"
+                                  )
+                                }}
                               </td>
                               <td>{{ totalExtraQuantity }}</td>
-                              <td>{{ totalGrossWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id,
-                                'weight') }}</td>
-                              <td>{{ totalNetWeight }} {{ getAttrName(serviceInfo.dataItem[0].weight_attr_id, 'weight')
-                                }}</td>
+                              <td>
+                                {{ totalGrossWeight }}
+                                {{
+                                  getAttrName(
+                                    serviceInfo.dataItem[0].weight_attr_id,
+                                    "weight"
+                                  )
+                                }}
+                              </td>
+                              <td>
+                                {{ totalNetWeight }}
+                                {{
+                                  getAttrName(
+                                    serviceInfo.dataItem[0].weight_attr_id,
+                                    "weight"
+                                  )
+                                }}
+                              </td>
                               <td>{{ totalBobin }}</td>
                               <td></td>
                             </tr>
@@ -123,13 +183,24 @@
               </div>
             </div>
           </form>
-          <div class="modal animated fadeInRight custo-fadeInRight show" :class="{ 'show d-block': showModal }"
-            tabindex="-1" role="dialog" aria-labelledby="addItemModalLabel" aria-hidden="true">
+          <div
+            class="modal animated fadeInRight custo-fadeInRight show"
+            :class="{ 'show d-block': showModal }"
+            tabindex="-1"
+            role="dialog"
+            aria-labelledby="addItemModalLabel"
+            aria-hidden="true"
+          >
             <div class="modal-dialog modal-xl" role="document">
               <div class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title" id="addItemModalLabel">Add/Edit Items</h5>
-                  <button type="button" class="close" @click="showModal = false" aria-label="Close">
+                  <button
+                    type="button"
+                    class="close"
+                    @click="showModal = false"
+                    aria-label="Close"
+                  >
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
@@ -152,10 +223,16 @@
                       <tbody>
                         <tr v-for="(item, index) in serviceInfo.dataItem" :key="index">
                           <td>
-                            <small style="font-size: 12px; color: #555;">{{ getYarnQuantity(item) }}</small>
+                            <small style="font-size: 12px; color: #555">{{
+                              getYarnQuantity(item)
+                            }}</small>
                             <select v-model="item.yarn_count_id" class="form-control">
                               <option value="">Select Yarn Count</option>
-                              <option v-for="yc in yarnCounts" :key="yc.id" :value="yc.id">
+                              <option
+                                v-for="yc in yarnCounts"
+                                :key="yc.id"
+                                :value="yc.id"
+                              >
                                 {{ yc.name }}
                               </option>
                             </select>
@@ -163,59 +240,137 @@
                           <td>
                             <select v-model="item.color_id" class="form-control">
                               <option value="">Select Color</option>
-                              <option v-for="attr in attributes?.color" :key="attr.id" :value="attr.id">
+                              <option
+                                v-for="attr in attributes?.color"
+                                :key="attr.id"
+                                :value="attr.id"
+                              >
                                 {{ attr.name }}
                               </option>
                             </select>
-                          </td>
-                          <td><input v-model.number="item.quantity" class="form-control form-control-sm" type="number"
-                              placeholder="Quantity">
-                            <select v-model="item.unit_attr_id" class="form-control form-control-sm my-1">
-                              <option value="">Select Unit</option>
-                              <option v-for="attr in attributes?.weight" :key="attr.id" :value="attr.id">
-                                {{ attr.name }}
-                              </option>
-                            </select>
-                            <input v-model.number="item.unit_price" class="form-control form-control-sm" type="number"
-                              placeholder="Unit Price">
-                          </td>
-                          <td><input v-model.number="item.extra_quantity" class="form-control" type="number"
-                              placeholder="Extra Quantity">
-                            <input v-model.number="item.extra_quantity_price" class="form-control form-control-sm mt-1"
-                              type="number" placeholder="Extra Quantity Price">
-                          </td>
-                          <td><input v-model.number="item.gross_weight" class="form-control form-control-sm"
-                              type="number" placeholder="Gross Weight">
-                            <select v-model="item.weight_attr_id" class="form-control form-control-sm my-1">
-                              <option value="">Select Unit</option>
-                              <option v-for="attr in attributes?.weight" :key="attr.id" :value="attr.id">
-                                {{ attr.name }}
-                              </option>
-                            </select>
-                          </td>
-                          <td><input v-model.number="item.net_weight" class="form-control form-control-sm" type="number"
-                              placeholder="Net Weight">
-                            <select v-model="item.weight_attr_id" class="form-control form-control-sm my-1">
-                              <option value="">Select Unit</option>
-                              <option v-for="attr in attributes?.weight" :key="attr.id" :value="attr.id">
-                                {{ attr.name }}
-                              </option>
-                            </select>
-                          </td>
-                          <td><input v-model.number="item.bobin" class="form-control" type="number" placeholder="Bobin">
-                          </td>
-                          <td><input v-model.number="item.remark" class="form-control" type="text" placeholder="Remark">
                           </td>
                           <td>
-                            <a href="javascript:void(0)" type="button" class="btn btn-danger btn-sm"
-                              @click="removeItem(index)">
-                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="feather feather-trash-2">
+                            <input
+                              v-model.number="item.quantity"
+                              class="form-control form-control-sm"
+                              type="number"
+                              placeholder="Quantity"
+                            />
+                            <select
+                              v-model="item.unit_attr_id"
+                              class="form-control form-control-sm my-1"
+                            >
+                              <option value="">Select Unit</option>
+                              <option
+                                v-for="attr in attributes?.weight"
+                                :key="attr.id"
+                                :value="attr.id"
+                              >
+                                {{ attr.name }}
+                              </option>
+                            </select>
+                            <input
+                              v-model.number="item.unit_price"
+                              class="form-control form-control-sm"
+                              type="number"
+                              placeholder="Unit Price"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              v-model.number="item.extra_quantity"
+                              class="form-control"
+                              type="number"
+                              placeholder="Extra Quantity"
+                            />
+                            <input
+                              v-model.number="item.extra_quantity_price"
+                              class="form-control form-control-sm mt-1"
+                              type="number"
+                              placeholder="Extra Quantity Price"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              v-model.number="item.gross_weight"
+                              class="form-control form-control-sm"
+                              type="number"
+                              placeholder="Gross Weight"
+                            />
+                            <select
+                              v-model="item.weight_attr_id"
+                              class="form-control form-control-sm my-1"
+                            >
+                              <option value="">Select Unit</option>
+                              <option
+                                v-for="attr in attributes?.weight"
+                                :key="attr.id"
+                                :value="attr.id"
+                              >
+                                {{ attr.name }}
+                              </option>
+                            </select>
+                          </td>
+                          <td>
+                            <input
+                              v-model.number="item.net_weight"
+                              class="form-control form-control-sm"
+                              type="number"
+                              placeholder="Net Weight"
+                            />
+                            <select
+                              v-model="item.weight_attr_id"
+                              class="form-control form-control-sm my-1"
+                            >
+                              <option value="">Select Unit</option>
+                              <option
+                                v-for="attr in attributes?.weight"
+                                :key="attr.id"
+                                :value="attr.id"
+                              >
+                                {{ attr.name }}
+                              </option>
+                            </select>
+                          </td>
+                          <td>
+                            <input
+                              v-model.number="item.bobin"
+                              class="form-control"
+                              type="number"
+                              placeholder="Bobin"
+                            />
+                          </td>
+                          <td>
+                            <input
+                              v-model.number="item.remark"
+                              class="form-control"
+                              type="text"
+                              placeholder="Remark"
+                            />
+                          </td>
+                          <td>
+                            <a
+                              href="javascript:void(0)"
+                              type="button"
+                              class="btn btn-danger btn-sm"
+                              @click="removeItem(index)"
+                            >
+                              <svg
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                viewBox="0 0 24 24"
+                                fill="none"
+                                stroke="currentColor"
+                                stroke-width="2"
+                                stroke-linecap="round"
+                                stroke-linejoin="round"
+                                class="feather feather-trash-2"
+                              >
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path
-                                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
-                                </path>
+                                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
+                                ></path>
                                 <line x1="10" y1="11" x2="10" y2="17"></line>
                                 <line x1="14" y1="11" x2="14" y2="17"></line>
                               </svg>
@@ -225,11 +380,21 @@
                       </tbody>
                     </table>
                   </div>
-                  <button type="button" class="btn btn-info mt-2" @click="addItem">Add Another Item</button>
+                  <button type="button" class="btn btn-info mt-2" @click="addItem">
+                    Add Another Item
+                  </button>
                 </div>
                 <div class="modal-footer">
-                  <button type="button" class="btn btn-secondary" @click="showModal = false">Close</button>
-                  <button type="button" class="btn btn-primary" @click="saveItems">Done</button>
+                  <button
+                    type="button"
+                    class="btn btn-secondary"
+                    @click="showModal = false"
+                  >
+                    Close
+                  </button>
+                  <button type="button" class="btn btn-primary" @click="saveItems">
+                    Done
+                  </button>
                 </div>
               </div>
             </div>
@@ -241,80 +406,83 @@
 </template>
 
 <script>
-import { ref, reactive, onMounted, computed, watch } from 'vue';
-import Select2Wrapper from '../Select2Wrapper.vue';
-import Axistance from '../../Axistance';
+import { ref, reactive, onMounted, computed, watch } from "vue";
+import Axistance from "../../Axistance";
 
 export default {
-  components: { Select2Wrapper },
   setup() {
     const yarnCounts = ref([]);
     const attributes = ref([]);
     const customerYarnCounts = ref([]);
     const showModal = ref(false);
     const customerOptions = ref([]);
-    
+
     const serviceInfo = reactive({
       customer_id: null,
-      service_date: '',
-      invoice_no: '',
+      service_date: "",
+      invoice_no: "",
       document_link: null,
       total_amount: 0,
       payment_status: 0,
       discount: 0,
       discount_type: 0,
       status: 0,
-      description: '',
-      dataItem: [{
-        yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
-        extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
-        net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
-      }]
+      description: "",
+      dataItem: [
+        {
+          yarn_count_id: "",
+          unit_attr_id: "",
+          quantity: 0,
+          unit_price: 0,
+          extra_quantity: 0,
+          extra_quantity_price: 0,
+          color_id: "",
+          gross_weight: 0,
+          net_weight: 0,
+          weight_attr_id: "",
+          bobin: "",
+          remark: "",
+        },
+      ],
     });
 
     const select2Settings = {
-      placeholder: 'Select Customer',
-      allowClear: true,
+      // Your AJAX configuration from above
       ajax: {
-        url: '/customer',
-        dataType: 'json',
+        url: "/admin/customer",
+        dataType: "json",
         delay: 250,
         data: function (params) {
           return {
-            search: params.term,
+            q: params.term,
             page: params.page || 1,
-            limit: 10
           };
         },
         processResults: function (data, params) {
           params.page = params.page || 1;
-          
           return {
-            results: data.data.map(customer => ({
-              id: customer.id,
-              text: customer.name || customer.company_name || customer.email
-            })),
+            results: data.results,
             pagination: {
-              more: (params.page * 10) < data.meta.total
-            }
+              more: data.pagination.more, // Assuming your API returns a `pagination.more` boolean
+            },
           };
         },
-        cache: true
-      }
+        cache: true,
+      },
     };
-    
+
     const handleCustomerSelect = (customer) => {
       serviceInfo.customer_id = customer.id;
       fetchCustomersYarnCounts();
     };
-    
+
     const handleCustomerChange = (value) => {
       // This handles programmatic changes
       if (!value) {
         customerYarnCounts.value = [];
       }
     };
-    
+
     const handleCustomerUnselect = () => {
       serviceInfo.customer_id = null;
       customerYarnCounts.value = [];
@@ -323,11 +491,11 @@ export default {
     const fetchCustomersYarnCounts = () => {
       if (serviceInfo.customer_id) {
         Axistance.get(`customer/${serviceInfo.customer_id}`)
-          .then(response => {
+          .then((response) => {
             customerYarnCounts.value = response.data?.customer_stock;
           })
-          .catch(error => {
-            console.error('Error fetching yarn counts for customer:', error);
+          .catch((error) => {
+            console.error("Error fetching yarn counts for customer:", error);
           });
       } else {
         customerYarnCounts.value = [];
@@ -340,17 +508,28 @@ export default {
     };
 
     const getYarnQuantity = (item) => {
-      const yarnCount = customerYarnCounts.value.find(yc => yc.yarn_count_id == item.yarn_count_id);
-      const foundYarn = yarnCounts.value.find(yc => yc.id == item.yarn_count_id);
+      const yarnCount = customerYarnCounts.value.find(
+        (yc) => yc.yarn_count_id == item.yarn_count_id
+      );
+      const foundYarn = yarnCounts.value.find((yc) => yc.id == item.yarn_count_id);
       const amytStock = foundYarn?.amyt_stock?.quantity ?? 0;
       return `client:${yarnCount?.quantity ?? 0},amyt:${amytStock}`;
     };
 
     const addItem = () => {
       serviceInfo.dataItem.push({
-        yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
-        extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
-        net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
+        yarn_count_id: "",
+        unit_attr_id: "",
+        quantity: 0,
+        unit_price: 0,
+        extra_quantity: 0,
+        extra_quantity_price: 0,
+        color_id: "",
+        gross_weight: 0,
+        net_weight: 0,
+        weight_attr_id: "",
+        bobin: "",
+        remark: "",
       });
     };
 
@@ -359,9 +538,18 @@ export default {
         serviceInfo.dataItem.splice(index, 1);
       } else {
         Object.assign(serviceInfo.dataItem[0], {
-          yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
-          extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
-          net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
+          yarn_count_id: "",
+          unit_attr_id: "",
+          quantity: 0,
+          unit_price: 0,
+          extra_quantity: 0,
+          extra_quantity_price: 0,
+          color_id: "",
+          gross_weight: 0,
+          net_weight: 0,
+          weight_attr_id: "",
+          bobin: "",
+          remark: "",
         });
       }
     };
@@ -372,16 +560,18 @@ export default {
 
     const getYarnCounts = async () => {
       try {
-        const response = await Axistance.get('yarn-count?isPaginate=no&relation[]=amytStock');
+        const response = await Axistance.get(
+          "yarn-count?isPaginate=no&relation[]=amytStock"
+        );
         yarnCounts.value = response.data;
       } catch (error) {
-        console.error('Error fetching yarn counts:', error);
+        console.error("Error fetching yarn counts:", error);
       }
     };
 
     const getAttribute = async () => {
       try {
-        const response = await Axistance.get('attribute');
+        const response = await Axistance.get("attribute");
         const grouped = response.data;
         attributes.value = grouped.reduce((acc, item) => {
           if (!acc[item.type]) {
@@ -391,7 +581,7 @@ export default {
           return acc;
         }, {});
       } catch (error) {
-        console.error('Error fetching attributes:', error);
+        console.error("Error fetching attributes:", error);
       }
     };
 
@@ -403,13 +593,13 @@ export default {
     };
 
     const getYarnCountName = (id) => {
-      const found = yarnCounts.value.find(yc => yc.id == id);
-      return found ? found.name : 'N/A';
+      const found = yarnCounts.value.find((yc) => yc.id == id);
+      return found ? found.name : "N/A";
     };
 
     const getAttrName = (id, attr) => {
-      const found = attributes.value?.[attr]?.find(yc => yc.id == id);
-      return found ? found.name : 'N/A';
+      const found = attributes.value?.[attr]?.find((yc) => yc.id == id);
+      return found ? found.name : "N/A";
     };
 
     const totalQuantity = computed(() =>
@@ -433,54 +623,71 @@ export default {
     );
 
     const hasAddedItems = computed(() => {
-      return serviceInfo.dataItem.some(item => item.yarn_count_id);
+      return serviceInfo.dataItem.some((item) => item.yarn_count_id);
     });
 
     const submitForm = async () => {
       const formData = new FormData();
-      Object.keys(serviceInfo).forEach(key => {
-        if (key == 'dataItem') {
+      Object.keys(serviceInfo).forEach((key) => {
+        if (key == "dataItem") {
           formData.append(key, JSON.stringify(serviceInfo[key]));
-        } else if (key == 'document_link' && serviceInfo[key] instanceof File) {
+        } else if (key == "document_link" && serviceInfo[key] instanceof File) {
           formData.append(key, serviceInfo[key], serviceInfo[key].name);
         } else {
           formData.append(key, serviceInfo[key]);
         }
       });
       try {
-        const response = await Axistance.post('service', formData, { headers: { 'Content-Type': 'multipart/form-data' } });
+        const response = await Axistance.post("service", formData, {
+          headers: { "Content-Type": "multipart/form-data" },
+        });
         alert(response.data.message);
         resetForm();
-        window.location.href = 'service-list';
+        window.location.href = "service-list";
       } catch (error) {
-        alert(error.response?.data?.message || 'An error occurred');
+        alert(error.response?.data?.message || "An error occurred");
       }
     };
 
     const resetForm = () => {
-      serviceInfo.dataItem = [{
-        yarn_count_id: '', unit_attr_id: '', quantity: 0, unit_price: 0,
-        extra_quantity: 0, extra_quantity_price: 0, color_id: '', gross_weight: 0,
-        net_weight: 0, weight_attr_id: '', bobin: '', remark: ''
-      }];
+      serviceInfo.dataItem = [
+        {
+          yarn_count_id: "",
+          unit_attr_id: "",
+          quantity: 0,
+          unit_price: 0,
+          extra_quantity: 0,
+          extra_quantity_price: 0,
+          color_id: "",
+          gross_weight: 0,
+          net_weight: 0,
+          weight_attr_id: "",
+          bobin: "",
+          remark: "",
+        },
+      ];
       serviceInfo.customer_id = null;
-      serviceInfo.service_date = '';
-      serviceInfo.invoice_no = '';
+      serviceInfo.service_date = "";
+      serviceInfo.invoice_no = "";
       serviceInfo.document_link = null;
       serviceInfo.total_amount = 0;
       serviceInfo.payment_status = 0;
       serviceInfo.discount = 0;
       serviceInfo.discount_type = 0;
       serviceInfo.status = 0;
-      serviceInfo.description = '';
+      serviceInfo.description = "";
       showModal.value = false;
     };
 
-    watch(() => serviceInfo.customer_id, (newVal) => {
-      if (newVal) {
-        fetchCustomersYarnCounts();
-      }
-    }, { immediate: true });
+    watch(
+      () => serviceInfo.customer_id,
+      (newVal) => {
+        if (newVal) {
+          fetchCustomersYarnCounts();
+        }
+      },
+      { immediate: true }
+    );
 
     onMounted(() => {
       getYarnCounts();
@@ -514,7 +721,7 @@ export default {
       totalBobin,
       hasAddedItems,
     };
-  }
+  },
 };
 </script>
 

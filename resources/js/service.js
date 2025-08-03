@@ -1,25 +1,34 @@
 import { createApp } from 'vue';
-import jQuery from 'jquery';
-import 'select2'; // This will attach select2 to jQuery
-import 'select2/dist/css/select2.min.css';
+
+// Third-party libraries
+// ----------------------------------------------------
+import $ from 'jquery';
+import 'select2';
+import 'select2/dist/css/select2.css';
+import VueAwesomePaginate from 'vue-awesome-paginate';
+import Select2 from 'vue3-select2-component';
+
+// Expose jQuery globally for Select2 and other plugins
+window.$ = window.jQuery = $;
+
+// Local components
+// ----------------------------------------------------
 import Service from './components/service/Service.vue';
 import Yarn from './components/service/Yarn.vue';
 import CreateService from './components/service/CreateService.vue';
-import VueAwesomePaginate from 'vue-awesome-paginate';
 
-// Make jQuery global for components that need it
-window.$ = window.jQuery = jQuery;
+// Vue Application setup
+// ----------------------------------------------------
+const app = createApp({});
 
-// Create and mount the Vue app
-const app = createApp({
-    // Root component setup if needed
-});
+// Register plugins
+app.use(VueAwesomePaginate);
 
-// Register global components
+// Register global components for use throughout the app
 app.component('service', Service);
 app.component('yarn-list', Yarn);
 app.component('create-service', CreateService);
-app.use(VueAwesomePaginate);
+app.component('Select2', Select2);
 
-// Mount the app
+// Mount the app to the DOM
 app.mount('#app');

@@ -28,7 +28,7 @@ class CustomerFactory extends Factory
         return [
             // 'customer_group_id' => \App\Models\CustomerGroup::factory(), // Assuming you have a CustomerGroup model and factory
             // If you don't have a CustomerGroup, you can use a fixed ID or remove this line for now:
-            'customer_group_id' => $this->faker->numberBetween(1, 5), // Example: if you have 5 customer groups
+            'customer_group_id' => $this->faker->numberBetween(1, 3), // Example: if you have 5 customer groups
             'name' => $this->faker->name, // Generates a random name
             'address' => $this->faker->address, // Generates a random street address
             'company_name' => $this->faker->company, // Generates a random company name
