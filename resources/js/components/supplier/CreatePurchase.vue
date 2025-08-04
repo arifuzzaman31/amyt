@@ -20,15 +20,14 @@
                               v-model="purchaseOrder.purchase_date" />
                           </div>
                         </div>
+                      
                         <div class="col-md-4">
                           <div class="form-group">
-                            <label for="supplier_id">Select Supplier</label>
-                            <select v-model="purchaseOrder.supplier_id" class="form-control mb-4" id="supplier_id">
-                              <option value="">Select Supplier</option>
-                              <option v-for="s in suppliers" :key="s.id" :value="s.id">
-                                {{ s.name }} - {{ s.company_name }}
-                              </option>
-                            </select>
+                            <div>
+                              <label for="supplier_id">Select Supplier</label>
+                              <Select2 :settings="select2Settings" v-model="purchaseOrder.supplier_id"
+                                @select="handleCustomerSelect" />
+                            </div>
                           </div>
                         </div>
                         <div class="col-md-4">
@@ -246,7 +245,6 @@ import { ref, reactive, onMounted, computed, watch } from 'vue'; // Added comput
 import Axistance from '../../Axistance';
 export default {
   setup() {
-    const suppliers = ref([]);
     const yarnCounts = ref([]);
     const url = ref(rootUrl);
     const showModal = ref(false);
@@ -286,15 +284,6 @@ export default {
       showModal.value = false;
     };
 
-    const getSuppliers = async () => {
-      try {
-        const response = await Axistance.get('supplier');
-        suppliers.value = response.data;
-      } catch (error) {
-        console.error('Error fetching suppliers:', error);
-      }
-    };
-
     const getYarnCounts = async () => {
       try {
         const response = await Axistance.get('yarn-count'); // Ensure this endpoint is correct
@@ -303,6 +292,69 @@ export default {
         console.error('Error fetching yarn counts:', error);
       }
     };
+    const select2Settings = {
+      ajax: {
+        url: baseUrl + "supplier",
+        dataType: "json",
+        delay: 250,
+        data: function (params) {
+          return {
+            q: params.term,
+            page: params.page || 1,
+          };
+        },
+        data: function (params) {
+          return {
+            page: params.page ?? 1,
+            per_page: 20,
+            search: params.term || ''
+          };
+        },
+        processResults: function (data, params) {
+          params.page = params.page || 1;
+          const options = [];
+
+          if (Array.isArray(data.data) && data.data.length > 0) {
+            data.data.forEach(val => {
+              options.push({
+                id: val.id,
+                text: `${val.name}`,
+                product: val
+              });
+            });
+          }
+
+          return {
+            results: options,
+            pagination: {
+              more: data.current_page >= data.last_page ? false : true,
+            },
+          };
+        },
+        cache: true,
+      },
+      escapeMarkup: function (markup) {
+        return markup;
+      },
+      minimumInputLength: 0,
+      templateResult: formatProduct,
+      templateSelection: formatProductSelection
+    };
+    function formatProduct(product) {
+      if (product.loading) {
+        return product.text;
+      }
+      return product.text;
+    }
+
+    function formatProductSelection(product) {
+      return product.text || product.id;
+    }
+
+    const handleCustomerSelect = (customer) => {
+      serviceInfo.customer_id = customer.id;
+    };
+
 
     const handleFileUpload = (event) => {
       const file = event.target.files[0];
@@ -392,20 +444,19 @@ export default {
     };
 
     onMounted(() => {
-      getSuppliers();
       getYarnCounts();
     });
 
     return {
-      suppliers,
       yarnCounts,
       url,
       purchaseOrder,
+      select2Settings,
+      handleCustomerSelect,
       openModal,
       addItem,
       removeItem,
       saveItems,
-      getSuppliers,
       handleFileUpload,
       getYarnCountName,
       submitForm,

@@ -132,8 +132,8 @@ watch(currentPage, () => {
     fetchExpense()
 })
 const fetchExpenseCategory = async () => {
-    const res = await Axistance.get('expense/category')
-    customerList.value = res.data
+    const res = await Axistance.get('expense/category?per_page=200')
+    expenseCategories.value = res.data?.data
 }
 const openEditModal = (customer) => {
     form.value.expense_category_id = customer.expense_category_id
@@ -173,7 +173,7 @@ const fetchExpense = async () => {
     expenseList.value = res.data
 }
 
-const deleteCustomer = async (id) => {
+const deleteExpense = async (id) => {
     swal({
       title: 'Are you sure?',
       text: "This data wont be revert!",

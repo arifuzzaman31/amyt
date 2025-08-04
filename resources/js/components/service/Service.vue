@@ -64,7 +64,7 @@ import EditService from './EditService.vue'
 import "vue-awesome-paginate/dist/style.css";
 const serviceList = ref([])
 const currentPage = ref(1)
-const itemsPerPage = 2
+const itemsPerPage = 10
 const selectedService = ref(null)
 const url = ref(baseUrl)
 
