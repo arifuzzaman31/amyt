@@ -257,8 +257,8 @@ export default {
       total_amount: 0, // This will be updated by grandTotal watcher
       payment_status: 0,
       discount: 0,
-      discount_type: null, // 0 for percentage, 1 for fixed
-      status: 0,
+      discount_type: 1, // 0 for percentage, 1 for fixed
+      status: 3,
       description: '',
       dataItem: [{ yarn_count_id: '', quantity: '', unit_price: '' }]
     });
@@ -437,8 +437,8 @@ export default {
       purchaseOrder.total_amount = 0;
       purchaseOrder.payment_status = 0;
       purchaseOrder.discount = 0;
-      purchaseOrder.discount_type = null;
-      purchaseOrder.status = 0;
+      purchaseOrder.discount_type = 1;
+      purchaseOrder.status = 3;
       purchaseOrder.description = '';
       showModal.value = false; // Close the modal after resetting
     };

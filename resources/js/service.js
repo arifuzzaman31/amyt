@@ -16,6 +16,7 @@ window.$ = window.jQuery = $;
 import Service from './components/service/Service.vue';
 import Yarn from './components/service/Yarn.vue';
 import CreateService from './components/service/CreateService.vue';
+import Quotation from './components/service/Quotation.vue';
 
 // Vue Application setup
 // ----------------------------------------------------
@@ -28,6 +29,7 @@ app.use(VueAwesomePaginate);
 app.component('service', Service);
 app.component('yarn-list', Yarn);
 app.component('create-service', CreateService);
+app.component('quotation-list', Quotation);
 app.component('Select2', Select2);
 
 // Mount the app to the DOM

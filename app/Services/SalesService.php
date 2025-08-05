@@ -17,7 +17,9 @@ class SalesService
     public function getAllServices($data)
     {
         $perPage = $data['per_page'] ?? 10;
-        $services = $this->serviceModel::with('customer:id,name')->paginate($perPage);
+        $status = $data['type'] ?? 1;
+        $services = $this->serviceModel::with('customer:id,name')
+                    ->where('status',$status)->paginate($perPage);
         return $services;
     }
 

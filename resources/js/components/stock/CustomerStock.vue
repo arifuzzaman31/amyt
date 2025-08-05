@@ -54,7 +54,7 @@
                                         <div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
                                             <a type="button" :class="'dropdown-item ' + (getStatusLabel(stock.status) == 'Approved' ? 'disabled text-muted' : '')" @click="updateStatus(stock.id)" href="javascript:void(0);">Approved</a>
                                             <a type="button" :class="'dropdown-item ' + (stock.is_stocked == 1 ? 'disabled text-muted' : '')" @click="loadToStock(stock.id)" href="javascript:void(0);">Load to Stock</a>
-                                            <a type="button" class="dropdown-item" @click="openEditModal(purchase)" href="javascript:void(0);">Edit</a>
+                                            <!-- <a type="button" class="dropdown-item" @click="openEditModal(stock)" href="javascript:void(0);">Edit</a> -->
                                             <a type="button" class="dropdown-item" @click="deleteCustomerStock(stock.id)" href="javascript:void(0);">Delete</a>
                                         </div>
                                     </div>
@@ -80,8 +80,9 @@ const selectedStock = ref(null);
 const url = ref(baseUrl)
 const currentPage = ref(1)
 const itemsPerPage = 10
-const openEditModal = (purchase) => {
-    selectedStock.value = purchase;
+const openEditModal = (stock) => {
+    // console.log(purchase)
+    selectedStock.value = stock;
 }
 
 const fetchCustomerStock = async () => {
