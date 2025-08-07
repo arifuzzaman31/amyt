@@ -27,19 +27,7 @@
                                                                 id="service_date" v-model="serviceInfo.service_date" />
                                                         </div>
                                                     </div>
-                                                    <div class="col-md-4">
-                                                        <div class="form-group">
-                                                            <label for="customer_id">Select Customer</label>
-                                                            <select v-model="serviceInfo.customer_id"
-                                                                class="form-control mb-4" id="customer_id">
-                                                                <option value="">Select Customer</option>
-                                                                <option v-for="s in customers" :key="s.id"
-                                                                    :value="s.id">
-                                                                    {{ s.name }} - {{ s.company_name }}
-                                                                </option>
-                                                            </select>
-                                                        </div>
-                                                    </div>
+
                                                     <div class="col-md-4">
                                                         <div class="form-group">
                                                             <label for="invoice_no">Invoice No</label>
@@ -48,17 +36,31 @@
                                                         </div>
                                                     </div>
 
+                                                    <div class="col-md-4">
+                                                        <div class="form-group">
+                                                            <div>
+                                                                <label for="customer_id">Select Customer</label>
+                                                                <Select2 :settings="select2Settings"
+                                                                    v-model="serviceInfo.customer_id"
+                                                                    @select="handleCustomerSelect"
+                                                                    @change="handleCustomerChange"
+                                                                    @unselect="handleCustomerUnselect" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                     <!-- New fields based on schema -->
                                                     <div class="col-md-8">
                                                         <div class="form-group">
                                                             <label for="document_link">Document (e.g., Invoice
                                                                 PDF)</label>
-                                                                <a class="ml-4" v-if="serviceInfo.document_link"
-                                                                :href="serviceInfo.document_link" target="_blank">View Document</a>
+                                                            <a class="ml-4" v-if="serviceInfo.document_link"
+                                                                :href="serviceInfo.document_link" target="_blank">View
+                                                                Document</a>
                                                             <!-- Using a simple file input for now. Dropify was here before, can be re-integrated if needed -->
                                                             <input type="file" class="form-control-file mb-4"
                                                                 id="document_link" @change="handleFileUpload">
-                                                           
+
                                                         </div>
                                                     </div>
                                                     <div class="col-md-12">
@@ -84,7 +86,8 @@
                                             <div class="work-section mt-3">
                                                 <h6>Added Items:</h6>
                                                 <div class="table-responsive" style="max-width: 99%; overflow-x: auto;">
-                                                    <table class="table table-bordered table-striped mb-4" style="width: 100%;">
+                                                    <table class="table table-bordered table-striped mb-4"
+                                                        style="width: 100%;">
                                                         <thead>
                                                             <tr>
                                                                 <th>Yarn Count</th>
@@ -309,11 +312,11 @@ const getAttribute = async () => {
 };
 
 const handleFileUpload = (event) => {
-      const file = event.target.files[0];
-      if (file) {
+    const file = event.target.files[0];
+    if (file) {
         serviceInfo.update_document_link = file;
-      }
-    };
+    }
+};
 
 const getAttrName = (id, attr) => {
     const found = attributes.value?.[attr]?.find(yc => yc.id == id);
@@ -342,7 +345,81 @@ const removeItem = (index) => {
         serviceInfo.value.dataItem.splice(index, 1);
     }
 };
+const select2Settings = {
+    ajax: {
+        url: baseUrl + "customer",
+        dataType: "json",
+        delay: 250,
+        data: function (params) {
+            return {
+                q: params.term,
+                page: params.page || 1,
+            };
+        },
+        data: function (params) {
+            return {
+                page: params.page ?? 1,
+                limit: 20,
+                search: params.term || ''
+            };
+        },
+        processResults: function (data, params) {
+            params.page = params.page || 1;
+            const options = [];
 
+            if (Array.isArray(data.data) && data.data.length > 0) {
+                data.data.forEach(val => {
+                    options.push({
+                        id: val.id,
+                        text: `${val.name + '-' + val.customer_group?.name}`,
+                        product: val
+                    });
+                });
+            }
+
+            return {
+                results: options,
+                pagination: {
+                    more: data.current_page >= data.last_page ? false : true,
+                },
+            };
+        },
+        cache: true,
+    },
+    escapeMarkup: function (markup) {
+        return markup;
+    },
+    minimumInputLength: 0,
+    templateResult: formatProduct,
+    templateSelection: formatProductSelection
+};
+function formatProduct(product) {
+    if (product.loading) {
+        return product.text;
+    }
+    return product.text;
+}
+
+function formatProductSelection(product) {
+    return product.text || product.id;
+}
+
+const handleCustomerSelect = (customer) => {
+    serviceInfo.customer_id = customer.id;
+    getYarnCounts();
+};
+
+const handleCustomerChange = (value) => {
+    // This handles programmatic changes
+    if (!value) {
+        yarnCounts.value = [];
+    }
+};
+
+const handleCustomerUnselect = () => {
+    serviceInfo.customer_id = null;
+    yarnCounts.value = [];
+};
 const submitUpdateForm = async () => {
     const response = await Axistance.put(`service/${serviceInfo.value.id}`, serviceInfo.value);
     if (response.status !== 201) {
@@ -418,5 +495,13 @@ onMounted(() => {
 <style scoped>
 .modal-xl {
     max-width: 90%;
+}
+/* Vue deep selector for scoped styles */
+::v-deep .select2-container {
+  width: 100% !important;
+}
+
+::v-deep .select2-selection {
+  width: 100% !important;
 }
 </style>

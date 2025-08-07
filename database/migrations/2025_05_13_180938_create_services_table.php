@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('customer_id')->constrained()->onDelete('cascade');
             $table->date('service_date');
-            $table->string('invoice_no');
+            $table->string('invoice_no')->nullable();
             $table->string('document_link')->nullable();
             $table->longText('description')->nullable();
             $table->tinyInteger('payment_status')->default(0)->comment('0=due,1=>paid,2=>refunded');

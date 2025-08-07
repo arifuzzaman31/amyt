@@ -2,78 +2,52 @@
   <div class="layout-px- Resultados">
     <div class="account-settings-container layout-top-spacing">
       <div class="account-content">
-        <div
-          class="scrollspy-example"
-          data-spy="scroll"
-          data-target="#account-settings-scroll"
-          data-offset="-100"
-        >
+        <div class="scrollspy-example" data-spy="scroll" data-target="#account-settings-scroll" data-offset="-100">
           <form id="service-form" @submit.prevent="submitForm()">
             <div class="row">
               <div class="col-xl-12 col-lg-12 col-md-12">
                 <div class="info section form-section-styled">
-                  <div class="row">
+                  <div class="row pt-3">
                     <div class="col-md-11 mx-auto">
                       <h5 class="">Service Details</h5>
                       <div class="row">
                         <div class="col-md-4">
                           <div class="form-group">
                             <label for="service_date">Service Date</label>
-                            <input
-                              type="date"
-                              class="form-control mb-4"
-                              id="service_date"
-                              v-model="serviceInfo.service_date"
-                            />
+                            <input type="date" class="form-control mb-4" id="service_date"
+                              v-model="serviceInfo.service_date" />
+                          </div>
+                        </div>
+                        
+                        <div class="col-md-4">
+                          <div class="form-group">
+                            <label for="invoice_no">Invoice No</label>
+                            <input type="text" class="form-control mb-4" id="invoice_no"
+                              v-model="serviceInfo.invoice_no" />
                           </div>
                         </div>
                         <div class="col-md-4">
                           <div class="form-group">
                             <div>
                               <label for="customer_id">Select Customer</label>
-                              <Select2
-                                :settings="select2Settings"
-                                v-model="serviceInfo.customer_id"
-                                @select="handleCustomerSelect"
-                                @change="handleCustomerChange"
-                                @unselect="handleCustomerUnselect"
-                              />
+                              <Select2 :settings="select2Settings" v-model="serviceInfo.customer_id"
+                                @select="handleCustomerSelect" @change="handleCustomerChange"
+                                @unselect="handleCustomerUnselect" />
                             </div>
                           </div>
                         </div>
                         <div class="col-md-4">
                           <div class="form-group">
-                            <label for="invoice_no">Invoice No</label>
-                            <input
-                              type="text"
-                              class="form-control mb-4"
-                              id="invoice_no"
-                              v-model="serviceInfo.invoice_no"
-                            />
-                          </div>
-                        </div>
-                        <div class="col-md-4">
-                          <div class="form-group">
-                            <label for="document_link"
-                              >Document (e.g., Invoice PDF)</label
-                            >
-                            <input
-                              type="file"
-                              class="form-control-file mb-4"
-                              id="document_link"
-                              @change="handleFileUpload"
-                            />
+                            <label for="document_link">Document (e.g., Invoice PDF)</label>
+                            <input type="file" class="form-control-file mb-4" id="document_link"
+                              @change="handleFileUpload" />
                           </div>
                         </div>
                         <div class="col-md-12">
                           <div class="form-group">
                             <label for="description">Description</label>
-                            <textarea
-                              class="form-control"
-                              placeholder="Description for the service order"
-                              rows="3"
-                              v-model="serviceInfo.description"
-                            ></textarea>
+                            <textarea class="form-control" placeholder="Description for the service order" rows="3"
+                              v-model="serviceInfo.description"></textarea>
                           </div>
                         </div>
                       </div>
@@ -81,8 +55,8 @@
                   </div>
                 </div>
               </div>
-              <div class="col-xl-12 col-lg-12 col-md-12">
-                <div class="section item-list-section form-section-styled">
+              <div class="col-xl-12 col-lg-12 col-md-12 py-3">
+                <div class="section item-list-section" style="padding:10px 20px">
                   <div class="info">
                     <div class="d-flex justify-content-between align-items-center">
                       <h5 class="">Item List</h5>
@@ -90,11 +64,7 @@
                         Add Item
                       </button>
                     </div>
-                    <div
-                      class="modal-backdrop fade show"
-                      v-if="showModal"
-                      @click="showModal = false"
-                    ></div>
+                    <div class="modal-backdrop fade show" v-if="showModal" @click="showModal = false"></div>
                     <div class="work-section mt-3" v-if="hasAddedItems">
                       <h6>Added Items:</h6>
                       <div class="table-responsive">
@@ -112,10 +82,7 @@
                             </tr>
                           </thead>
                           <tbody>
-                            <tr
-                              v-for="addedItem in serviceInfo.dataItem"
-                              :key="addedItem.yarn_count_id"
-                            >
+                            <tr v-for="addedItem in serviceInfo.dataItem" :key="addedItem.yarn_count_id">
                               <td>{{ getYarnCountName(addedItem.yarn_count_id) }}</td>
                               <td>{{ getAttrName(addedItem.color_id, "color") }}</td>
                               <td>
@@ -183,24 +150,13 @@
               </div>
             </div>
           </form>
-          <div
-            class="modal animated fadeInRight custo-fadeInRight show"
-            :class="{ 'show d-block': showModal }"
-            tabindex="-1"
-            role="dialog"
-            aria-labelledby="addItemModalLabel"
-            aria-hidden="true"
-          >
+          <div class="modal animated fadeInRight custo-fadeInRight show" :class="{ 'show d-block': showModal }"
+            tabindex="-1" role="dialog" aria-labelledby="addItemModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-xl" role="document">
               <div class="modal-content">
                 <div class="modal-header">
                   <h5 class="modal-title" id="addItemModalLabel">Add/Edit Items</h5>
-                  <button
-                    type="button"
-                    class="close"
-                    @click="showModal = false"
-                    aria-label="Close"
-                  >
+                  <button type="button" class="close" @click="showModal = false" aria-label="Close">
                     <span aria-hidden="true">&times;</span>
                   </button>
                 </div>
@@ -225,14 +181,10 @@
                           <td>
                             <small style="font-size: 12px; color: #555">{{
                               getYarnQuantity(item)
-                            }}</small>
+                              }}</small>
                             <select v-model="item.yarn_count_id" class="form-control">
                               <option value="">Select Yarn Count</option>
-                              <option
-                                v-for="yc in yarnCounts"
-                                :key="yc.id"
-                                :value="yc.id"
-                              >
+                              <option v-for="yc in yarnCounts" :key="yc.id" :value="yc.id">
                                 {{ yc.name }}
                               </option>
                             </select>
@@ -240,137 +192,65 @@
                           <td>
                             <select v-model="item.color_id" class="form-control">
                               <option value="">Select Color</option>
-                              <option
-                                v-for="attr in attributes?.color"
-                                :key="attr.id"
-                                :value="attr.id"
-                              >
+                              <option v-for="attr in attributes?.color" :key="attr.id" :value="attr.id">
                                 {{ attr.name }}
                               </option>
                             </select>
                           </td>
                           <td>
-                            <input
-                              v-model.number="item.quantity"
-                              class="form-control form-control-sm"
-                              type="number"
-                              placeholder="Quantity"
-                            />
-                            <select
-                              v-model="item.unit_attr_id"
-                              class="form-control form-control-sm my-1"
-                            >
+                            <input v-model.number="item.quantity" class="form-control form-control-sm" type="number"
+                              placeholder="Quantity" />
+                            <select v-model="item.unit_attr_id" class="form-control form-control-sm my-1">
                               <option value="">Select Unit</option>
-                              <option
-                                v-for="attr in attributes?.weight"
-                                :key="attr.id"
-                                :value="attr.id"
-                              >
+                              <option v-for="attr in attributes?.weight" :key="attr.id" :value="attr.id">
                                 {{ attr.name }}
                               </option>
                             </select>
-                            <input
-                              v-model.number="item.unit_price"
-                              class="form-control form-control-sm"
-                              type="number"
-                              placeholder="Unit Price"
-                            />
+                            <input v-model.number="item.unit_price" class="form-control form-control-sm" type="number"
+                              placeholder="Unit Price" />
                           </td>
                           <td>
-                            <input
-                              v-model.number="item.extra_quantity"
-                              class="form-control"
-                              type="number"
-                              placeholder="Extra Quantity"
-                            />
-                            <input
-                              v-model.number="item.extra_quantity_price"
-                              class="form-control form-control-sm mt-1"
-                              type="number"
-                              placeholder="Extra Quantity Price"
-                            />
+                            <input v-model.number="item.extra_quantity" class="form-control" type="number"
+                              placeholder="Extra Quantity" />
+                            <input v-model.number="item.extra_quantity_price" class="form-control form-control-sm mt-1"
+                              type="number" placeholder="Extra Quantity Price" />
                           </td>
                           <td>
-                            <input
-                              v-model.number="item.gross_weight"
-                              class="form-control form-control-sm"
-                              type="number"
-                              placeholder="Gross Weight"
-                            />
-                            <select
-                              v-model="item.weight_attr_id"
-                              class="form-control form-control-sm my-1"
-                            >
+                            <input v-model.number="item.gross_weight" class="form-control form-control-sm" type="number"
+                              placeholder="Gross Weight" />
+                            <select v-model="item.weight_attr_id" class="form-control form-control-sm my-1">
                               <option value="">Select Unit</option>
-                              <option
-                                v-for="attr in attributes?.weight"
-                                :key="attr.id"
-                                :value="attr.id"
-                              >
+                              <option v-for="attr in attributes?.weight" :key="attr.id" :value="attr.id">
                                 {{ attr.name }}
                               </option>
                             </select>
                           </td>
                           <td>
-                            <input
-                              v-model.number="item.net_weight"
-                              class="form-control form-control-sm"
-                              type="number"
-                              placeholder="Net Weight"
-                            />
-                            <select
-                              v-model="item.weight_attr_id"
-                              class="form-control form-control-sm my-1"
-                            >
+                            <input v-model.number="item.net_weight" class="form-control form-control-sm" type="number"
+                              placeholder="Net Weight" />
+                            <select v-model="item.weight_attr_id" class="form-control form-control-sm my-1">
                               <option value="">Select Unit</option>
-                              <option
-                                v-for="attr in attributes?.weight"
-                                :key="attr.id"
-                                :value="attr.id"
-                              >
+                              <option v-for="attr in attributes?.weight" :key="attr.id" :value="attr.id">
                                 {{ attr.name }}
                               </option>
                             </select>
                           </td>
                           <td>
-                            <input
-                              v-model.number="item.bobin"
-                              class="form-control"
-                              type="number"
-                              placeholder="Bobin"
-                            />
+                            <input v-model.number="item.bobin" class="form-control" type="number" placeholder="Bobin" />
                           </td>
                           <td>
-                            <input
-                              v-model.number="item.remark"
-                              class="form-control"
-                              type="text"
-                              placeholder="Remark"
-                            />
+                            <input v-model.number="item.remark" class="form-control" type="text" placeholder="Remark" />
                           </td>
                           <td>
-                            <a
-                              href="javascript:void(0)"
-                              type="button"
-                              class="btn btn-danger btn-sm"
-                              @click="removeItem(index)"
-                            >
-                              <svg
-                                xmlns="http://www.w3.org/2000/svg"
-                                width="24"
-                                height="24"
-                                viewBox="0 0 24 24"
-                                fill="none"
-                                stroke="currentColor"
-                                stroke-width="2"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                class="feather feather-trash-2"
-                              >
+                            <a href="javascript:void(0)" type="button" class="btn btn-danger btn-sm"
+                              @click="removeItem(index)">
+                              <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="feather feather-trash-2">
                                 <polyline points="3 6 5 6 21 6"></polyline>
                                 <path
-                                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"
-                                ></path>
+                                  d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2">
+                                </path>
                                 <line x1="10" y1="11" x2="10" y2="17"></line>
                                 <line x1="14" y1="11" x2="14" y2="17"></line>
                               </svg>
@@ -385,11 +265,7 @@
                   </button>
                 </div>
                 <div class="modal-footer">
-                  <button
-                    type="button"
-                    class="btn btn-secondary"
-                    @click="showModal = false"
-                  >
+                  <button type="button" class="btn btn-secondary" @click="showModal = false">
                     Close
                   </button>
                   <button type="button" class="btn btn-primary" @click="saveItems">
@@ -447,9 +323,8 @@ export default {
     });
 
     const select2Settings = {
-      // Your AJAX configuration from above
       ajax: {
-        url: "/admin/customer",
+        url: baseUrl + "customer",
         dataType: "json",
         delay: 250,
         data: function (params) {
@@ -458,18 +333,53 @@ export default {
             page: params.page || 1,
           };
         },
+        data: function (params) {
+          return {
+            page: params.page ?? 1,
+            limit: 20,
+            search: params.term || ''
+          };
+        },
         processResults: function (data, params) {
           params.page = params.page || 1;
+          const options = [];
+
+          if (Array.isArray(data.data) && data.data.length > 0) {
+            data.data.forEach(val => {
+              options.push({
+                id: val.id,
+                text: `${val.name + '-' + val.customer_group?.name}`,
+                product: val
+              });
+            });
+          }
+
           return {
-            results: data.results,
+            results: options,
             pagination: {
-              more: data.pagination.more, // Assuming your API returns a `pagination.more` boolean
+              more: data.current_page >= data.last_page ? false : true,
             },
           };
         },
         cache: true,
       },
+      escapeMarkup: function (markup) {
+        return markup;
+      },
+      minimumInputLength: 0,
+      templateResult: formatProduct,
+      templateSelection: formatProductSelection
     };
+    function formatProduct(product) {
+      if (product.loading) {
+        return product.text;
+      }
+      return product.text;
+    }
+
+    function formatProductSelection(product) {
+      return product.text || product.id;
+    }
 
     const handleCustomerSelect = (customer) => {
       serviceInfo.customer_id = customer.id;
@@ -726,5 +636,13 @@ export default {
 </script>
 
 <style scoped>
-/* Add any component-specific styles here */
+.select2-container {
+  max-height: 42px !important;
+  max-width: 15%;
+  border: 1px solid #ced4da !important;
+}
+
+.select2 {
+  width: 100% !important;
+}
 </style>

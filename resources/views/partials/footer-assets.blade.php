@@ -42,8 +42,4 @@
     padding: '2em',
   })
 }
-
-const confirmNotify = () =>{
-    
-}
 </script>

@@ -189,7 +189,7 @@
                                 <a href="{{ route('service-list')}}">Service List </a>
                             </li>
                             <li>
-                                <a href="">Quotation</a>
+                                <a href="{{ route('quotation-list')}}">Quotation</a>
                             </li>
                     </ul>
                 </li>

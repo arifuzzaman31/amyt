@@ -34,6 +34,7 @@ Route::prefix('admin')->middleware('AuthCheck')->group(function () {
     Route::view('purchase-list', 'pages.purchase.purchase')->name('purchase-list');
     Route::resource('service', ServiceController::class);
     Route::view('service-list', 'pages.service.service')->name('service-list');
+    Route::view('quotation-list', 'pages.service.quotaion')->name('quotation-list');
     Route::get('service/{id}/approve', [ServiceController::class, 'serviceStatus'])->name('service-approve');
     Route::resource('yarn-count', YarnController::class); // Restoring original resource route
     Route::get('all-yarn-counts', [YarnController::class, 'allYarns'])->name('all-yarn-counts'); // Route for fetching all yarns
