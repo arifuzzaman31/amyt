@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Supplier;
+use App\Models\Yarn;
 use App\Services\PurchaseService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +22,13 @@ class PurchaseController extends Controller
     {
         return response()->json($this->purchaseService->getAll($request->all()));
     }
+
+    public function create()
+{
+    $yarnCounts = Yarn::all();
+    return view('pages.create', compact('yarnCounts'));
+}
+
 
     /**
      * Store a newly created resource in storage.

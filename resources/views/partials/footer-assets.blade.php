@@ -43,3 +43,5 @@
   })
 }
 </script>
+<!-- Include our custom JavaScript -->
+<script src="{{ asset('admin-assets/purchase-order.js') }}"></script>
