@@ -4,7 +4,7 @@ import vue from '@vitejs/plugin-vue';
 
 export default defineConfig({
     server: {
-        host: true, // This tells Vite to listen on all local network addresses
+        host: 'localhost', // This tells Vite to listen on all local network addresses
     },
     plugins: [
         laravel({
