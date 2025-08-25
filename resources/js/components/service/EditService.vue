@@ -497,11 +497,4 @@ onMounted(() => {
     max-width: 90%;
 }
 /* Vue deep selector for scoped styles */
-::v-deep .select2-container {
-  width: 100% !important;
-}
-
-::v-deep .select2-selection {
-  width: 100% !important;
-}
 </style>

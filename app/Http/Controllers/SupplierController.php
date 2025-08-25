@@ -22,7 +22,8 @@ class SupplierController extends Controller
     $query = $request->input('q');
     $page = $request->input('page', 1);
     
-    $suppliers = Customer::where('name', 'like', "%{$query}%")
+    $suppliers = Customer::select('id', 'name', 'phone', 'address','company_name')
+    ->where('name', 'like', "%{$query}%")
         ->paginate(20, ['*'], 'page', $page);
     
     return response()->json($suppliers);

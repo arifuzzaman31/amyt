@@ -30,10 +30,11 @@ Route::prefix('admin')->middleware('AuthCheck')->group(function () {
     Route::view('supplier-list', 'pages.supplier.supplier')->name('supplier-list');
     Route::resource('purchase', PurchaseController::class);
     Route::post('purchase/{id}/approve', [PurchaseController::class, 'purchaseStatus']);
-    Route::view('create-purchase', 'pages.purchase.create_purchase')->name('create-purchase');
+    // Route::view('create-purchase', 'pages.purchase.create_purchase')->name('create-purchase');
     Route::view('purchase-list', 'pages.purchase.purchase')->name('purchase-list');
     Route::resource('service', ServiceController::class);
-    Route::view('service-list', 'pages.service.service')->name('service-list');
+    Route::view('challan-list', 'pages.service.service')->name('service-list');
+    Route::view('invoice-list', 'pages.invoice.invoice')->name('invoice-list');
     Route::view('quotation-list', 'pages.service.quotaion')->name('quotation-list');
     Route::get('service/{id}/approve', [ServiceController::class, 'serviceStatus'])->name('service-approve');
     Route::resource('yarn-count', YarnController::class); // Restoring original resource route
@@ -57,7 +58,7 @@ Route::prefix('admin')->middleware('AuthCheck')->group(function () {
     Route::get('customer-individual', [YarnStockController::class, 'showStockStatement'])->name('amyt-customer-stock-list');
     Route::resource('attribute', AttributeController::class);
 
-    Route::get('/purchase', [PurchaseController::class, 'create'])->name('purchase.create');
+    Route::get('create-purchase', [PurchaseController::class, 'create'])->name('create-purchase');
     Route::post('/purchase', [PurchaseController::class, 'store'])->name('purchase.store');
     Route::get('/supplier', [SupplierController::class, 'search'])->name('supplier.search');
 });

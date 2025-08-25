@@ -21,6 +21,7 @@ class ServiceController extends Controller
             'service_date' => 'required',
             'customer_id' => 'required'
         ]);
+        // return response()->json($request->all());
         $result = $this->salesService->createService($request->all());
         return response()->json($result, $result['status'] ? 201 : 400);
     }

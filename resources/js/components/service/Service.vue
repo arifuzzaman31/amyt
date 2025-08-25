@@ -6,7 +6,7 @@
         <div class="col-xl-12 col-md-12 col-sm-12 col-12 d-flex justify-content-between">
           <h4>Service</h4>
           <a :href="url + 'create-service'" class="btn btn-primary mb-3">
-            Add Service
+            Add Challan
           </a>
         </div>
       </div>
@@ -41,6 +41,7 @@
 
                       <div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
                           <!-- <a type="button" :class="'dropdown-item ' + (getStatusLabel(service.status) == 'Approved' ? 'disabled text-muted' : '')" @click="updateStatus(service.id)" href="javascript:void(0);">Approved</a> -->
+                          <a type="button" class="dropdown-item" @click="makeInvoice(service)" href="javascript:void(0);">Make Invoice</a>
                           <a type="button" class="dropdown-item" @click="openEditModal(service)" href="javascript:void(0);">Edit</a>
                           <a type="button" class="dropdown-item" @click="deleteService(service.id)" href="javascript:void(0);">Delete</a>
                       </div>

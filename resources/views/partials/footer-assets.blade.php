@@ -1,33 +1,35 @@
- <!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
+<!-- BEGIN GLOBAL MANDATORY SCRIPTS -->
 <script src="{{ asset('admin-assets/assets/js/libs/jquery-3.1.1.min.js')}}"></script>
 <script src="{{ asset('admin-assets/bootstrap/js/popper.min.js')}}"></script>
 <script src="{{ asset('admin-assets/bootstrap/js/bootstrap.min.js')}}"></script>
 <script src="{{ asset('admin-assets/plugins/perfect-scrollbar/perfect-scrollbar.min.js')}}"></script>
 <script src="{{ asset('admin-assets/assets/js/app.js')}}"></script>
-
+<script src="{{ asset('admin-assets/plugins/flatpickr/flatpickr.js')}}"></script>
+<script src="{{ asset('admin-assets/plugins/flatpickr/custom-flatpickr.js')}}"></script>
 <!-- <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script> -->
-<script src="https://media-library.cloudinary.com/global/all.js"></script>
+{{-- <script src="https://media-library.cloudinary.com/global/all.js"></script> --}}
 <script>
-    var rootUrl = "{{ url('/') }}";
+  var rootUrl = "{{ url('/') }}";
     var baseUrl = rootUrl+'/admin/';
     $(document).ready(function() {
         App.init();
+        var f1 = flatpickr(document.getElementById('basicFlatpickr'));
     });
 </script>
 <script src="{{ asset('admin-assets/assets/js/custom.js')}}"></script>
 
 <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->
 <script src="{{ asset('admin-assets/assets/js/scrollspyNav.js')}}"></script>
-    <script>
-        checkall('todoAll', 'todochkbox');
+<script>
+  checkall('todoAll', 'todochkbox');
         $('[data-toggle="tooltip"]').tooltip()
-    </script>
+</script>
 <script src="{{ asset('admin-assets/plugins/apex/apexcharts.min.js')}}"></script>
 <script src="{{ asset('admin-assets/assets/js/dashboard/dash_1.js')}}"></script>
 <script src="{{ asset('admin-assets/plugins/sweetalerts/sweetalert2.min.js')}}"></script>
 <script src="{{ asset('admin-assets/plugins/sweetalerts/custom-sweetalert.js')}}"></script>
 <script>
-    const notifier = (data) => {
+  const notifier = (data) => {
   const toast = swal.mixin({
     toast: true,
     position: 'top-end',
@@ -44,4 +46,4 @@
 }
 </script>
 <!-- Include our custom JavaScript -->
-<script src="{{ asset('admin-assets/purchase-order.js') }}"></script>
+{{-- <script src="{{ asset('admin-assets/purchase-order.js') }}"></script> --}}

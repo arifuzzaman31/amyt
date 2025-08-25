@@ -167,4 +167,8 @@ use Illuminate\Support\Str;
         return $file->storeAs($directory, $fileName, 'public');
     }
 
+    function getYarnCount(){
+        return DB::table('yarns')->selectRaw('id as value,yarn_count as name,status')->where('status',AllStatic::$active)->orderBy('id','desc')->get();
+    }
+
 ?>

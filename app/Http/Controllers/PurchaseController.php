@@ -24,10 +24,10 @@ class PurchaseController extends Controller
     }
 
     public function create()
-{
-    $yarnCounts = Yarn::all();
-    return view('pages.create', compact('yarnCounts'));
-}
+    {
+        $yarnCounts = Yarn::all();
+        return view('pages.create', compact('yarnCounts'));
+    }
 
 
     /**
@@ -45,20 +45,21 @@ class PurchaseController extends Controller
             'document_file' => 'nullable|file|mimes:doc,docx,pdf|max:2048', // Example validation for doc/pdf
             'image_file' => 'nullable|file|image|max:2048' // Example validation for image
         ]);
+
+        // return response()->json($request->all());
         try {
             //code...
             $data = $request->all();
-            
             if ($request->hasFile('document_file')) {
                 $data['document_file'] = $request->file('document_file');
             }
             if ($request->hasFile('image_file')) {
                 $data['image_file'] = $request->file('image_file');
             }
-            
+
             $purchase = $this->purchaseService->create($data);
             // return response()->json(, Response::HTTP_CREATED);
-            return response()->json(['message' => 'Purchase Created Successful!','data' => $purchase], Response::HTTP_CREATED);
+            return response()->json(['message' => 'Purchase Created Successful!', 'data' => $purchase], Response::HTTP_CREATED);
         } catch (\Throwable $th) {
             //throw $th;
             return response()->json(['message' => $th->getMessage()], Response::HTTP_BAD_REQUEST);
@@ -137,7 +138,7 @@ class PurchaseController extends Controller
     public function purchaseStatus(int $id): JsonResponse
     {
         try {
-            $purchase = $this->purchaseService->updateStatus($id,['status' => 1, 'payment_status' => 1]);
+            $purchase = $this->purchaseService->updateStatus($id, ['status' => 1, 'payment_status' => 1]);
             if (!$purchase) {
                 return response()->json(['message' => 'Purchase not found or status update failed'], Response::HTTP_NOT_FOUND);
             }

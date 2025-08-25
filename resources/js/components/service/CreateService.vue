@@ -553,7 +553,7 @@ export default {
         });
         alert(response.data.message);
         resetForm();
-        window.location.href = "service-list";
+        window.location.href = "challan-list";
       } catch (error) {
         alert(error.response?.data?.message || "An error occurred");
       }

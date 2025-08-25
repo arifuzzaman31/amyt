@@ -82,7 +82,7 @@ const purchaseList = ref([])
 const selectedPurchase = ref(null);
 const url = ref(baseUrl)
 const currentPage = ref(1)
-const itemsPerPage = 2
+const itemsPerPage = 10
 const openEditModal = (purchase) => {
     selectedPurchase.value = purchase;
 }

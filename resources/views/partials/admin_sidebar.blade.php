@@ -181,13 +181,17 @@
                     </a>
                     <ul class="collapse submenu list-unstyled" id="service" data-parent="#accordionExample">
                       
+                            {{-- <li>
+                                <a href="{{ route('create-service') }}">Challan </a>
+                            </li> --}}
+
                             <li>
-                                <a href="{{ route('create-service') }}">Challan/Invoice </a>
+                                <a href="{{ route('service-list')}}">Challan</a>
+                            </li>
+                            <li>
+                                <a href="{{ route('invoice-list') }}">Invoice </a>
                             </li>
            
-                            <li>
-                                <a href="{{ route('service-list')}}">Service List </a>
-                            </li>
                             <li>
                                 <a href="{{ route('quotation-list')}}">Quotation</a>
                             </li>
