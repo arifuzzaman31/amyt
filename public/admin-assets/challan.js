@@ -706,12 +706,13 @@ document.addEventListener("DOMContentLoaded", function () {
             });
             
             const data = await response.json();
-            console.log("Response:", data);
+            // console.log("Response:", data);
             
             if (response.ok) {
-                alert(data.message);
-                // resetForm();
-                // window.location.href = baseUrl + "challan-list";
+                // alert(data.message);
+                notifier({ status: "success", message: data.message || "Form submitted successfully" });
+                resetForm();
+                window.location.href = baseUrl + "challan-list";
             } else {
                 alert(data.message || "An error occurred");
             }

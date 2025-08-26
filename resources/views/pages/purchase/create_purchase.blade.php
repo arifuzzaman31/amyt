@@ -129,7 +129,7 @@
                                 <div class="form-group row">
                                     <label for="discount" class="col-sm-5 col-form-label text-right">Discount:</label>
                                     <div class="col-sm-7">
-                                        <input type="number" class="form-control" id="discount" name="discount" placeholder="Discount value">
+                                        <input type="number" value="0" class="form-control" id="discount" name="discount" placeholder="Discount value">
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -137,7 +137,7 @@
                                     <div class="col-sm-7">
                                         <select class="form-control" id="discount_type" name="discount_type">
                                             <option value="">Select Type</option>
-                                            <option value="0">Percentage (%)</option>
+                                            <option value="0" selected>Percentage (%)</option>
                                             <option value="1">Fixed Amount</option>
                                         </select>
                                     </div>
@@ -161,7 +161,7 @@
                                     <div class="col-sm-7">
                                         <select class="form-control" id="payment_status" name="payment_status">
                                             <option value="0">Due</option>
-                                            <option value="1">Paid</option>
+                                            <option value="1" selected>Paid</option>
                                         </select>
                                     </div>
                                 </div>
@@ -169,7 +169,7 @@
                                     <label for="status" class="col-sm-5 col-form-label text-right">Order Status:</label>
                                     <div class="col-sm-7">
                                         <select class="form-control" id="status" name="status">
-                                            <option value="1">Approved</option>
+                                            <option value="1" selected>Approved</option>
                                             <option value="3">Draft</option>
                                         </select>
                                     </div>

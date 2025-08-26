@@ -22,7 +22,7 @@ class SupplierController extends Controller
     $query = $request->input('q');
     $page = $request->input('page', 1);
     
-    $suppliers = Customer::select('id', 'name', 'phone', 'address','company_name')
+    $suppliers = Customer::select('id', 'name', 'phone','email', 'address','company_name')
     ->where('name', 'like', "%{$query}%")
         ->paginate(20, ['*'], 'page', $page);
     

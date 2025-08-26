@@ -45,13 +45,6 @@ $(function () {
         console.log("Selected supplier:", data);
     });
 
-    // Initialize date picker
-    $("#purchase_date").datepicker({
-        format: "yyyy-mm-dd",
-        autoclose: true,
-        todayHighlight: true,
-    });
-
     // Modal handling
     $("#addItemModal").on("show.bs.modal", function () {
         resetItemForm();
@@ -211,7 +204,7 @@ $(function () {
         // Add items to form data
         formData.append("dataItem", JSON.stringify(items));
         let action = baseUrl + "purchase";
-        console.log(action);
+        // console.log(action);
         // return;
         // Submit via AJAX
         $.ajax({

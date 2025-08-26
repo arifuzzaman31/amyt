@@ -33,9 +33,9 @@ Route::prefix('admin')->middleware('AuthCheck')->group(function () {
     // Route::view('create-purchase', 'pages.purchase.create_purchase')->name('create-purchase');
     Route::view('purchase-list', 'pages.purchase.purchase')->name('purchase-list');
     Route::resource('service', ServiceController::class);
-    Route::view('challan-list', 'pages.service.service')->name('service-list');
+    Route::view('challan-list', 'pages.challan.challan')->name('service-list');
     Route::view('invoice-list', 'pages.invoice.invoice')->name('invoice-list');
-    Route::view('quotation-list', 'pages.service.quotaion')->name('quotation-list');
+    Route::view('quotation-list', 'pages.challan.quotaion')->name('quotation-list');
     Route::get('service/{id}/approve', [ServiceController::class, 'serviceStatus'])->name('service-approve');
     Route::resource('yarn-count', YarnController::class); // Restoring original resource route
     Route::get('all-yarn-counts', [YarnController::class, 'allYarns'])->name('all-yarn-counts'); // Route for fetching all yarns
@@ -51,7 +51,7 @@ Route::prefix('admin')->middleware('AuthCheck')->group(function () {
     Route::post('customer-item-to-stock/{id}', [CustomerStockController::class, 'loadTostockIn'])->name('customer-item-to-stock');
     Route::delete('customer-stock/{id}', [CustomerStockController::class, 'destroyChallan']);
     // Route for Service creation
-    Route::view('create-service', 'pages.service.create_service')->name('create-service');
+    Route::view('create-challan', 'pages.challan.create_challan')->name('create-service');
     Route::view('attribute-list', 'pages.attribute.attribute')->name('attribute-list');
     Route::view('show-stock-report', 'pages.report.total_current_stock')->name('show-stock.report');
     Route::get('amyt-customer-stock-list', [ReportController::class, 'totalStockList'])->name('amyt-customer-stock-list');

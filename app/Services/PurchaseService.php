@@ -57,6 +57,9 @@ class PurchaseService
             if (!isset($purchaseData['discount_type'])) {
                 $purchaseData['discount_type'] = null;
             }
+            if (!isset($purchaseData['discount'])) {
+                $purchaseData['discount'] = 0;
+            }
             DB::beginTransaction();
             $purchase = new Purchase();
             $purchase->fill($purchaseData);

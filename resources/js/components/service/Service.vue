@@ -4,8 +4,8 @@
     <div class="widget-content widget-content-area">
       <div class="row">
         <div class="col-xl-12 col-md-12 col-sm-12 col-12 d-flex justify-content-between">
-          <h4>Service</h4>
-          <a :href="url + 'create-service'" class="btn btn-primary mb-3">
+          <h4>Challan List</h4>
+          <a :href="url + 'create-challan'" class="btn btn-primary mb-3">
             Add Challan
           </a>
         </div>
@@ -40,7 +40,7 @@
                       </a>
 
                       <div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
-                          <!-- <a type="button" :class="'dropdown-item ' + (getStatusLabel(service.status) == 'Approved' ? 'disabled text-muted' : '')" @click="updateStatus(service.id)" href="javascript:void(0);">Approved</a> -->
+                          <a type="button" :class="'dropdown-item ' + (getStatusLabel(service.status) == 'Approved' ? 'disabled text-muted' : '')" @click="updateStatus(service.id)" href="javascript:void(0);">Approved</a>
                           <a type="button" class="dropdown-item" @click="makeInvoice(service)" href="javascript:void(0);">Make Invoice</a>
                           <a type="button" class="dropdown-item" @click="openEditModal(service)" href="javascript:void(0);">Edit</a>
                           <a type="button" class="dropdown-item" @click="deleteService(service.id)" href="javascript:void(0);">Delete</a>
@@ -68,12 +68,18 @@ const currentPage = ref(1)
 const itemsPerPage = 10
 const selectedService = ref(null)
 const url = ref(baseUrl)
-
+const props = defineProps({
+    from: {
+        type: Number,
+        required: true
+    }
+})
 const fetchServices = async () => {
   const res = await Axistance.get('service', {
         params: {
             page: currentPage.value,
-            per_page: itemsPerPage
+            per_page: itemsPerPage,
+            type: props.from
         }
     })
   serviceList.value = res.data
@@ -101,6 +107,29 @@ const updateStatus = (id) => {
   swal({
       title: 'Are you sure?',
       text: "Approve this service?!",
+      type: 'warning',
+      showCancelButton: true,
+      confirmButtonText: 'Yes',
+      padding: '2em'
+    }).then(async function(result) {
+      if (result.value) {
+        await Axistance.get(`service/${id}/approve`)
+          .then(response => {
+            swal(
+              'Approved!',
+              response.data.message,
+              response.data.status
+            )
+            fetchServices()
+        })
+      }
+    })
+}
+
+const makeInvoice = (id) => {
+  swal({
+      title: 'Are you sure?',
+      text: "Data will change permanently!",
       type: 'warning',
       showCancelButton: true,
       confirmButtonText: 'Yes',

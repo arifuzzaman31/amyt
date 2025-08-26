@@ -19,7 +19,8 @@ class SalesService
         $perPage = $data['per_page'] ?? 10;
         $status = $data['type'] ?? 1;
         $services = $this->serviceModel::with('customer:id,name')
-                    ->where('status',$status)->paginate($perPage);
+                    ->where('status',$status)
+                    ->paginate($perPage);
         return $services;
     }
 

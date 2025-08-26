@@ -1,5 +1,5 @@
 <template>
-    <div id="tableCaption" class="col-lg-12 col-12 layout-spacing">
+    <div id="tableCaption" class="col-lg-12 col-12 layout-spacing mt-2">
         <div class="statbox widget box box-shadow">
             <div class="widget-header">
                 <div class="row">

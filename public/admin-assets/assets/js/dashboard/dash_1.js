@@ -437,7 +437,7 @@ var options = {
       show: true,
       width: 25,
     },
-    series: [985, 737, 270],
+    series: [250, 350, 480],
     labels: ['Apparel', 'Electronic', 'Others'],
     responsive: [{
         breakpoint: 1599,

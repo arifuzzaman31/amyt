@@ -3,19 +3,18 @@
 <script src="{{ asset('admin-assets/bootstrap/js/popper.min.js')}}"></script>
 <script src="{{ asset('admin-assets/bootstrap/js/bootstrap.min.js')}}"></script>
 <script src="{{ asset('admin-assets/plugins/perfect-scrollbar/perfect-scrollbar.min.js')}}"></script>
-<script src="{{ asset('admin-assets/assets/js/app.js')}}"></script>
 <script src="{{ asset('admin-assets/plugins/flatpickr/flatpickr.js')}}"></script>
-<script src="{{ asset('admin-assets/plugins/flatpickr/custom-flatpickr.js')}}"></script>
-<!-- <script src="https://widget.cloudinary.com/v2.0/global/all.js" type="text/javascript"></script> -->
-{{-- <script src="https://media-library.cloudinary.com/global/all.js"></script> --}}
+<script src="{{ asset('admin-assets/assets/js/app.js')}}"></script>
+
 <script>
-  var rootUrl = "{{ url('/') }}";
+    var rootUrl = "{{ url('/') }}";
     var baseUrl = rootUrl+'/admin/';
     $(document).ready(function() {
         App.init();
-        var f1 = flatpickr(document.getElementById('basicFlatpickr'));
     });
 </script>
+
+<script src="{{ asset('admin-assets/plugins/flatpickr/custom-flatpickr.js')}}"></script>
 <script src="{{ asset('admin-assets/assets/js/custom.js')}}"></script>
 
 <!-- BEGIN PAGE LEVEL PLUGINS/CUSTOM SCRIPTS -->

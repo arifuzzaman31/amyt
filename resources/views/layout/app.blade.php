@@ -116,8 +116,7 @@
 
 
     @include('partials.footer-assets')
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap-datepicker@1.9.0/dist/js/bootstrap-datepicker.min.js"></script>
+    <script src="{{ asset('admin-assets/assets/js/select2.js')}}"></script>
 
     @stack('script')
 
