@@ -1,11 +1,6 @@
 <template>
   <div class="container mt-4">
-    <h2 class="mb-4">Attribute</h2>
-
-    <!-- Modal Trigger Button -->
-    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#attributeModal">
-      Add Attribute
-    </button>
+    
 
     <!-- Bootstrap Modal -->
     <div class="modal fade" id="attributeModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
@@ -69,6 +64,16 @@
     </div>
 
     <!-- Table -->
+    <div class="statbox widget box-shadow">
+      <div class="widget-header">
+        <h4>Attribute List</h4>
+      </div>
+      <div class="widget-content widget-content-area">
+
+    <!-- Modal Trigger Button -->
+    <button type="button" class="btn btn-primary mb-3" data-toggle="modal" data-target="#attributeModal">
+      Add Attribute
+    </button>
     <table class="table table-bordered">
       <thead>
         <tr>
@@ -95,6 +100,8 @@
       </tbody>
     </table>
   </div>
+  </div>
+</div>
 </template>
 
 <script setup>
@@ -134,8 +141,7 @@ const submitForm = async () => {
     } else {
       resp = await Axistance.post('attribute', form.value)
     }
-    
-    alert(resp.data.message || 'Operation successful')
+    notifier({ status: "success", message: resp.data.message || "Operation successful" });
     form.value.name = ''
     form.value.type = ''
     form.value.group = 'product'

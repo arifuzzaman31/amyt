@@ -7,11 +7,11 @@
 @endpush
 @section('content')
 <div id="tableHover" class="col-lg-12 col-12 layout-spacing" style="padding: 15px 0;">
-    <div class="statbox widget box-shadow">
-        <div class="widget-header">
+    {{-- <div class="statbox widget box-shadow">
+        <div class="widget-header"> --}}
             <view-attribute />
-        </div>
-    </div>
+        {{-- </div>
+    </div> --}}
 </div>
 @endsection
 

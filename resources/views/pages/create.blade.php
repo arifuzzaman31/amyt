@@ -24,10 +24,19 @@
                             </div>
                         </div>
                         <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="challan_no">Challan No</label>
-                                <input type="text" class="form-control" id="challan_no" name="challan_no">
-                            </div>
+                
+                                <div class="form-group">
+                                    <label for="challan_no">Challan No</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="challan_no" name="challan_no">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" id="generateInvoiceBtn">
+                                                <i class="fas fa-sync-alt"></i> Generate
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            
                         </div>
                         <div class="col-md-4">
                             <div class="form-group">

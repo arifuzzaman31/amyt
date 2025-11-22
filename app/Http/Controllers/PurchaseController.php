@@ -26,7 +26,8 @@ class PurchaseController extends Controller
     public function create()
     {
         $yarnCounts = Yarn::all();
-        return view('pages.create', compact('yarnCounts'));
+        return view('pages.purchase.create_purchase', compact('yarnCounts'));
+        // return view('pages.create', compact('yarnCounts'));
     }
 
 

@@ -26,14 +26,39 @@ class CustomerStockService
 
         $itemData = $data;
         try {
-            //code...
+            // Calculate total amount from customer items
+            $totalAmount = 0;
+            if (!empty($customerItemsData) && is_array($customerItemsData)) {
+                foreach ($customerItemsData as $item) {
+                    $quantity = isset($item['quantity']) ? floatval($item['quantity']) : 0;
+                    $unitPrice = isset($item['unit_price']) ? floatval($item['unit_price']) : 0;
+                    $totalAmount += ($quantity * $unitPrice);
+                }
+            }
+
+            // Apply discount if applicable
+            $discountAmount = 0;
+            if (isset($itemData['discount']) && $itemData['discount'] > 0) {
+                if (isset($itemData['discount_type']) && $itemData['discount_type'] == '0') {
+                    // Percentage discount
+                    $discountAmount = ($totalAmount * floatval($itemData['discount'])) / 100;
+                } else {
+                    // Fixed amount discount
+                    $discountAmount = floatval($itemData['discount']);
+                }
+            }
+
+            // Set the total amount after discount
+            $itemData['total_amount'] = $totalAmount - $discountAmount;
+
+            // Handle document upload
             if (isset($data['document_link']) && $data['document_link'] instanceof \Illuminate\Http\UploadedFile) {
                 $itemData['document_link'] = storeFile($data['document_link'], 'purchases/documents');
             }
             // Remove the file object itself, as we only want to store the path
             unset($itemData['document_link']);
 
-
+            // Handle image upload
             if (isset($data['image_file']) && $data['image_file'] instanceof \Illuminate\Http\UploadedFile) {
                 $itemData['image_path'] = storeFile($data['image_file'], 'customer-item/images');
             }
@@ -49,6 +74,7 @@ class CustomerStockService
             if (!isset($itemData['in_date'])) {
                 $itemData['in_date'] = now();
             }
+
             DB::beginTransaction();
             $stockItem = new CustomerItem();
             $stockItem->fill($itemData);

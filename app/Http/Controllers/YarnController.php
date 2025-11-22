@@ -6,6 +6,7 @@ use App\Services\YarnService;
 use Illuminate\Http\Request;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Cache;
 
 class YarnController extends Controller
 {
@@ -47,6 +48,7 @@ class YarnController extends Controller
         ]);
 
         $yarn = $this->yarnService->create($validatedData);
+        cache()->forget('yarn_count_list'); // Clear cache if you are caching yarns
         return response()->json($yarn, Response::HTTP_CREATED);
     }
 
@@ -88,6 +90,7 @@ class YarnController extends Controller
         ]);
 
         $updatedYarn = $this->yarnService->update($id, $validatedData);
+        cache()->forget('yarn_count_list');
         return response()->json($updatedYarn);
     }
 
@@ -100,6 +103,7 @@ class YarnController extends Controller
     public function destroy(int $id): JsonResponse
     {
         if ($this->yarnService->delete($id)) {
+            cache()->forget('yarn_count_list');
             return response()->json(null, Response::HTTP_NO_CONTENT);
         }
         return response()->json(['message' => 'Yarn not found or delete failed'], Response::HTTP_NOT_FOUND);
@@ -112,7 +116,9 @@ class YarnController extends Controller
      */
     public function allYarns(): JsonResponse
     {
-        $yarns = $this->yarnService->getAll();
+        $yarns = Cache::remember('yarn_count_list', 60*3, function () {
+            return $this->yarnService->getAll();
+        });
         return response()->json($yarns);
     }
 }

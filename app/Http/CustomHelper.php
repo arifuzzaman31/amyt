@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\AllStatic;
+use App\CustomConst\AllStatic;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
@@ -168,7 +168,11 @@ use Illuminate\Support\Str;
     }
 
     function getYarnCount(){
-        return DB::table('yarns')->selectRaw('id as value,yarn_count as name,status')->where('status',AllStatic::$active)->orderBy('id','desc')->get();
+        Cache::remember('yarn_count_list', 60, function () {
+            return DB::table('yarns')
+            ->where('status',AllStatic::ALL_STATIC['SERVICE_STATUS']['APPROVED'])
+            ->orderBy('id','desc')->get();
+        });
     }
 
 ?>

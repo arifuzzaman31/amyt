@@ -45,6 +45,20 @@ $(function () {
         console.log("Selected supplier:", data);
     });
 
+    // Auto-generate challan number
+    $("#generateInvoiceBtn").click(function() {
+        // Generate a unique challan number
+        const now = new Date();
+        const dateStr = now.getFullYear().toString() + 
+                       (now.getMonth() + 1).toString().padStart(2, '0') + 
+                       now.getDate().toString().padStart(2, '0');
+        const randomNum = Math.floor(Math.random() * 9000) + 1000; // 4-digit random number
+        const challanNo = "CH" + dateStr + "-" + randomNum;
+        
+        // Set the generated value to the input field
+        $("#challan_no").val(challanNo);
+    });
+
     // Modal handling
     $("#addItemModal").on("show.bs.modal", function () {
         resetItemForm();

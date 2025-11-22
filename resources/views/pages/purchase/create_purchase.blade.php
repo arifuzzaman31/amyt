@@ -1,5 +1,4 @@
 @extends('layout.app')
-@section('title', 'Create Purchase | '.env('APP_NAME'))
 @section('content')
 <div class="row layout-top-spacing" id="cancel-row">
     <div class="col-12">
@@ -17,6 +16,21 @@
                             </div>
                         </div>
                         <div class="col-md-4">
+                
+                                <div class="form-group">
+                                    <label for="challan_no">Challan No</label>
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="challan_no" name="challan_no">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" id="generateInvoiceBtn">
+                                                <i class="fas fa-sync-alt"></i> Generate
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            
+                        </div>
+                        <div class="col-md-4">
                             <div class="form-group">
                                 <label for="supplier_id">Select Supplier</label>
                                 <select class="form-control" id="supplier_id" name="supplier_id" required>
@@ -24,12 +38,7 @@
                                 </select>
                             </div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="form-group">
-                                <label for="challan_no">Challan No</label>
-                                <input type="text" class="form-control" id="challan_no" name="challan_no">
-                            </div>
-                        </div>
+                        
                         <div class="col-md-4">
                             <div class="form-group">
                                 <label for="document_link">Document (e.g., Invoice PDF)</label>
@@ -129,7 +138,7 @@
                                 <div class="form-group row">
                                     <label for="discount" class="col-sm-5 col-form-label text-right">Discount:</label>
                                     <div class="col-sm-7">
-                                        <input type="number" value="0" class="form-control" id="discount" name="discount" placeholder="Discount value">
+                                        <input type="number" class="form-control" id="discount" name="discount" placeholder="Discount value">
                                     </div>
                                 </div>
                                 <div class="form-group row">
@@ -137,7 +146,7 @@
                                     <div class="col-sm-7">
                                         <select class="form-control" id="discount_type" name="discount_type">
                                             <option value="">Select Type</option>
-                                            <option value="0" selected>Percentage (%)</option>
+                                            <option value="0">Percentage (%)</option>
                                             <option value="1">Fixed Amount</option>
                                         </select>
                                     </div>
@@ -161,7 +170,7 @@
                                     <div class="col-sm-7">
                                         <select class="form-control" id="payment_status" name="payment_status">
                                             <option value="0">Due</option>
-                                            <option value="1" selected>Paid</option>
+                                            <option value="1">Paid</option>
                                         </select>
                                     </div>
                                 </div>
@@ -169,7 +178,7 @@
                                     <label for="status" class="col-sm-5 col-form-label text-right">Order Status:</label>
                                     <div class="col-sm-7">
                                         <select class="form-control" id="status" name="status">
-                                            <option value="1" selected>Approved</option>
+                                            <option value="1">Approved</option>
                                             <option value="3">Draft</option>
                                         </select>
                                     </div>

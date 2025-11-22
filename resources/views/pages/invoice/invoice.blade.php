@@ -5,7 +5,7 @@
 <div id="tableHover" class="col-lg-12 col-12 layout-spacing" style="padding: 15px 0;">
     <div class="statbox">
         <div class="widget-header">
-            <service from="1" />
+            <service from="1" title="Invoice" />
         </div>
     </div>
 </div>
