@@ -31,18 +31,6 @@
                                     <div class="widget-header">
                                         <form @submit.prevent="submitForm">
                                             <div class="form-group">
-                                                <label for="expCategory">Expense Category</label>
-                                                <select v-model="form.expense_category_id" class="form-control"
-                                                    id="expCategory">
-                                                    <option disabled value="0">Select Expense Category</option>
-                                                    <option v-for="category in expenseCategories" :key="category.id"
-                                                        :value="category.id">
-                                                        {{ category.name }}
-                                                    </option>
-                                                </select>
-                                            </div>
-
-                                            <div class="form-group">
                                                 <label for="expDate">Expense Date</label>
                                                 <input v-model="form.expense_date" type="date" class="form-control"
                                                     id="expDate" placeholder="Expense Date" />
@@ -50,7 +38,7 @@
 
                                             <div class="form-group">
                                                 <label for="amount">Amount</label>
-                                                <input v-model="form.amount" type="number" class="form-control" id="amount"
+                                                <input v-model="form.amount" type="number" step="0.01" class="form-control" id="amount"
                                                     placeholder="Enter Amount" />
                                             </div>
                                             <div class="form-group">
@@ -72,6 +60,76 @@
                     </div>
                 </div>
             </div>
+
+            <!-- Expense Details Modal -->
+            <div class="modal fade" id="expenseDetailsModal" tabindex="-1" role="dialog"
+                aria-labelledby="expenseDetailsModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-lg" role="document">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="expenseDetailsModalLabel">
+                                Expense Details - {{ selectedDate ? formatDate(selectedDate) : '' }}
+                            </h5>
+                            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                <span aria-hidden="true">&times;</span>
+                            </button>
+                        </div>
+
+                        <div class="modal-body">
+                            <div v-if="loadingDetails" class="text-center p-4">
+                                <div class="spinner-border" role="status">
+                                    <span class="sr-only">Loading...</span>
+                                </div>
+                            </div>
+                            <div v-else>
+                                <div class="row mb-3">
+                                    <div class="col-md-6">
+                                        <strong>Total Amount:</strong> {{ formatCurrency(expenseDetails.total_amount) }}
+                                    </div>
+                                    <div class="col-md-6">
+                                        <strong>Number of Expenses:</strong> {{ expenseDetails.count }}
+                                    </div>
+                                </div>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered">
+                                        <thead>
+                                            <tr>
+                                                <th>#</th>
+                                                <th>Amount</th>
+                                                <th>Description</th>
+                                                <th>Created At</th>
+                                                <th>Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr v-for="(expense, index) in expenseDetails.expenses" :key="expense.id">
+                                                <td>{{ index + 1 }}</td>
+                                                <td>{{ formatCurrency(expense.amount) }}</td>
+                                                <td>{{ expense.description || 'N/A' }}</td>
+                                                <td>{{ formatDateTime(expense.created_at) }}</td>
+                                                <td>
+                                                    <button class="btn btn-sm btn-warning mr-2" 
+                                                        @click="openEditModal(expense)">Edit</button>
+                                                    <button class="btn btn-sm btn-danger" 
+                                                        @click="deleteExpense(expense.id)">Delete</button>
+                                                </td>
+                                            </tr>
+                                            <tr v-if="expenseDetails.expenses && expenseDetails.expenses.length === 0">
+                                                <td colspan="5" class="text-center">No expenses found for this date</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="widget-content widget-content-area">
                 <div class="table-responsive">
                     <table class="table mb-4">
@@ -79,23 +137,20 @@
                         <thead>
                             <tr>
                                 <th class="">#</th>
-                                <th>Expense Category</th>
                                 <th>Date</th>
-                                <th>Amount</th>
-                                <th>Description</th>
+                                <th>Total Amount</th>
+                                <th>Number of Expenses</th>
                                 <th class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-for="(expense,ind) in expenseList.data" :key="expense.id">
+                            <tr v-for="(expense,ind) in expenseList.data" :key="expense.expense_date">
                                 <td>{{ ((currentPage-1)*itemsPerPage)+ ++ind }}</td>
-                                <td>{{ expense.expense_category.name }}</td>
-                                <td>{{ expense.expense_date }}</td>
-                                <td>{{ expense.amount }}</td>
-                                <td class="text-wrap" style="width:35%;">{{ expense.description }}</td>
+                                <td>{{ formatDate(expense.expense_date) }}</td>
+                                <td>{{ formatCurrency(expense.total_amount) }}</td>
+                                <td>{{ expense.count }}</td>
                                 <td>
-                                    <button class="btn btn-sm btn-warning mr-2" @click="openEditModal(expense)">Edit</button>
-                                    <button class="btn btn-sm btn-danger" @click="deleteExpense(expense.id)">Delete</button>
+                                    <button class="btn btn-sm btn-info mr-2" @click="viewExpensesByDate(expense.expense_date)">View Details</button>
                                 </td>
                             </tr>
                         </tbody>
@@ -112,14 +167,15 @@
 import { ref, onMounted, watch } from 'vue'
 import Axistance from '../../Axistance'
 import "vue-awesome-paginate/dist/style.css";
-const expenseCategories = ref([])
 const expenseList = ref([])
-const form = ref({ expense_category_id: 0, expense_date: '', amount: '', description: '' })
+const form = ref({ expense_date: '', amount: '', description: '' })
 const editingId = ref(null)
 const currentPage = ref(1)
 const itemsPerPage = 10
+const expenseDetails = ref({ expenses: [], total_amount: 0, count: 0 })
+const selectedDate = ref(null)
+const loadingDetails = ref(false)
 const clearData = () => {
-    form.value.expense_category_id = 0
     form.value.expense_date = ''
     form.value.amount = ''
     form.value.description = ''
@@ -131,18 +187,35 @@ const onClickHandler = (page) => {
 watch(currentPage, () => {
     fetchExpense()
 })
-const fetchExpenseCategory = async () => {
-    const res = await Axistance.get('expense/category?per_page=200')
-    expenseCategories.value = res.data?.data
+
+const viewExpensesByDate = async (date) => {
+    selectedDate.value = date
+    loadingDetails.value = true
+    expenseDetails.value = { expenses: [], total_amount: 0, count: 0 }
+    
+    try {
+        const res = await Axistance.get('expense/by-date', {
+            params: { date: date }
+        })
+        expenseDetails.value = res.data
+        $('#expenseDetailsModal').modal('show')
+    } catch (error) {
+        console.error('Error fetching expense details:', error)
+        swal('Error', 'Failed to load expense details', 'error')
+    } finally {
+        loadingDetails.value = false
+    }
 }
-const openEditModal = (customer) => {
-    form.value.expense_category_id = customer.expense_category_id
-    form.value.expense_date = customer.expense_date
-    form.value.amount = customer.amount
-    form.value.description = customer.description
-    editingId.value = customer.id
+
+const openEditModal = (expense) => {
+    form.value.expense_date = expense.expense_date
+    form.value.amount = expense.amount
+    form.value.description = expense.description || ''
+    editingId.value = expense.id
+    $('#expenseDetailsModal').modal('hide')
     $('#expenseModal').modal('show')
 }
+
 const submitCustomerForm = async () => {
     if (editingId.value) {
         await Axistance.put(`expense/${editingId.value}`, form.value)
@@ -152,15 +225,10 @@ const submitCustomerForm = async () => {
     clearData()
     fetchExpense()
     $('#expenseModal').modal('hide')
-}
-
-const editExpense = (group) => {
-    form.value.expense_date = group.expense_date
-    form.value.expense_category_id = customer.expense_category_id
-    form.value.amount = customer.amount
-    form.value.description = customer.description
-    editingId.value = group.id
-    $('#expenseModal').modal('show')
+    // Refresh details modal if it's open
+    if ($('#expenseDetailsModal').hasClass('show') && selectedDate.value) {
+        viewExpensesByDate(selectedDate.value)
+    }
 }
 
 const fetchExpense = async () => {
@@ -171,6 +239,29 @@ const fetchExpense = async () => {
         }
     })
     expenseList.value = res.data
+}
+
+const formatDate = (date) => {
+    if (!date) return ''
+    const d = new Date(date)
+    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })
+}
+
+const formatCurrency = (amount) => {
+    if (!amount) return '0.00'
+    return parseFloat(amount).toFixed(2)
+}
+
+const formatDateTime = (dateTime) => {
+    if (!dateTime) return ''
+    const d = new Date(dateTime)
+    return d.toLocaleString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+    })
 }
 
 const deleteExpense = async (id) => {
@@ -187,16 +278,19 @@ const deleteExpense = async (id) => {
           .then(response => {
             swal(
               'Deleted!',
-              response.data.message,
-              response.data.status
+              response.data.message || 'Expense deleted successfully',
+              response.data.status || 'success'
             )
             fetchExpense()
+            // Refresh details modal if it's open
+            if ($('#expenseDetailsModal').hasClass('show') && selectedDate.value) {
+                viewExpensesByDate(selectedDate.value)
+            }
         })
       }
     })
 }
 onMounted(() => {
     fetchExpense()
-    fetchExpenseCategory()
 })
 </script>

@@ -25,6 +25,7 @@ Route::prefix('admin')->middleware('AuthCheck')->group(function () {
     Route::view('customer-group-list', 'pages.customergroup.customer_group')->name('customer-group-list');
     Route::resource('expense/category', ExpenseCategoryController::class);
     Route::view('expense/category-list', 'pages.expense.expense_category')->name('expense/category-list');
+    Route::get('expense/by-date', [ExpenseController::class, 'getByDate'])->name('expense.by-date');
     Route::resource('expense', ExpenseController::class);
     Route::view('expense-list', 'pages.expense.expense')->name('expense-list');
     Route::resource('supplier', SupplierController::class);

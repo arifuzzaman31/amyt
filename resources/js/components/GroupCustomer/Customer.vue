@@ -86,6 +86,19 @@
                 </div>
             </div>
             <div class="widget-content widget-content-area">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <input 
+                                v-model="searchTerm" 
+                                type="text" 
+                                class="form-control" 
+                                placeholder="Search by name, company, email, or phone..."
+                                @input="handleSearch"
+                            />
+                        </div>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table mb-4">
                         <caption>List of all Customer</caption>
@@ -138,6 +151,8 @@ const form = ref({ customer_group_id: 0, name: '', company_name: '', address: ''
 const editingId = ref(null)
 const currentPage = ref(1)
 const itemsPerPage = 10
+const searchTerm = ref('')
+let searchTimeout = null
 const clearData = () => {
     form.value.customer_group_id = 0
     form.value.name = ''
@@ -149,12 +164,14 @@ const clearData = () => {
 }
 
 const fetchCustomers = async () => {
-    const res = await Axistance.get('customer', {
-        params: {
-            page: currentPage.value,
-            limit: itemsPerPage
-        }
-    })
+    const params = {
+        page: currentPage.value,
+        limit: itemsPerPage
+    }
+    if (searchTerm.value.trim()) {
+        params.search = searchTerm.value.trim()
+    }
+    const res = await Axistance.get('customer', { params })
     customerList.value = res.data
 }
 const openEditModal = (customer) => {
@@ -215,6 +232,19 @@ const deleteCustomer = async (id) => {
         })
       }
     })
+}
+
+const handleSearch = () => {
+    // Clear existing timeout
+    if (searchTimeout) {
+        clearTimeout(searchTimeout)
+    }
+    // Reset to first page when searching
+    currentPage.value = 1
+    // Debounce search - wait 500ms after user stops typing
+    searchTimeout = setTimeout(() => {
+        fetchCustomers()
+    }, 500)
 }
 
 watch(currentPage, () => {

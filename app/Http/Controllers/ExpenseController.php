@@ -15,8 +15,14 @@ class ExpenseController extends Controller
     public function index(Request $request)
     {
         $perPage = $request->input('per_page') ?? 10;
-        $data = $this->model::with('expense_category:id,name')->paginate($perPage);
-        return $data;
+        
+        // Group expenses by date and sum amounts
+        $groupedData = $this->model::selectRaw('expense_date, SUM(amount) as total_amount, COUNT(*) as count')
+            ->groupBy('expense_date')
+            ->orderBy('expense_date', 'desc')
+            ->paginate($perPage);
+        
+        return $groupedData;
     }
     public function store(Request $request)
     {
@@ -26,7 +32,13 @@ class ExpenseController extends Controller
                 'amount' => 'required'
             ]);
 
-            $expense = $this->model::create($request->all());
+            $data = $request->all();
+            // Remove expense_category_id if not provided (making it optional)
+            if (!isset($data['expense_category_id']) || $data['expense_category_id'] == 0) {
+                unset($data['expense_category_id']);
+            }
+
+            $expense = $this->model::create($data);
             Log::info("Dispatching ExpenseCreated event for expense #{$expense->id}");
             // ExpenseCreated::dispatch($expense);
             Event::dispatch(new ExpenseCreated($expense));
@@ -54,5 +66,25 @@ class ExpenseController extends Controller
     {
         $this->model::destroy($id);
         return response()->noContent();
+    }
+
+    public function getByDate(Request $request)
+    {
+        $date = $request->input('date');
+        
+        if (!$date) {
+            return response()->json(['error' => 'Date parameter is required'], 400);
+        }
+
+        $expenses = $this->model::where('expense_date', $date)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return response()->json([
+            'date' => $date,
+            'expenses' => $expenses,
+            'total_amount' => $expenses->sum('amount'),
+            'count' => $expenses->count()
+        ]);
     }
 }

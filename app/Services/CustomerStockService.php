@@ -12,7 +12,21 @@ class CustomerStockService
     public function getAll($data)
     {
         $perPage = $data['per_page'] ?? 10;
-        $stocks = \App\Models\CustomerItem::with(['customer:id,name'])->paginate($perPage);
+        $search = $data['search'] ?? null;
+        
+        $query = \App\Models\CustomerItem::with(['customer:id,name']);
+        
+        if (!empty($search)) {
+            $query->where(function ($q) use ($search) {
+                $q->where('challan_no', 'like', "%{$search}%")
+                    ->orWhereHas('customer', function ($customerQuery) use ($search) {
+                        $customerQuery->where('name', 'like', "%{$search}%")
+                            ->orWhere('company_name', 'like', "%{$search}%");
+                    });
+            });
+        }
+        
+        $stocks = $query->orderBy('created_at', 'desc')->paginate($perPage);
         return $stocks;
     }
 
