@@ -32,6 +32,7 @@ Route::prefix('admin')->middleware('AuthCheck')->group(function () {
     Route::view('supplier-list', 'pages.supplier.supplier')->name('supplier-list');
     Route::resource('purchase', PurchaseController::class);
     Route::post('purchase/{id}/approve', [PurchaseController::class, 'purchaseStatus']);
+    Route::get('/view-purchase-details/{id}', [PurchaseController::class, 'showDetails']);
     // Route::view('create-purchase', 'pages.purchase.create_purchase')->name('create-purchase');
     Route::view('purchase-list', 'pages.purchase.purchase')->name('purchase-list');
     Route::resource('service', ServiceController::class);

@@ -149,4 +149,21 @@ class PurchaseController extends Controller
             //throw $th;
         }
     }
+
+    /**
+     * Display the purchase details view.
+     *
+     * @param int $id
+     * @return \Illuminate\View\View
+     */
+    public function showDetails($id)
+    {
+        $purchase = $this->purchaseService->find($id);
+        if (!$purchase) {
+            abort(404, 'Purchase not found');
+        }
+        return view('pages.purchase.details', [
+            'purchase' => $purchase
+        ]);
+    }
 }
