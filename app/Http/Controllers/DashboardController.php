@@ -26,8 +26,8 @@ class DashboardController extends Controller
                 'monthly_purchases' => $this->getMonthlyPurchases(),
             ];
         });
-
-        return view('dashboard', compact('stats'));
+        // dd($stats);
+        return view('pages.dashboard', compact('stats'));
     }
 
     private function getMonthlyRevenue()

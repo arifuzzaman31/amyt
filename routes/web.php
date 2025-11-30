@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\AdminController;
 use App\Http\Controllers\CustomerController;
 use App\Http\Controllers\CustomerGroupController;
 use App\Http\Controllers\CustomerStockController;
+use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseController;
 use App\Http\Controllers\PurchaseController;
@@ -17,13 +18,14 @@ use App\Http\Controllers\YarnStockController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('admin')->middleware('AuthCheck')->group(function () {
-    Route::view('dashboard', 'pages.dashboard');
+    Route::get('dashboard',  [DashboardController::class, 'index'])->name('dashboard');
     Route::resource('customer', CustomerController::class);
     Route::view('customer-list', 'pages.customer.customer')->name('customer-list');
     Route::resource('customer-groups', CustomerGroupController::class);
     Route::view('customer-group-list', 'pages.customergroup.customer_group')->name('customer-group-list');
     Route::resource('expense/category', ExpenseCategoryController::class);
     Route::view('expense/category-list', 'pages.expense.expense_category')->name('expense/category-list');
+    Route::get('expense/by-date', [ExpenseController::class, 'getByDate'])->name('expense.by-date');
     Route::resource('expense', ExpenseController::class);
     Route::view('expense-list', 'pages.expense.expense')->name('expense-list');
     Route::resource('supplier', SupplierController::class);
@@ -36,6 +38,7 @@ Route::prefix('admin')->middleware('AuthCheck')->group(function () {
     Route::view('challan-list', 'pages.challan.challan')->name('service-list');
     Route::view('invoice-list', 'pages.invoice.invoice')->name('invoice-list');
     Route::view('quotation-list', 'pages.challan.quotaion')->name('quotation-list');
+    Route::get('/view-challan-details/{id}', [ServiceController::class, 'showDetails']);
     Route::get('service/{id}/approve', [ServiceController::class, 'serviceStatus'])->name('service-approve');
     Route::resource('yarn-count', YarnController::class); // Restoring original resource route
     Route::get('all-yarn-counts', [YarnController::class, 'allYarns'])->name('all-yarn-counts'); // Route for fetching all yarns
@@ -46,7 +49,8 @@ Route::prefix('admin')->middleware('AuthCheck')->group(function () {
     Route::view('customer-stock-list', 'pages.stock.customer_stock')->name('customer-stock-list');
     Route::get('stock-list', [AmytStockController::class, 'stockList'])->name('stock-list');
     Route::post('purchase-to-stock/{id}', [AmytStockController::class, 'purchaseToStock'])->name('purchase-to-stock');
-    Route::view('customer-stock-page', 'pages.stock.create_stock')->name('customer-stock-page');
+    // Route::view('customer-stock-page', 'pages.stock.create_stock')->name('customer-stock-page');
+    Route::get('/customer-stock-page', [CustomerStockController::class, 'create']);
     Route::post('customer-stock-in', [CustomerStockController::class, 'stockIn'])->name('customer-stock-in');
     Route::post('customer-item-to-stock/{id}', [CustomerStockController::class, 'loadTostockIn'])->name('customer-item-to-stock');
     Route::delete('customer-stock/{id}', [CustomerStockController::class, 'destroyChallan']);

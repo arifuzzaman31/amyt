@@ -43,10 +43,33 @@ document.addEventListener("DOMContentLoaded", function () {
     const noItemsSection = document.getElementById("noItemsSection");
     const addedItemsTableBody = document.getElementById("addedItemsTableBody");
     const addItemModal = document.getElementById("addItemModal");
-    // Updated to directly use document.getElementById in submitForm
+    const serviceIdInput = document.querySelector('input[name="service_id"]');
+    const invoiceNoInput = document.getElementById("invoice_no");
+    const generateInvoiceBtn = document.getElementById("generateInvoiceBtn");
+
+    // Check if we're in edit mode
+    const isEditMode = serviceIdInput !== null;
+
+    // Function to generate invoice number based on datetime
+    function generateInvoiceNumber() {
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = String(now.getMonth() + 1).padStart(2, "0");
+        const day = String(now.getDate()).padStart(2, "0");
+        const hours = String(now.getHours()).padStart(2, "0");
+        const minutes = String(now.getMinutes()).padStart(2, "0");
+        const seconds = String(now.getSeconds()).padStart(2, "0");
+
+        return `INV-${year}${month}${day}-${hours}${minutes}${seconds}`;
+    }
 
     // Initialize Select2 for customer selection
     function initializeCustomerSelect() {
+        // Destroy any existing Select2 instance to prevent duplicate initialization
+        if ($(customerSelect).hasClass("select2-hidden-accessible")) {
+            $(customerSelect).select2("destroy");
+        }
+
         $(customerSelect).select2({
             ajax: {
                 url: baseUrl + "customer",
@@ -70,6 +93,7 @@ document.addEventListener("DOMContentLoaded", function () {
                                     val.name + "-" + val.customer_group?.name
                                 }`,
                                 product: val,
+                                customer_stock: val.customer_stock || [], // Include customer_stock in the option data
                             });
                         });
                     }
@@ -96,6 +120,8 @@ document.addEventListener("DOMContentLoaded", function () {
         // Handle customer selection
         $(customerSelect).on("select2:select", function (e) {
             serviceInfo.customer_id = e.params.data.id;
+            // Store customer stock from the selected option
+            customerYarnCounts = e.params.data.customer_stock || [];
             fetchCustomersYarnCounts();
         });
 
@@ -119,11 +145,9 @@ document.addEventListener("DOMContentLoaded", function () {
     // Fetch yarn counts
     async function getYarnCounts() {
         try {
-            const response = await fetch(
-                baseUrl + "yarn-count?isPaginate=no&relation[]=amytStock"
-            );
+            const response = await fetch(baseUrl + "all-yarn-counts");
             const data = await response.json();
-            yarnCounts = data;
+            yarnCounts = data.data || data;
         } catch (error) {
             console.error("Error fetching yarn counts:", error);
         }
@@ -154,7 +178,8 @@ document.addEventListener("DOMContentLoaded", function () {
                     baseUrl + `customer/${serviceInfo.customer_id}`
                 );
                 const data = await response.json();
-                customerYarnCounts = data.data?.customer_stock || [];
+                // Update customerYarnCounts with the latest data
+                customerYarnCounts = data?.customer_stock || [];
             } catch (error) {
                 console.error(
                     "Error fetching yarn counts for customer:",
@@ -173,18 +198,21 @@ document.addEventListener("DOMContentLoaded", function () {
             return "client:0,amyt:0";
         }
 
-        const yarnCount = customerYarnCounts.find(
+        const customerStock = customerYarnCounts.find(
             (yc) => yc.yarn_count_id == item.yarn_count_id
         );
+        const customerQuantity = customerStock
+            ? parseFloat(customerStock.quantity)
+            : 0;
 
         // Check if yarnCounts is defined and is an array
         if (!yarnCounts || !Array.isArray(yarnCounts)) {
-            return `client:${yarnCount?.quantity || 0},amyt:0`;
+            return `client:${customerQuantity},amyt:0`;
         }
 
         const foundYarn = yarnCounts.find((yc) => yc.id == item.yarn_count_id);
         const amytStock = foundYarn?.amyt_stock?.quantity || 0;
-        return `client:${yarnCount?.quantity || 0},amyt:${amytStock}`;
+        return `client:${customerQuantity},amyt:${amytStock}`;
     }
 
     // Get yarn count name by ID
@@ -198,15 +226,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     // Get attribute name by ID and type
     function getAttrName(id, attr) {
+        if (!id) {
+            return "";
+        }
+
         if (
             !attributes ||
             !attributes[attr] ||
             !Array.isArray(attributes[attr])
         ) {
-            return "N/A";
+            return "";
         }
+
         const found = attributes[attr].find((a) => a.id == id);
-        return found ? found.name : "N/A";
+        return found ? found.name : "";
+    }
+
+    // Get customer stock for a specific yarn count from the customerYarnCounts array
+    function getCustomerStock(yarnCountId) {
+        if (!customerYarnCounts || !Array.isArray(customerYarnCounts)) {
+            return 0;
+        }
+        const stockItem = customerYarnCounts.find(
+            (item) => item.yarn_count_id == yarnCountId
+        );
+        return stockItem ? parseFloat(stockItem.quantity) : 0;
     }
 
     // Add new item row to the modal
@@ -252,35 +296,58 @@ document.addEventListener("DOMContentLoaded", function () {
         renderItemsTable();
     }
 
+    // Update extra quantity based on quantity and available stock
+    function updateExtraQuantity(index, quantity) {
+        const row = itemsTableBody.children[index];
+        const extraQuantityInput = row.querySelector(
+            'input[placeholder="Extra Quantity"]'
+        );
+        const yarnCountId = serviceInfo.dataItem[index].yarn_count_id;
+
+        if (!yarnCountId) {
+            return;
+        }
+
+        const availableStock = getCustomerStock(yarnCountId);
+        let extraQuantity = 0;
+
+        // Calculate extra quantity if quantity exceeds available stock
+        if (quantity > availableStock) {
+            extraQuantity = quantity - availableStock;
+        }
+
+        // Update the extra quantity input
+        extraQuantityInput.value = extraQuantity;
+
+        // Update the serviceInfo data
+        serviceInfo.dataItem[index].extra_quantity = extraQuantity;
+    }
+
     // Render items table in the modal
     function renderItemsTable() {
         itemsTableBody.innerHTML = "";
+
         // Check if yarnCounts is loaded
         if (!yarnCounts || !Array.isArray(yarnCounts)) {
             const row = document.createElement("tr");
             const cell = document.createElement("td");
-            cell.colSpan = 9;
+            cell.colSpan = 10; // Updated to 10 columns
             cell.textContent = "Loading yarn counts...";
             cell.className = "text-center";
             row.appendChild(cell);
             itemsTableBody.appendChild(row);
             return;
         }
+
         serviceInfo.dataItem.forEach((item, index) => {
             const row = document.createElement("tr");
 
             // Yarn Count column
             const yarnCountCell = document.createElement("td");
-            const yarnQuantityInfo = document.createElement("small");
-            yarnQuantityInfo.style.fontSize = "12px";
-            yarnQuantityInfo.style.color = "#555";
-            yarnQuantityInfo.textContent = getYarnQuantity(item);
-
             const yarnCountSelect = document.createElement("select");
             yarnCountSelect.className = "form-control";
             yarnCountSelect.innerHTML =
                 '<option value="">Select Yarn Count</option>';
-
             yarnCounts.forEach((yc) => {
                 const option = document.createElement("option");
                 option.value = yc.id;
@@ -291,18 +358,33 @@ document.addEventListener("DOMContentLoaded", function () {
 
             yarnCountSelect.addEventListener("change", function () {
                 serviceInfo.dataItem[index].yarn_count_id = this.value;
+                updateStockInfo(index, this.value);
+                // Update extra quantity when yarn count changes
+                const quantityInput = row.querySelector(
+                    'input[placeholder="Quantity"]'
+                );
+                if (quantityInput.value) {
+                    updateExtraQuantity(
+                        index,
+                        parseFloat(quantityInput.value) || 0
+                    );
+                }
             });
 
-            yarnCountCell.appendChild(yarnQuantityInfo);
             yarnCountCell.appendChild(yarnCountSelect);
             row.appendChild(yarnCountCell);
+
+            // Available Stock column
+            const stockCell = document.createElement("td");
+            stockCell.className = "stock-cell";
+            stockCell.textContent = item.yarn_count_id ? "Loading..." : "N/A";
+            row.appendChild(stockCell);
 
             // Color column
             const colorCell = document.createElement("td");
             const colorSelect = document.createElement("select");
             colorSelect.className = "form-control";
             colorSelect.innerHTML = '<option value="">Select Color</option>';
-
             if (attributes.color) {
                 attributes.color.forEach((attr) => {
                     const option = document.createElement("option");
@@ -328,14 +410,15 @@ document.addEventListener("DOMContentLoaded", function () {
             quantityInput.placeholder = "Quantity";
             quantityInput.value = item.quantity;
             quantityInput.addEventListener("input", function () {
-                serviceInfo.dataItem[index].quantity =
-                    parseFloat(this.value) || 0;
+                const quantity = parseFloat(this.value) || 0;
+                serviceInfo.dataItem[index].quantity = quantity;
+                // Update extra quantity when quantity changes
+                updateExtraQuantity(index, quantity);
             });
 
             const unitSelect = document.createElement("select");
             unitSelect.className = "form-control form-control-sm my-1";
             unitSelect.innerHTML = '<option value="">Select Unit</option>';
-
             if (attributes.weight) {
                 attributes.weight.forEach((attr) => {
                     const option = document.createElement("option");
@@ -372,6 +455,7 @@ document.addEventListener("DOMContentLoaded", function () {
             extraQuantityInput.className = "form-control";
             extraQuantityInput.placeholder = "Extra Quantity";
             extraQuantityInput.value = item.extra_quantity;
+            extraQuantityInput.disabled = true; // Initially disabled
             extraQuantityInput.addEventListener("input", function () {
                 serviceInfo.dataItem[index].extra_quantity =
                     parseFloat(this.value) || 0;
@@ -408,7 +492,6 @@ document.addEventListener("DOMContentLoaded", function () {
             weightAttrSelect.className = "form-control form-control-sm my-1";
             weightAttrSelect.innerHTML =
                 '<option value="">Select Unit</option>';
-
             if (attributes.weight) {
                 attributes.weight.forEach((attr) => {
                     const option = document.createElement("option");
@@ -443,7 +526,6 @@ document.addEventListener("DOMContentLoaded", function () {
             netWeightAttrSelect.className = "form-control form-control-sm my-1";
             netWeightAttrSelect.innerHTML =
                 '<option value="">Select Unit</option>';
-
             if (attributes.weight) {
                 attributes.weight.forEach((attr) => {
                     const option = document.createElement("option");
@@ -511,145 +593,138 @@ document.addEventListener("DOMContentLoaded", function () {
             row.appendChild(actionCell);
 
             itemsTableBody.appendChild(row);
+
+            // If we have a yarn count selected, update the stock info
+            if (item.yarn_count_id) {
+                updateStockInfo(index, item.yarn_count_id);
+                // Also update extra quantity based on current quantity
+                if (item.quantity > 0) {
+                    updateExtraQuantity(index, item.quantity);
+                }
+            }
         });
     }
 
-    // Render added items table
-    function renderAddedItemsTable() {
-        const hasItems = serviceInfo.dataItem.some(
-            (item) => item.yarn_count_id
+    // Update stock information for a specific row
+    function updateStockInfo(index, yarnCountId) {
+        const row = itemsTableBody.children[index];
+        const stockCell = row.querySelector(".stock-cell");
+        const extraQuantityInput = row.querySelector(
+            'input[placeholder="Extra Quantity"]'
         );
 
-        if (hasItems) {
-            addedItemsSection.style.display = "block";
-            noItemsSection.style.display = "none";
+        if (!yarnCountId || !serviceInfo.customer_id) {
+            stockCell.textContent = "N/A";
+            extraQuantityInput.disabled = true;
+            return;
+        }
 
-            addedItemsTableBody.innerHTML = "";
-            // Check if yarnCounts is loaded
-            if (!yarnCounts || !Array.isArray(yarnCounts)) {
-                const row = document.createElement("tr");
-                const cell = document.createElement("td");
-                cell.colSpan = 8;
-                cell.textContent = "Loading yarn counts...";
-                cell.className = "text-center";
-                row.appendChild(cell);
-                addedItemsTableBody.appendChild(row);
-                return;
-            }
-            // Calculate totals
-            let totalQuantity = 0;
-            let totalExtraQuantity = 0;
-            let totalGrossWeight = 0;
-            let totalNetWeight = 0;
-            let totalBobin = 0;
+        // Get customer stock from the customerYarnCounts array
+        const stock = getCustomerStock(yarnCountId);
+        stockCell.textContent = stock;
 
-            serviceInfo.dataItem.forEach((item) => {
-                if (item.yarn_count_id) {
-                    const row = document.createElement("tr");
-
-                    // Yarn Count
-                    const yarnCountCell = document.createElement("td");
-                    yarnCountCell.textContent = getYarnCountName(
-                        item.yarn_count_id
-                    );
-                    row.appendChild(yarnCountCell);
-
-                    // Color
-                    const colorCell = document.createElement("td");
-                    colorCell.textContent = getAttrName(item.color_id, "color");
-                    row.appendChild(colorCell);
-
-                    // Quantity
-                    const quantityCell = document.createElement("td");
-                    quantityCell.textContent = `${
-                        item.quantity || 0
-                    } ${getAttrName(item.unit_attr_id, "weight")}`;
-                    row.appendChild(quantityCell);
-
-                    // Extra Quantity
-                    const extraQuantityCell = document.createElement("td");
-                    extraQuantityCell.textContent = item.extra_quantity || 0;
-                    row.appendChild(extraQuantityCell);
-
-                    // Gross Weight
-                    const grossWeightCell = document.createElement("td");
-                    grossWeightCell.textContent = `${
-                        item.gross_weight || 0
-                    } ${getAttrName(item.weight_attr_id, "weight")}`;
-                    row.appendChild(grossWeightCell);
-
-                    // Net Weight
-                    const netWeightCell = document.createElement("td");
-                    netWeightCell.textContent = `${
-                        item.net_weight || 0
-                    } ${getAttrName(item.weight_attr_id, "weight")}`;
-                    row.appendChild(netWeightCell);
-
-                    // Bobin
-                    const bobinCell = document.createElement("td");
-                    bobinCell.textContent = item.bobin || 0;
-                    row.appendChild(bobinCell);
-
-                    // Remark
-                    const remarkCell = document.createElement("td");
-                    remarkCell.className = "text-wrap";
-                    remarkCell.textContent = item.remark || "";
-                    row.appendChild(remarkCell);
-
-                    addedItemsTableBody.appendChild(row);
-
-                    // Update totals
-                    totalQuantity += item.quantity || 0;
-                    totalExtraQuantity += item.extra_quantity || 0;
-                    totalGrossWeight += item.gross_weight || 0;
-                    totalNetWeight += item.net_weight || 0;
-                    totalBobin += item.bobin || 0;
-                }
-            });
-
-            // Update total cells
-            const firstItem = serviceInfo.dataItem.find(
-                (item) => item.yarn_count_id
-            );
-            const unitAttr = firstItem
-                ? getAttrName(firstItem.unit_attr_id, "weight")
-                : "";
-            const weightAttr = firstItem
-                ? getAttrName(firstItem.weight_attr_id, "weight")
-                : "";
-
-            document.getElementById(
-                "totalQuantityCell"
-            ).textContent = `${totalQuantity} ${unitAttr}`;
-            document.getElementById("totalExtraQuantityCell").textContent =
-                totalExtraQuantity;
-            document.getElementById(
-                "totalGrossWeightCell"
-            ).textContent = `${totalGrossWeight} ${weightAttr}`;
-            document.getElementById(
-                "totalNetWeightCell"
-            ).textContent = `${totalNetWeight} ${weightAttr}`;
-            document.getElementById("totalBobinCell").textContent = totalBobin;
+        // Enable extra quantity if stock is 0 or null
+        if (stock <= 0) {
+            extraQuantityInput.disabled = false;
+            extraQuantityInput.classList.remove("bg-light");
         } else {
-            addedItemsSection.style.display = "none";
-            noItemsSection.style.display = "block";
+            extraQuantityInput.disabled = true;
+            extraQuantityInput.classList.add("bg-light");
         }
     }
 
     // Open modal
     function openModal() {
+        // get customer id
+        const customerId = $(customerSelect).val();
+        if (!customerId) {
+            alert("Please select a customer first.");
+            return;
+        }
         renderItemsTable();
         $("#addItemModal").modal("show");
     }
 
     // Close modal
     function closeModal() {
-        const newLocal = "#addItemModal";
-        $(newLocal).modal("hide");
+        $("#addItemModal").modal("hide");
     }
 
     // Save items and close modal
     function saveItems() {
+        // Ensure all modal data is saved to serviceInfo.dataItem
+        const rows = itemsTableBody.querySelectorAll("tr");
+        rows.forEach((row, index) => {
+            if (index < serviceInfo.dataItem.length) {
+                // Update existing item
+                const item = serviceInfo.dataItem[index];
+
+                // Get values from the row
+                const yarnCountSelect = row.querySelector("select");
+                const colorSelect = row.querySelectorAll("select")[1];
+                const quantityInput = row.querySelector('input[type="number"]');
+                const unitSelect = row.querySelectorAll("select")[2];
+                const unitPriceInput = row.querySelectorAll(
+                    'input[type="number"]'
+                )[1];
+                const extraQuantityInput = row.querySelectorAll(
+                    'input[type="number"]'
+                )[2];
+                const extraQuantityPriceInput = row.querySelectorAll(
+                    'input[type="number"]'
+                )[3];
+                const grossWeightInput = row.querySelectorAll(
+                    'input[type="number"]'
+                )[4];
+                const weightAttrSelect = row.querySelectorAll("select")[3];
+                const netWeightInput = row.querySelectorAll(
+                    'input[type="number"]'
+                )[5];
+                const netWeightAttrSelect = row.querySelectorAll("select")[4];
+                const bobinInput = row.querySelectorAll(
+                    'input[type="number"]'
+                )[6];
+                const remarkInput = row.querySelector('input[type="text"]');
+
+                // Update the item object - convert empty strings to null for integer fields
+                item.yarn_count_id = yarnCountSelect
+                    ? yarnCountSelect.value || null
+                    : null;
+                item.color_id = colorSelect ? colorSelect.value || null : null;
+                item.quantity = quantityInput
+                    ? parseFloat(quantityInput.value) || 0
+                    : 0;
+                item.unit_attr_id = unitSelect
+                    ? unitSelect.value || null
+                    : null;
+                item.unit_price = unitPriceInput
+                    ? parseFloat(unitPriceInput.value) || 0
+                    : 0;
+                item.extra_quantity = extraQuantityInput
+                    ? parseFloat(extraQuantityInput.value) || 0
+                    : 0;
+                item.extra_quantity_price = extraQuantityPriceInput
+                    ? parseFloat(extraQuantityPriceInput.value) || 0
+                    : 0;
+                item.gross_weight = grossWeightInput
+                    ? parseFloat(grossWeightInput.value) || 0
+                    : 0;
+                item.weight_attr_id = weightAttrSelect
+                    ? weightAttrSelect.value || null
+                    : null;
+                item.net_weight = netWeightInput
+                    ? parseFloat(netWeightInput.value) || 0
+                    : 0;
+                item.bobin = bobinInput
+                    ? bobinInput.value === ""
+                        ? null
+                        : parseFloat(bobinInput.value) || 0
+                    : null;
+                item.remark = remarkInput ? remarkInput.value || null : null;
+            }
+        });
+
+        // Now render the updated items
         renderAddedItemsTable();
         $("#addItemModal").modal("hide");
     }
@@ -665,6 +740,7 @@ document.addEventListener("DOMContentLoaded", function () {
     // Handle form submission
     async function submitForm(e) {
         e.preventDefault();
+
         // Get references to hidden fields
         const dataItemField = document.getElementById("dataItem");
         const totalAmountField = document.getElementById("total_amount");
@@ -672,13 +748,14 @@ document.addEventListener("DOMContentLoaded", function () {
         const discountField = document.getElementById("discount");
         const discountTypeField = document.getElementById("discount_type");
         const statusField = document.getElementById("status");
+
         // Verify the fields exist
         if (!dataItemField) {
             console.error("dataItem field not found in the form");
             alert("Form configuration error: dataItem field missing");
             return;
         }
-        
+
         // Set the values
         const dataItemJson = JSON.stringify(serviceInfo.dataItem);
         dataItemField.value = dataItemJson;
@@ -687,15 +764,19 @@ document.addEventListener("DOMContentLoaded", function () {
         discountField.value = serviceInfo.discount;
         discountTypeField.value = serviceInfo.discount_type;
         statusField.value = serviceInfo.status;
+
         // Create FormData object
         const formData = new FormData(serviceForm);
+
         // Manually append dataItem if it's not in the FormData
-        if (!formData.has('dataItem')) {
-            formData.append('dataItem', dataItemJson);
+        if (!formData.has("dataItem")) {
+            formData.append("dataItem", dataItemJson);
         }
-        
+
         try {
-            const response = await fetch(baseUrl + "service", {
+            // Use the form's action URL
+            const url = serviceForm.action;
+            const response = await fetch(url, {
                 method: "POST",
                 body: formData,
                 headers: {
@@ -704,13 +785,14 @@ document.addEventListener("DOMContentLoaded", function () {
                     ).content,
                 },
             });
-            
+
             const data = await response.json();
-            // console.log("Response:", data);
-            
+
             if (response.ok) {
-                // alert(data.message);
-                notifier({ status: "success", message: data.message || "Form submitted successfully" });
+                notifier({
+                    status: "success",
+                    message: data.message || "Form submitted successfully",
+                });
                 resetForm();
                 window.location.href = baseUrl + "challan-list";
             } else {
@@ -755,18 +837,281 @@ document.addEventListener("DOMContentLoaded", function () {
         serviceForm.reset();
         $(customerSelect).val(null).trigger("change");
 
+        // Generate a new invoice number
+        invoiceNoInput.value = generateInvoiceNumber();
+
         // Reset UI
         addedItemsSection.style.display = "none";
         noItemsSection.style.display = "block";
         closeModal();
     }
 
+    // Render added items table
+    function renderAddedItemsTable() {
+        const hasItems = serviceInfo.dataItem.some(
+            (item) => item.yarn_count_id
+        );
+        if (hasItems) {
+            addedItemsSection.style.display = "block";
+            noItemsSection.style.display = "none";
+            addedItemsTableBody.innerHTML = "";
+
+            // Check if yarnCounts is loaded
+            if (!yarnCounts || !Array.isArray(yarnCounts)) {
+                const row = document.createElement("tr");
+                const cell = document.createElement("td");
+                cell.colSpan = 8;
+                cell.textContent = "Loading yarn counts...";
+                cell.className = "text-center";
+                row.appendChild(cell);
+                addedItemsTableBody.appendChild(row);
+                return;
+            }
+
+            // Calculate totals
+            let totalQuantity = 0;
+            let totalExtraQuantity = 0;
+            let totalGrossWeight = 0;
+            let totalNetWeight = 0;
+            let totalBobin = 0;
+
+            // Track units for display
+            let unitAttr = "";
+            let weightAttr = "";
+
+            serviceInfo.dataItem.forEach((item) => {
+                if (item.yarn_count_id) {
+                    const row = document.createElement("tr");
+
+                    // Yarn Count
+                    const yarnCountCell = document.createElement("td");
+                    yarnCountCell.textContent = getYarnCountName(
+                        item.yarn_count_id
+                    );
+                    row.appendChild(yarnCountCell);
+
+                    // Color - Fixed to handle missing attributes
+                    const colorCell = document.createElement("td");
+                    let colorName = getAttrName(item.color_id, "color");
+                    // If color is "N/A" or empty, show a placeholder
+                    colorCell.textContent =
+                        colorName && colorName !== "N/A"
+                            ? colorName
+                            : "No Color";
+                    row.appendChild(colorCell);
+
+                    // Quantity - Fixed to properly format with unit
+                    const quantityCell = document.createElement("td");
+                    const quantityValue = parseFloat(item.quantity) || 0;
+                    const itemUnitAttr = getAttrName(
+                        item.unit_attr_id,
+                        "weight"
+                    );
+                    // Only show unit if it's valid
+                    const unitText =
+                        itemUnitAttr && itemUnitAttr !== "N/A"
+                            ? itemUnitAttr
+                            : "";
+                    quantityCell.textContent = `${quantityValue.toFixed(
+                        2
+                    )} ${unitText}`.trim();
+                    row.appendChild(quantityCell);
+
+                    // Extra Quantity
+                    const extraQuantityCell = document.createElement("td");
+                    const extraQuantityValue =
+                        parseFloat(item.extra_quantity) || 0;
+                    extraQuantityCell.textContent =
+                        extraQuantityValue.toFixed(2);
+                    row.appendChild(extraQuantityCell);
+
+                    // Gross Weight
+                    const grossWeightCell = document.createElement("td");
+                    const grossWeightValue = parseFloat(item.gross_weight) || 0;
+                    const itemWeightAttr = getAttrName(
+                        item.weight_attr_id,
+                        "weight"
+                    );
+                    // Only show unit if it's valid
+                    const weightText =
+                        itemWeightAttr && itemWeightAttr !== "N/A"
+                            ? itemWeightAttr
+                            : "";
+                    grossWeightCell.textContent = `${grossWeightValue.toFixed(
+                        2
+                    )} ${weightText}`.trim();
+                    row.appendChild(grossWeightCell);
+
+                    // Net Weight
+                    const netWeightCell = document.createElement("td");
+                    const netWeightValue = parseFloat(item.net_weight) || 0;
+                    netWeightCell.textContent = `${netWeightValue.toFixed(
+                        2
+                    )} ${weightText}`.trim();
+                    row.appendChild(netWeightCell);
+
+                    // Bobin
+                    const bobinCell = document.createElement("td");
+                    const bobinValue = parseInt(item.bobin) || 0;
+                    bobinCell.textContent = bobinValue;
+                    row.appendChild(bobinCell);
+
+                    // Remark
+                    const remarkCell = document.createElement("td");
+                    remarkCell.className = "text-wrap";
+                    remarkCell.textContent = item.remark || "";
+                    row.appendChild(remarkCell);
+
+                    addedItemsTableBody.appendChild(row);
+
+                    // Update totals
+                    totalQuantity += quantityValue;
+                    totalExtraQuantity += extraQuantityValue;
+                    totalGrossWeight += grossWeightValue;
+                    totalNetWeight += netWeightValue;
+                    totalBobin += bobinValue;
+
+                    // Track units for display (use first item with valid units)
+                    if (!unitAttr && unitText) {
+                        unitAttr = unitText;
+                    }
+                    if (!weightAttr && weightText) {
+                        weightAttr = weightText;
+                    }
+                }
+            });
+
+            // Update total cells with proper formatting
+            document.getElementById(
+                "totalQuantityCell"
+            ).textContent = `${totalQuantity.toFixed(2)} ${unitAttr}`;
+            document.getElementById("totalExtraQuantityCell").textContent =
+                totalExtraQuantity.toFixed(2);
+            document.getElementById(
+                "totalGrossWeightCell"
+            ).textContent = `${totalGrossWeight.toFixed(2)} ${weightAttr}`;
+            document.getElementById(
+                "totalNetWeightCell"
+            ).textContent = `${totalNetWeight.toFixed(2)} ${weightAttr}`;
+            document.getElementById("totalBobinCell").textContent = totalBobin;
+        } else {
+            addedItemsSection.style.display = "none";
+            noItemsSection.style.display = "block";
+        }
+    }
+
+    // Initialize edit form with existing data
+    function initializeEditForm(serviceData, serviceItems) {
+        // Set service info from the passed data
+        serviceInfo.customer_id = serviceData.customer_id;
+        serviceInfo.service_date = serviceData.service_date;
+        serviceInfo.invoice_no = serviceData.invoice_no;
+        serviceInfo.description = serviceData.description;
+        serviceInfo.payment_status = serviceData.payment_status;
+        serviceInfo.discount = serviceData.discount;
+        serviceInfo.discount_type = serviceData.discount_type;
+        serviceInfo.status = serviceData.status;
+
+        // Format date for input field (yyyy-MM-dd)
+        if (serviceData.service_date) {
+            const date = new Date(serviceData.service_date);
+            const formattedDate = date.toISOString().split("T")[0];
+            document.getElementById("basicFlatpickr").value = formattedDate;
+        }
+
+        // Set invoice number
+        document.getElementById("invoice_no").value =
+            serviceData.invoice_no || "";
+
+        // Set description - check if element exists
+        const descriptionElement = document.getElementById("description");
+        if (descriptionElement) {
+            descriptionElement.value = serviceData.description || "";
+        }
+
+        // Set the customer in the select2 dropdown
+        if (serviceData.customer_id) {
+            // Create an option for the customer
+            const option = new Option(
+                serviceData.customer?.name ||
+                    `Customer ${serviceData.customer_id}`,
+                serviceData.customer_id,
+                true,
+                true
+            );
+            $(customerSelect).append(option).trigger("change");
+
+            // Fetch customer yarn counts
+            fetchCustomersYarnCounts();
+        }
+
+        // Set items if they exist - push to existing dataItem array
+        if (serviceItems && serviceItems.length > 0) {
+            // Clear the existing dataItem array but keep the first empty item
+            serviceInfo.dataItem = [];
+
+            // Push each existing item to the dataItem array
+            serviceItems.forEach((item) => {
+                serviceInfo.dataItem.push({
+                    yarn_count_id: item.yarn_count_id,
+                    unit_attr_id: item.unit_attr_id,
+                    quantity: parseFloat(item.quantity) || 0, // Ensure it's a number
+                    unit_price: parseFloat(item.unit_price) || 0, // Ensure it's a number
+                    extra_quantity: parseFloat(item.extra_quantity) || 0, // Ensure it's a number
+                    extra_quantity_price:
+                        parseFloat(item.extra_quantity_price) || 0, // Ensure it's a number
+                    color_id: item.color_id,
+                    gross_weight: parseFloat(item.gross_weight) || 0, // Ensure it's a number
+                    net_weight: parseFloat(item.net_weight) || 0, // Ensure it's a number
+                    weight_attr_id: item.weight_attr_id,
+                    bobin: parseInt(item.bobin) || 0, // Ensure it's a number
+                    remark: item.remark,
+                });
+            });
+
+            // If there are no items, add an empty one
+            if (serviceInfo.dataItem.length === 0) {
+                serviceInfo.dataItem.push({
+                    yarn_count_id: "",
+                    unit_attr_id: "",
+                    quantity: 0,
+                    unit_price: 0,
+                    extra_quantity: 0,
+                    extra_quantity_price: 0,
+                    color_id: "",
+                    gross_weight: 0,
+                    net_weight: 0,
+                    weight_attr_id: "",
+                    bobin: "",
+                    remark: "",
+                });
+            }
+
+            // Render the items table
+            renderAddedItemsTable();
+        }
+    }
+
     // Event listeners
     openModalBtn.addEventListener("click", openModal);
     addItemBtn.addEventListener("click", addItem);
     saveItemsBtn.addEventListener("click", saveItems);
-    // modalBackdrop.addEventListener("click", closeModal);
     serviceForm.addEventListener("submit", submitForm);
+
+    // Handle generate invoice button click
+    if (generateInvoiceBtn) {
+        generateInvoiceBtn.addEventListener("click", function () {
+            invoiceNoInput.value = generateInvoiceNumber();
+            serviceInfo.invoice_no = invoiceNoInput.value;
+        });
+    }
+
+    // Handle invoice input change
+    if (invoiceNoInput) {
+        invoiceNoInput.addEventListener("input", function () {
+            serviceInfo.invoice_no = this.value;
+        });
+    }
 
     // Handle document upload
     document
@@ -783,11 +1128,39 @@ document.addEventListener("DOMContentLoaded", function () {
         // Then initialize components
         initializeCustomerSelect();
         initializeModal();
-        renderAddedItemsTable();
+
+        // Generate initial invoice number for create mode
+        if (!isEditMode && invoiceNoInput) {
+            invoiceNoInput.value = generateInvoiceNumber();
+            serviceInfo.invoice_no = invoiceNoInput.value;
+        }
+
+        // Check if we're in edit mode and initialize with existing data
+        if (isEditMode) {
+            // Get service data from the form data attributes
+            const serviceData = serviceForm.dataset.service
+                ? JSON.parse(serviceForm.dataset.service)
+                : null;
+            const serviceItems = serviceForm.dataset.serviceItems
+                ? JSON.parse(serviceForm.dataset.serviceItems)
+                : [];
+
+            if (serviceData) {
+                // Use setTimeout to ensure the DOM is fully ready before setting data
+                setTimeout(() => {
+                    initializeEditForm(serviceData, serviceItems);
+                }, 100);
+            }
+        } else {
+            // Create mode: just render the empty items table
+            renderAddedItemsTable();
+        }
     }
 
     initialize();
 });
+
+// Initialize Select2 separately to avoid conflicts
 $(function () {
     $("#customer_id").select2({
         ajax: {
@@ -803,17 +1176,16 @@ $(function () {
             processResults: function (data, params) {
                 params.page = params.page || 1;
                 const options = [];
-
                 if (Array.isArray(data.data) && data.data.length > 0) {
                     data.data.forEach((val) => {
                         options.push({
                             id: val.id,
                             text: val.name,
                             customer: val,
+                            customer_stock: val.customer_stock || [], // Include customer_stock in the option data
                         });
                     });
                 }
-
                 return {
                     results: options,
                     pagination: {
@@ -831,6 +1203,7 @@ $(function () {
     // Handle customer selection
     $("#customer_id").on("select2:select", function (e) {
         const data = e.params.data;
-        console.log("Selected customer:", data);
+        // Store customer stock from the selected option
+        customerYarnCounts = data.customer_stock || [];
     });
 });

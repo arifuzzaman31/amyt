@@ -1,16 +1,25 @@
-$(document).ready(function() {
+$(function () {
     // Check if yarnCounts global variable is available
+    // console.log('Yarn Counts:', yarnCounts);
+    
+    // Initialize yarnCounts with a fallback empty array
+    const safeYarnCounts = Array.isArray(yarnCounts) ? yarnCounts : [];
+    
     if (typeof yarnCounts === 'undefined' || !Array.isArray(yarnCounts)) {
-        console.error('Yarn Counts data is missing or not an array. Please ensure it is passed from the Blade template.');
-        var yarnCounts = []; // Fallback to empty array
+        console.error('Yarn Counts data is missing or not an array. Using empty array as fallback.');
     }
 
     // --- Core Data Storage ---
     // Stores items temporarily added in the modal
     let customerStockItems = [];
     
+    // --- Request Management ---
+    let customerRequestTimeout = null;
+    let activeCustomerRequest = null;
+    const CUSTOMER_REQUEST_DELAY = 300; // ms
+
     // --- Utility Functions ---
-    
+
     // 1. Challan Number Auto-Generation
     function generateChallanNo() {
         const now = new Date();
@@ -26,14 +35,35 @@ $(document).ready(function() {
     // 2. Populate Yarn Count Select
     function getYarnCountOptions(selectedValue = null) {
         let options = '<option value="">Select Yarn Count</option>';
-        yarnCounts.forEach(yc => {
+        safeYarnCounts.forEach(yc => {
             const selected = yc.id == selectedValue ? 'selected' : '';
             options += `<option value="${yc.id}" ${selected}>${yc.name}</option>`;
         });
         return options;
     }
 
-    // 3. Add Item Row in Modal
+    // 3. Initialize Date Picker
+    function initializeDatePicker() {
+        // Try to use Bootstrap Datepicker first
+        if (typeof $.fn.datepicker === 'function') {
+            $('#stock_date').datepicker({
+                format: 'yyyy-mm-dd',
+                autoclose: true,
+                todayHighlight: true
+            });
+            console.log('Bootstrap Datepicker initialized');
+        } 
+        // Fallback to HTML5 date input if datepicker is not available
+        else {
+            $('#stock_date').attr('type', 'date');
+            // Set today's date as default
+            const today = new Date().toISOString().split('T')[0];
+            $('#stock_date').val(today);
+            console.log('Using HTML5 date input as fallback');
+        }
+    }
+
+    // 4. Add Item Row in Modal
     function addItemRow(item = {}) {
         const yarnCountId = item.yarn_count_id || '';
         const quantity = item.quantity || '';
@@ -48,22 +78,26 @@ $(document).ready(function() {
                 </td>
                 <td><input type="number" class="form-control form-control-sm quantity-input" step="any" min="0.01" placeholder="Quantity" value="${quantity}" required></td>
                 <td><input type="number" class="form-control form-control-sm unit-price-input" step="0.01" min="0" placeholder="Unit Price" value="${unitPrice}" required></td>
-                <td><button type="button" class="btn btn-danger btn-sm remove-item-row">❌ Remove</button></td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm remove-item-row">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2 delete-note"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                    </button>
+                </td>
             </tr>
         `;
         $('#itemsModalTableBody').append(newRow);
         
         toggleRemoveButtons();
     }
-    
-    // 4. Toggle Remove Buttons
+
+    // 5. Toggle Remove Buttons
     function toggleRemoveButtons() {
         const rowCount = $('#itemsModalTableBody tr').length;
         // Disable remove button if only one row remains
         $('.remove-item-row').prop('disabled', rowCount <= 1);
     }
 
-    // 5. Calculate and Update Totals
+    // 6. Calculate and Update Totals
     function calculateTotals() {
         // Calculate subtotal based on stored items
         let subtotal = 0;
@@ -89,17 +123,20 @@ $(document).ready(function() {
         $('#discount_amount_display').val(discountAmount.toFixed(2));
         $('#grand_total_display').val(grandTotal.toFixed(2));
     }
-    
-    // 6. Update Added Items Display Table (in main form)
+
+    // 7. Update Added Items Display Table (in main form)
     function updateAddedItemsDisplay() {
         let addedItemsHtml = '';
         
         if (customerStockItems.length === 0) {
-            addedItemsHtml = '<tr><td colspan="4" class="text-center text-muted" id="noItemsMessage">No items added yet.</td></tr>';
+            // Hide the table and show the empty state message
+            $('#itemsDisplayTable').hide();
+            $('#noItemsMessage').show();
+            $('#totalsSection').hide();
         } else {
             customerStockItems.forEach(item => {
                 // Find the name using the ID from the global array
-                const yarnCountName = yarnCounts.find(yc => yc.id == item.yarn_count_id)?.name || 'N/A';
+                const yarnCountName = safeYarnCounts.find(yc => yc.id == item.yarn_count_id)?.name || 'N/A';
                 const subtotal = (parseFloat(item.quantity) * parseFloat(item.unit_price)).toFixed(2);
                 
                 addedItemsHtml += `
@@ -108,13 +145,22 @@ $(document).ready(function() {
                         <td>${item.quantity}</td>
                         <td>${parseFloat(item.unit_price).toFixed(2)}</td>
                         <td class="text-right">${subtotal}</td>
+                        <td>
+                            <button type="button" class="btn btn-sm btn-danger remove-display-item" data-index="${customerStockItems.indexOf(item)}">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-trash-2 delete-note"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path><line x1="10" y1="11" x2="10" y2="17"></line><line x1="14" y1="11" x2="14" y2="17"></line></svg>
+                            </button>
+                        </td>
                     </tr>
                 `;
             });
+            // Show the table and hide the empty state message
+            $('#itemsDisplayTable').show();
+            $('#noItemsMessage').hide();
+            $('#totalsSection').show();
         }
         
         // Update the main form display table
-        $('#addedItemsTable').html(addedItemsHtml);
+        $('#itemsDisplayTableBody').html(addedItemsHtml);
         
         // Update hidden input for form submission
         $('#item_data_input').val(JSON.stringify(customerStockItems));
@@ -122,13 +168,13 @@ $(document).ready(function() {
         // Recalculate and display totals
         calculateTotals();
     }
-    
-    // 7. Collect and Validate Items from Modal
+
+    // 8. Collect and Validate Items from Modal
     function collectModalItems() {
         let tempItems = [];
         let isValid = true;
 
-        $('#itemsModalTableBody tr').each(function() {
+        $('#itemsModalTableBody tr').each(function () {
             const row = $(this);
             const yarnCountId = row.find('.yarn-count-select').val();
             const quantity = row.find('.quantity-input').val();
@@ -137,13 +183,13 @@ $(document).ready(function() {
             row.removeClass('table-danger'); // Clear previous validation highlight
 
             if (yarnCountId && parseFloat(quantity) > 0 && parseFloat(unitPrice) >= 0) {
-                 tempItems.push({
+                tempItems.push({
                     yarn_count_id: yarnCountId,
                     quantity: quantity,
                     unit_price: unitPrice
                 });
             } else if (yarnCountId || quantity || unitPrice) {
-                 // Partially filled rows are invalid
+                // Partially filled rows are invalid
                 isValid = false;
                 row.addClass('table-danger');
             }
@@ -158,32 +204,33 @@ $(document).ready(function() {
         return true;
     }
 
-
     // --- Event Handlers ---
-
-    // Initialize Select2 for Customer (as in your original code)
+    // Initialize Select2 for Customer with proper pagination and request management
     $('#customer_id').select2({
         ajax: {
-            url: baseUrl + "/customer", 
+            url: baseUrl + "customer",
             dataType: 'json',
             delay: 250,
-            data: function(params) {
+            data: function (params) {
                 return {
-                    q: params.term,
-                    page: params.page || 1,
-                    limit: 20
+                    q: params.term, // search term
+                    page: params.page || 1, // page number
+                    limit: 20 // page size
                 };
+              
             },
-            processResults: function(data, params) {
+            processResults: function (data, params) {
                 params.page = params.page || 1;
+                
                 const options = [];
                 
-                if (Array.isArray(data.data) && data.data.length > 0) {
+                // Check if data is valid before processing
+                if (data && data.data && Array.isArray(data.data)) {
                     data.data.forEach(val => {
                         options.push({
                             id: val.id,
                             text: `${val.name} - ${val.customer_group?.name || 'N/A'}`,
-                            customer: val 
+                            customer: val
                         });
                     });
                 }
@@ -191,8 +238,8 @@ $(document).ready(function() {
                 return {
                     results: options,
                     pagination: {
-                        more: data.current_page < data.last_page
-                    }
+                        more: data.current_page < data.last_page,
+                    },
                 };
             },
             cache: true
@@ -201,35 +248,76 @@ $(document).ready(function() {
         placeholder: 'Select a customer',
         allowClear: true
     });
+    $("#customer_id").on("select2:select", function (e) {
+        const data = e.params.data;
+        console.log("Selected customer:", data);
+    });
+    // Initialize date picker with fallback
+    initializeDatePicker();
 
-    // Challan No initialization and Date default value
+    // Challan No initialization
     $('#challan_no').val(generateChallanNo());
-    $('#stock_date').attr('value', new Date().toISOString().substring(0, 10));
+
+    // Handle edit button for challan number
+    $('#editChallanNo').click(function() {
+        const challanInput = $('#challan_no');
+        
+        if (challanInput.attr('readonly')) {
+            // Enable editing
+            challanInput.removeAttr('readonly');
+            challanInput.focus();
+            $(this).html('<i class="fas fa-check"></i>');
+            $(this).removeClass('btn-outline-secondary').addClass('btn-outline-success');
+        } else {
+            // Disable editing
+            challanInput.attr('readonly', true);
+            $(this).html('<i class="fas fa-edit"></i>');
+            $(this).removeClass('btn-outline-success').addClass('btn-outline-secondary');
+        }
+    });
+
+    // Handle file input label update
+    $('#document_link').on('change', function () {
+        var fileName = $(this).val().split('\\').pop();
+        $(this).next('.custom-file-label').html(fileName || 'Choose file');
+    });
 
     // Listeners for Total Calculations
     $('#discount, #discount_type').on('input change', calculateTotals);
     
     // Add Item Row button in Modal
-    $('#addItemRow').click(function() {
+    $('#addItemRow').click(function () {
         addItemRow();
     });
 
     // Remove Item Row in Modal (Delegated event listener)
-    $(document).on('click', '#itemsModalTableBody .remove-item-row', function() {
+    $(document).on('click', '#itemsModalTableBody .remove-item-row', function () {
         if ($('#itemsModalTableBody tr').length > 1) {
             $(this).closest('tr').remove();
+            toggleRemoveButtons();
+        } else {
+            alert('At least one item row must remain.');
         }
-        toggleRemoveButtons();
     });
 
-    // Update totals when inputs in the modal are changed (delegated event)
-    $(document).on('input', '#itemsModalTableBody .quantity-input, #itemsModalTableBody .unit-price-input, #itemsModalTableBody .yarn-count-select', function() {
-        // This input only forces a recalculation on save, not live.
-        // We ensure data is correct in collectModalItems on 'saveItems'.
+    // Remove Item from Display Table (Delegated event listener)
+    $(document).on('click', '.remove-display-item', function () {
+        const index = $(this).data('index');
+        
+        // Remove from our data array
+        customerStockItems.splice(index, 1);
+        
+        // Update the display
+        updateAddedItemsDisplay();
+        
+        // If no items left, reset the modal for next time
+        if (customerStockItems.length === 0) {
+            $('#itemsModalTableBody').empty();
+        }
     });
-    
+
     // When modal is shown, re-populate it with existing data
-    $('#addItemModal').on('show.bs.modal', function() {
+    $('#addItemModal').on('show.bs.modal', function () {
         $('#itemsModalTableBody').empty();
         if (customerStockItems.length === 0) {
             addItemRow(); // Start with one empty row
@@ -239,21 +327,15 @@ $(document).ready(function() {
     });
 
     // Save Items button in Modal
-    $('#saveItems').click(function() {
+    $('#saveItems').click(function () {
         if (collectModalItems()) {
             updateAddedItemsDisplay();
             $('#addItemModal').modal('hide');
         }
     });
     
-    // Handle File Input label update
-    $('#document_link').on('change', function() {
-        var fileName = $(this).val().split('\\').pop();
-        $(this).next('.custom-file-label').html(fileName || 'Choose file');
-    });
-
     // --- Form Submission ---
-    $('#customer-stock-form').on('submit', function(e) {
+    $('#customer-stock-form').on('submit', function (e) {
         e.preventDefault();
         
         // Final check for items
@@ -274,11 +356,14 @@ $(document).ready(function() {
             data: formData,
             processData: false,
             contentType: false,
-            success: function(response) {
-                alert(response.message || 'Customer Stock record created successfully! 🎉');
-                window.location.href = baseUrl + '/customer-stock-list'; // Redirect after success
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
             },
-            error: function(xhr) {
+            success: function (response) {
+                alert(response.message || 'Customer Stock record created successfully! 🎉');
+                window.location.href = baseUrl + 'customer-stock-list'; // Redirect after success
+            },
+            error: function (xhr) {
                 let errorMsg = xhr.responseJSON?.message || 'An error occurred during submission.';
                 if (xhr.responseJSON?.errors) {
                     // Display validation errors clearly
@@ -287,6 +372,15 @@ $(document).ready(function() {
                 alert(errorMsg);
             }
         });
+    });
+
+    // Reset form
+    $('button[type="reset"]').click(function() {
+        $('#customer_id').val(null).trigger('change');
+        $('#document_link').next('.custom-file-label').html('Choose file');
+        $('#challan_no').val(generateChallanNo());
+        customerStockItems = [];
+        updateAddedItemsDisplay();
     });
 
     // --- Initialization ---

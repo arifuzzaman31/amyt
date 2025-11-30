@@ -15,7 +15,17 @@ class AmytStockController extends Controller
         }
 
         $perPage = $request->query('per_page', 10);
-        $stocks = \App\Models\AmytStock::with('yarnCount:id,name')->paginate($perPage);
+        $search = $request->query('search');
+        
+        $query = \App\Models\AmytStock::with('yarnCount:id,name');
+        
+        if (!empty($search)) {
+            $query->whereHas('yarnCount', function ($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }
+        
+        $stocks = $query->paginate($perPage);
         return $stocks;
     }
 

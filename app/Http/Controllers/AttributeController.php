@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Attribute;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 
 class AttributeController extends Controller
 {
@@ -11,7 +12,10 @@ class AttributeController extends Controller
 
     public function index()
     {
-        return $this->model::orderBy('type')->get();
+        Cache::remember('attributes_all', now()->addHours(3), function () {
+            return $this->model::orderBy('type')->get();
+        });
+        return cache('attributes_all');
     }
     public function store(Request $request)
     {
@@ -25,6 +29,7 @@ class AttributeController extends Controller
                 return response()->json(['status' => false, 'message' => 'Attribute not added'], 500);
             }
             // If the attribute is successfully created, return a success response
+            cache()->forget('attributes_all');
             return response()->json(['status' => true, 'message' => 'Attribute added Successfully'], 201);
             //code...
         } catch (\Throwable $th) {
@@ -41,12 +46,14 @@ class AttributeController extends Controller
     {
         $group = $this->model::findOrFail($id);
         $group->update($request->all());
+        cache()->forget('attributes_all');
         return $group;
     }
 
     public function destroy($id)
     {
         $this->model::destroy($id);
+        cache()->forget('attributes_all');
         return response()->noContent();
     }
 }

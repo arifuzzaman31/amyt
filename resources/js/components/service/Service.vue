@@ -4,9 +4,9 @@
     <div class="widget-content widget-content-area">
       <div class="row">
         <div class="col-xl-12 col-md-12 col-sm-12 col-12 d-flex justify-content-between">
-          <h4>Challan List</h4>
-          <a :href="url + 'create-challan'" class="btn btn-primary mb-3">
-            Add Challan
+          <h4>{{props.title}} List</h4>
+          <a :href="url + 'create-challan'" v-if="props.from==3" class="btn btn-primary mb-3">
+            Add {{props.title}}
           </a>
         </div>
       </div>
@@ -40,10 +40,11 @@
                       </a>
 
                       <div class="dropdown-menu" aria-labelledby="dropdownMenuLink1">
-                          <a type="button" :class="'dropdown-item ' + (getStatusLabel(service.status) == 'Approved' ? 'disabled text-muted' : '')" @click="updateStatus(service.id)" href="javascript:void(0);">Approved</a>
-                          <a type="button" class="dropdown-item" @click="makeInvoice(service)" href="javascript:void(0);">Make Invoice</a>
-                          <a type="button" class="dropdown-item" @click="openEditModal(service)" href="javascript:void(0);">Edit</a>
+                          <!-- <a type="button" :class="'dropdown-item ' + (getStatusLabel(service.status) == 'Approved' ? 'disabled text-muted' : '')" @click="updateStatus(service.id)" href="javascript:void(0);">Approved</a> -->
+                          <a type="button" class="dropdown-item" v-if="props.from==3" @click="makeInvoice(service)" href="javascript:void(0);">Turn Into Invoice</a>
+                          <a type="button" class="dropdown-item" :href="`service/${service.id}`">Edit</a>
                           <a type="button" class="dropdown-item" @click="deleteService(service.id)" href="javascript:void(0);">Delete</a>
+                          <a target="_blank" :href="url+'view-challan-details/'+service.id" class="dropdown-item">Details</a>
                       </div>
                   </div>
               </td>
@@ -72,7 +73,11 @@ const props = defineProps({
     from: {
         type: Number,
         required: true
-    }
+  },
+    title: {
+        type: String,
+        required: true
+  }
 })
 const fetchServices = async () => {
   const res = await Axistance.get('service', {

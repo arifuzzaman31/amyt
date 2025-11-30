@@ -865,7 +865,7 @@ code {
   width: 100%;
   overflow: auto; }
   #sidebar ul.menu-categories.ps {
-    height: calc(100vh - 282px) !important; }
+    height: calc(100vh - 77px) !important; }
     #sidebar ul.menu-categories.ps .ps__rail-y:hover {
       background-color: transparent; }
     #sidebar ul.menu-categories.ps:hover > .ps__rail-y .ps__thumb-y {

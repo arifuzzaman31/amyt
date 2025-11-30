@@ -171,6 +171,7 @@
                         <thead>
                             <tr>
                                 <th>Yarn Count</th>
+                                <th>Available Stock</th>
                                 <th>Color</th>
                                 <th>Quantity</th>
                                 <th>Extra Quantity</th>

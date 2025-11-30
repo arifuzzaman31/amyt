@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Yarn;
 use App\Services\CustomerStockService;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\Log;
 
 class CustomerStockController extends Controller
 {
@@ -13,6 +15,15 @@ class CustomerStockController extends Controller
     public function stockList(Request $request)
     {
         return response()->json($this->stockService->getAll($request->all()));
+    }
+
+    public function create()
+    {
+        $yarnCounts = cache()->remember('yarn_counts', 60, function () {
+            return Yarn::all(); // Fetch all yarn counts from the Yarn model
+        });
+
+        return view('pages.stock.create_stock', compact('yarnCounts'));
     }
 
     public function stockIn(Request $request)
@@ -24,7 +35,7 @@ class CustomerStockController extends Controller
             'dataItem.*.quantity' => 'required|numeric|min:0',
             'dataItem.*.unit_price' => 'required|numeric|min:0'
         ]);
-
+        Log::info($request->all());
         try {
             $data = $request->all();
             if ($request->hasFile('document_file')) {

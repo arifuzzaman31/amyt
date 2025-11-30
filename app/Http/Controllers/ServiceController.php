@@ -28,7 +28,15 @@ class ServiceController extends Controller
 
     public function show($id)
     {
-        return $this->salesService->getServiceItems($id);
+        // return $this->salesService->getServiceItems($id);
+        return view('pages.challan.edit_challan', ['service' => $this->salesService->getServiceItems($id)]);
+    }
+
+    public function showDetails($id)
+    {
+        return view('pages.challan.details', [
+            'service' => $this->salesService->getServiceItems($id)
+        ]);
     }
 
     public function update(Request $request, $id)

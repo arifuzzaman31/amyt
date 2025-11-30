@@ -25,38 +25,43 @@ class SalesService
     }
 
     public function createService(array $data)
-    {
-        try {
-            DB::beginTransaction();
-            if (isset($data['document_link'])) {
-                $data['document_link'] = storeFile($data['document_link'], 'services/documents');
-            }
-            $data['dataItem'] = json_decode($data['dataItem'], true);
-            $data['status'] = AllStatic::ALL_STATIC['SERVICE_STATUS']['DRAFT']; // Assuming 0 means pending
-            $service = $this->serviceModel::create($data);
-            if (isset($data['dataItem']) && is_array($data['dataItem'])) {
-                foreach ($data['dataItem'] as $item) {
-                    $item['service_id'] = $service->id; // Associate the service item with the created service
-                    $this->serviceItemModel::create($item);
-                }
-            }
-            DB::commit();
-            // return $this->serviceModel::with('items')->find($service->id);
-            return [
-                'status' => true,
-                'message' => 'Service created successfully',
-                'service' => $service->load('items') // Load items relationship
-            ];
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return [
-                'status' => false,
-                'message' => 'Failed to create service',
-                'error' => $th->getMessage()
-            ];
-            //throw $th;
+{
+    try {
+        DB::beginTransaction();
+        if (isset($data['document_link'])) {
+            $data['document_link'] = storeFile($data['document_link'], 'services/documents');
         }
+        $data['dataItem'] = json_decode($data['dataItem'], true);
+        $data['status'] = AllStatic::ALL_STATIC['SERVICE_STATUS']['DRAFT']; // Assuming 0 means pending
+        $service = $this->serviceModel::create($data);
+        
+        if (isset($data['dataItem']) && is_array($data['dataItem'])) {
+            foreach ($data['dataItem'] as $item) {
+                // Convert empty strings to null for integer fields
+                $item['unit_attr_id'] = $item['unit_attr_id'] === '' ? null : $item['unit_attr_id'];
+                $item['color_id'] = $item['color_id'] === '' ? null : $item['color_id'];
+                $item['weight_attr_id'] = $item['weight_attr_id'] === '' ? null : $item['weight_attr_id'];
+                $item['bobin'] = $item['bobin'] === '' ? null : $item['bobin'];
+                
+                $item['service_id'] = $service->id; // Associate the service item with the created service
+                $this->serviceItemModel::create($item);
+            }
+        }
+        DB::commit();
+        return [
+            'status' => true,
+            'message' => 'Service created successfully',
+            'service' => $service->load('items') // Load items relationship
+        ];
+    } catch (\Throwable $th) {
+        DB::rollBack();
+        return [
+            'status' => false,
+            'message' => 'Failed to create service',
+            'error' => $th->getMessage()
+        ];
     }
+}
 
     public function updateService($id, array $data)
     {
@@ -212,6 +217,11 @@ class SalesService
 
     public function getServiceItems($serviceId)
     {
-        return $this->serviceModel::with('items')->findOrFail($serviceId);
+        return $this->serviceModel::with([
+            'items.yarnCount', 
+            'items.unitAttr', 
+            'items.color', 
+            'items.weightAttr'
+        ])->findOrFail($serviceId);
     }
 }

@@ -13,6 +13,19 @@
             </div>
 
             <div class="widget-content widget-content-area">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <input 
+                                v-model="searchTerm" 
+                                type="text" 
+                                class="form-control" 
+                                placeholder="Search by yarn name..."
+                                @input="handleSearch"
+                            />
+                        </div>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table mb-4">
                         <caption>List of all Amyt Stock</caption>
@@ -48,6 +61,8 @@ const selectedStock = ref(null);
 const url = ref(baseUrl)
 const currentPage = ref(1)
 const itemsPerPage = 10
+const searchTerm = ref('')
+let searchTimeout = null
 
 const openEditModal = (purchase) => {
     selectedStock.value = purchase;
@@ -64,17 +79,32 @@ const onClickHandler = (page) => {
 }
 const fetchStock = async () => {
     try {
-        const res = await Axistance.get('stock-list?vendor=amyt', {
-        params: {
+        const params = {
             page: currentPage.value,
             per_page: itemsPerPage
         }
-    });
+        if (searchTerm.value.trim()) {
+            params.search = searchTerm.value.trim()
+        }
+        const res = await Axistance.get('stock-list?vendor=amyt', { params });
         stockList.value = res.data
     } catch (error) {
-        console.error('Error fetching purchases:', error);
+        console.error('Error fetching stock:', error);
         // Here you could add user-facing error handling, e.g., a toast notification.
     }
+}
+
+const handleSearch = () => {
+    // Clear existing timeout
+    if (searchTimeout) {
+        clearTimeout(searchTimeout)
+    }
+    // Reset to first page when searching
+    currentPage.value = 1
+    // Debounce search - wait 500ms after user stops typing
+    searchTimeout = setTimeout(() => {
+        fetchStock()
+    }, 500)
 }
 
 const deleteStock = async (id) => {

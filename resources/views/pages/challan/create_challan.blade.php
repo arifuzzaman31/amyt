@@ -1,10 +1,14 @@
 @extends('layout.app')
-@section('title', 'Create Service | '.env('APP_NAME'))
+@section('title', 'Create Challan | '.env('APP_NAME'))
 @push('style')
 <style>
 .modal-dialog {
     max-width: 90%;
-  }
+}
+.stock-info {
+    font-size: 12px;
+    color: #555;
+}
 </style>
 @endpush
 @section('content')
@@ -17,20 +21,27 @@
                 <!-- Service Details Card -->
                 <div class="card mb-4">
                     <div class="card-header text-white">
-                        <h5 class="mb-0">Service Details</h5>
+                        <h5 class="mb-0">Create Challan</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="basicFlatpickr">Service Date</label>
-                                    <input id="basicFlatpickr" type="date" class="form-control" name="service_date" placeholder="Select Challan Date..">
+                                    <input id="basicFlatpickr" type="date" class="form-control" name="service_date" placeholder="Select Service Date..">
                                 </div>
                             </div>
                             <div class="col-md-4">
                                 <div class="form-group">
                                     <label for="invoice_no">Invoice No</label>
-                                    <input type="text" class="form-control" id="invoice_no" name="invoice_no">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" id="invoice_no" name="invoice_no">
+                                        <div class="input-group-append">
+                                            <button class="btn btn-outline-secondary" type="button" id="generateInvoiceBtn">
+                                                <i class="fas fa-sync-alt"></i> Generate
+                                            </button>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                             <div class="col-md-4">
@@ -56,12 +67,11 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Item List Card -->
                 <div class="card mb-4">
                     <div class="card-header text-white d-flex justify-content-between align-items-center">
                         <h5 class="mb-0">Item List</h5>
-                        <button type="button" class="btn btn-light" id="openModalBtn">
+                        <button type="button" class="btn btn-info" id="openModalBtn">
                             Add Item
                         </button>
                     </div>
@@ -103,7 +113,6 @@
                         </div>
                     </div>
                 </div>
-
                 <!-- Submit Button -->
                 <div class="text-center mb-4">
                     <button type="submit" class="btn btn-success btn-lg px-5">Submit</button>
@@ -112,7 +121,6 @@
         </div>
     </div>
 </div>
-
 <!-- Add Item Modal -->
 <div class="modal fade" id="addItemModal" tabindex="-1" role="dialog" aria-hidden="true">
     <div class="modal-dialog modal-xl" role="document">
@@ -129,6 +137,7 @@
                         <thead>
                             <tr>
                                 <th>Yarn Count</th>
+                                <th>Available Stock</th>
                                 <th>Color</th>
                                 <th>Quantity</th>
                                 <th>Extra Quantity</th>
@@ -155,7 +164,6 @@
         </div>
     </div>
 </div>
-
 <!-- Hidden fields for form data -->
 <input type="hidden" id="dataItem" name="dataItem">
 <input type="hidden" id="total_amount" name="total_amount">
