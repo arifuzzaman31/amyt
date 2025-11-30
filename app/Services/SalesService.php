@@ -15,14 +15,27 @@ class SalesService
     public function __construct(protected Service $serviceModel, protected ServiceItem $serviceItemModel) {}
 
     public function getAllServices($data)
-    {
-        $perPage = $data['per_page'] ?? 10;
-        $status = $data['type'] ?? 1;
-        $services = $this->serviceModel::with('customer:id,name')
-                    ->where('status',$status)
-                    ->paginate($perPage);
-        return $services;
+{
+    $perPage = $data['per_page'] ?? 10;
+    $status = $data['type'] ?? 1;
+    $search = $data['search'] ?? '';
+    
+    $query = $this->serviceModel::with('customer:id,name,phone')
+                ->where('status', $status);
+    
+    if ($search) {
+        $query->where(function ($q) use ($search) {
+            $q->whereHas('customer', function ($customerQuery) use ($search) {
+                $customerQuery->where('name', 'like', "%{$search}%")
+                             ->orWhere('phone', 'like', "%{$search}%");
+            })
+            ->orWhere('invoice_no', 'like', "%{$search}%")
+            ->orWhere('service_date', 'like', "%{$search}%");
+        });
     }
+    
+    return $query->paginate($perPage);
+}
 
     public function createService(array $data)
 {

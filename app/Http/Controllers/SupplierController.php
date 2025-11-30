@@ -19,10 +19,10 @@ class SupplierController extends Controller
 
     public function search(Request $request)
 {
-    $query = $request->input('q');
+    $query = $request->input('search');
     $page = $request->input('page', 1);
     
-    $suppliers = Customer::select('id', 'name', 'phone','email', 'address','company_name')
+    $suppliers = Supplier::select('id', 'name', 'phone','email', 'address','company_name','status')
     ->where('name', 'like', "%{$query}%")
         ->paginate(20, ['*'], 'page', $page);
     

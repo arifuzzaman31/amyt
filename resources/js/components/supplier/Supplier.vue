@@ -57,6 +57,14 @@
                                                 <input v-model="form.phone" type="text" class="form-control" id="phone"
                                                     placeholder="Enter Phone" />
                                             </div>
+                                             <div class="form-group">
+                                                <label for="status">Status</label>
+                                                <select v-model="form.status" class="form-control form-control-sm" name="status"
+                                                    id="status">
+                                                    <option value="1">Active</option>
+                                                    <option value="0">Inactive</option>
+                                                </select>
+                                            </div>
                                         </form>
                                     </div>
                                 </div>
@@ -73,6 +81,19 @@
                 </div>
             </div>
             <div class="widget-content widget-content-area">
+                <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <input 
+                                v-model="searchTerm" 
+                                type="text" 
+                                class="form-control" 
+                                placeholder="Search by name, company, email, or phone..."
+                                @input="handleSearch"
+                            />
+                        </div>
+                    </div>
+                </div>
                 <div class="table-responsive">
                     <table class="table mb-4">
                         <caption>List of Supplier</caption>
@@ -118,6 +139,8 @@ const supplierList = ref([])
 const form = ref({ name: '',company_name:'', address: '', email: '', phone: '', status: 1 })
 const editingId = ref(null)
 const currentPage = ref(1)
+const searchTerm = ref('')
+let searchTimeout = null
 const itemsPerPage = 10
 const clearData = () => {
     form.value.name = ''
@@ -160,6 +183,18 @@ const editSupplier = (supplier) => {
     editingId.value = supplier.id
     $('#supplierModal').modal('show')
 }
+const handleSearch = () => {
+    // Clear existing timeout
+    if (searchTimeout) {
+        clearTimeout(searchTimeout)
+    }
+    // Reset to first page when searching
+    currentPage.value = 1
+    // Debounce search - wait 500ms after user stops typing
+    searchTimeout = setTimeout(() => {
+        fetchSupplier()
+    }, 500)
+}
 watch(currentPage, () => {
     fetchSupplier()
 })
@@ -167,12 +202,14 @@ const onClickHandler = (page) => {
     currentPage.value = page
 }
 const fetchSupplier = async () => {
-    const res = await Axistance.get('supplier', {
-        params: {
-            page: currentPage.value,
-            per_page: itemsPerPage
-        }
-    })
+    const params = {
+        page: currentPage.value,
+        per_page: itemsPerPage
+    }
+    if (searchTerm.value.trim()) {
+        params.search = searchTerm.value.trim()
+    }
+    const res = await Axistance.get('supplier', { params })
     supplierList.value = res.data
 }
 

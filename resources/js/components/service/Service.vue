@@ -11,6 +11,19 @@
         </div>
       </div>
       <div class="table-responsive">
+      <div class="row mb-3">
+                    <div class="col-md-4">
+                        <div class="form-group">
+                            <input 
+                                v-model="searchTerm" 
+                                type="text" 
+                                class="form-control" 
+                                placeholder="Search by challan no, name, phone..."
+                                @input="handleSearch"
+                            />
+                        </div>
+                    </div>
+                </div>
         <table class="table table-bordered">
           <thead>
             <tr>
@@ -71,6 +84,8 @@ const currentPage = ref(1)
 const itemsPerPage = 10
 const selectedService = ref(null)
 const serviceToConvert = ref(null)
+const searchTerm = ref('')
+let searchTimeout = null
 const url = ref(baseUrl)
 const props = defineProps({
     from: {
@@ -83,18 +98,32 @@ const props = defineProps({
   }
 })
 const fetchServices = async () => {
-  const res = await Axistance.get('service', {
-        params: {
-            page: currentPage.value,
+  const params = {
+        page: currentPage.value,
             per_page: itemsPerPage,
             type: props.from
-        }
-    })
+    }
+    if (searchTerm.value.trim()) {
+        params.search = searchTerm.value.trim()
+    }
+  const res = await Axistance.get('service', {params})
   serviceList.value = res.data
 }
 const openEditModal = (service) => {
     fetchSingleService(service.id)
     // selectedService.value = service;
+}
+const handleSearch = () => {
+    // Clear existing timeout
+    if (searchTimeout) {
+        clearTimeout(searchTimeout)
+    }
+    // Reset to first page when searching
+    currentPage.value = 1
+    // Debounce search - wait 500ms after user stops typing
+    searchTimeout = setTimeout(() => {
+        fetchServices()
+    }, 500)
 }
 const fetchSingleService = async (id) => {
   const res = await Axistance.get(`service/${id}`)
