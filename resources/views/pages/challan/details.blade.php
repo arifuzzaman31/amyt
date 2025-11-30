@@ -63,6 +63,9 @@
                                     <th>Color</th>
                                     <th>Quantity</th>
                                     <th>Unit Price</th>
+                                    <th>Extra Quantity</th>
+                                    <th>Extra Qty Price</th>
+                                    <th>Item Total</th>
                                     <th>Gross Weight</th>
                                     <th>Net Weight</th>
                                     <th>Bobin</th>
@@ -70,13 +73,24 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @php
+                                    $subtotal = 0;
+                                @endphp
                                 @forelse ($service->items as $index => $item)
+                                    @php
+                                        $itemTotal = ($item->quantity * $item->unit_price) + 
+                                                    ($item->extra_quantity * $item->extra_quantity_price);
+                                        $subtotal += $itemTotal;
+                                    @endphp
                                     <tr>
                                         <td>{{ $index + 1 }}</td>
                                         <td>{{ $item->yarnCount->name ?? 'N/A' }}</td>
                                         <td>{{ $item->color->name ?? 'N/A' }}</td>
                                         <td>{{ $item->quantity }} {{ $item->unitAttr->name ?? '' }}</td>
                                         <td>{{ number_format($item->unit_price, 2) }}</td>
+                                        <td>{{ $item->extra_quantity ?? 0 }}</td>
+                                        <td>{{ number_format($item->extra_quantity_price ?? 0, 2) }}</td>
+                                        <td class="font-weight-bold">{{ number_format($itemTotal, 2) }}</td>
                                         <td>{{ $item->gross_weight }} {{ $item->weightAttr->name ?? '' }}</td>
                                         <td>{{ $item->net_weight }} {{ $item->weightAttr->name ?? '' }}</td>
                                         <td>{{ $item->bobin ?? 'N/A' }}</td>
@@ -84,7 +98,7 @@
                                     </tr>
                                 @empty
                                     <tr>
-                                        <td colspan="9" class="text-center">No items found</td>
+                                        <td colspan="12" class="text-center">No items found</td>
                                     </tr>
                                 @endforelse
                             </tbody>
@@ -96,6 +110,9 @@
                                         {{ $service->items->first()->unitAttr->name ?? '' }}
                                     </td>
                                     <td></td>
+                                    <td class="font-weight-bold">{{ $service->items->sum('extra_quantity') }}</td>
+                                    <td></td>
+                                    <td class="font-weight-bold">{{ number_format($subtotal, 2) }}</td>
                                     <td class="font-weight-bold">
                                         {{ $service->items->sum('gross_weight') }} 
                                         {{ $service->items->first()->weightAttr->name ?? '' }}
@@ -109,6 +126,50 @@
                                 </tr>
                             </tfoot>
                         </table>
+                    </div>
+                    
+                    <!-- Price Breakdown -->
+                    <div class="row justify-content-end">
+                        <div class="col-md-5">
+                            <table class="table table-bordered">
+                                <tbody>
+                                    <tr>
+                                        <td class="font-weight-bold">Subtotal:</td>
+                                        <td class="text-right">{{ number_format($subtotal, 2) }}</td>
+                                    </tr>
+                                    @if($service->discount > 0)
+                                        <tr>
+                                            <td class="font-weight-bold">Discount 
+                                                @if($service->discount_type == 0)
+                                                    ({{ $service->discount }}%)
+                                                @endif
+                                            :</td>
+                                            <td class="text-right">
+                                                @if($service->discount_type == 0)
+                                                    {{ number_format($subtotal * ($service->discount / 100), 2) }}
+                                                @else
+                                                    {{ number_format($service->discount, 2) }}
+                                                @endif
+                                            </td>
+                                        </tr>
+                                    @endif
+                                    <tr class="bg-light">
+                                        <td class="font-weight-bold">Total:</td>
+                                        <td class="text-right font-weight-bold">
+                                            @if($service->discount > 0)
+                                                @if($service->discount_type == 0)
+                                                    {{ number_format($subtotal - ($subtotal * ($service->discount / 100)), 2) }}
+                                                @else
+                                                    {{ number_format($subtotal - $service->discount, 2) }}
+                                                @endif
+                                            @else
+                                                {{ number_format($subtotal, 2) }}
+                                            @endif
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                     
                     <!-- Additional Information -->
@@ -158,9 +219,9 @@
                         <a href="#" class="btn btn-secondary">
                             <i class="fas fa-arrow-left"></i> Back to List
                         </a>
-                        <a href="#" class="btn btn-primary">
+                        <!-- <a href="#" class="btn btn-primary">
                             <i class="fas fa-edit"></i> Edit
-                        </a>
+                        </a> -->
                         <button class="btn btn-success" onclick="printChallan()">
                             <i class="fas fa-print"></i> Print
                         </button>

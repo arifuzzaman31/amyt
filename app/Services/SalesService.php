@@ -63,72 +63,88 @@ class SalesService
     }
 }
 
-    public function updateService($id, array $data)
-    {
-        $service = $this->serviceModel::find($id);
-        if (!$service) {
-            return null; // Service not found
-        }
-
-        try {
-            DB::beginTransaction();
-
-            if (isset($data['update_document_link']) && $data['update_document_link'] instanceof \Illuminate\Http\UploadedFile) {
-                if (isset($service->document_link) && $service->document_link) {
-                    $previousFile = str_replace('/storage/', '', $service->document_link);
-                    $filePath = Storage::disk('public')->path($previousFile);
-                    if (file_exists($filePath)) {
-                        unlink($filePath);
-                    }
-                }
-                $data['document_link'] = storeFile($data['update_document_link'], 'services/documents');
-            }
-            if (isset($data['dataItem']) && is_array($data['dataItem'])) {
-                $incomingItemIds = collect($data['dataItem'])
-                    ->pluck('id')
-                    ->filter()
-                    ->all();
-
-                $existingItemIds = $service->items()->pluck('id')->all();
-
-                $itemsToDelete = array_diff($existingItemIds, $incomingItemIds);
-
-                if (!empty($itemsToDelete)) {
-                    $this->serviceItemModel::whereIn('id', $itemsToDelete)->delete();
-                }
-
-                foreach ($data['dataItem'] as $key => $item) {
-                    if (isset($item['id']) && $item['id']) {
-                        $existingItem = $this->serviceItemModel::find($item['id']);
-                        if ($existingItem) {
-                            $existingItem->update($item);
-                        }
-                    } else {
-                        $item['service_id'] = $service->id;
-                        $this->serviceItemModel::create($item);
-                    }
-                }
-            } else {
-                $service->items()->delete();
-            }
-
-            unset($data['dataItem']);
-            $service->update($data);
-            DB::commit();
-            return [
-                'status' => true,
-                'message' => 'Service updated successfully',
-                'service' => $service->load('items')
-            ];
-        } catch (\Throwable $th) {
-            DB::rollBack();
-            return [
-                'status' => false,
-                'message' => 'Failed to update service',
-                'error' => $th->getMessage()
-            ];
-        }
+public function updateService($id, array $data)
+{
+    $service = $this->serviceModel::find($id);
+    if (!$service) {
+        return [
+            'status' => false,
+            'message' => 'Service not found'
+        ];
     }
+
+    try {
+        DB::beginTransaction();
+
+        // FIX: Decode the JSON string from the form into a PHP array
+        if (isset($data['dataItem'])) {
+            $data['dataItem'] = json_decode($data['dataItem'], true);
+        }
+
+        if (isset($data['update_document_link']) && $data['update_document_link'] instanceof \Illuminate\Http\UploadedFile) {
+            if (isset($service->document_link) && $service->document_link) {
+                $previousFile = str_replace('/storage/', '', $service->document_link);
+                $filePath = Storage::disk('public')->path($previousFile);
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+            }
+            $data['document_link'] = storeFile($data['update_document_link'], 'services/documents');
+        }
+
+        // Now, this check will work correctly because $data['dataItem'] is an array
+        if (isset($data['dataItem']) && is_array($data['dataItem'])) {
+            // Get IDs of items sent from the frontend
+            $incomingItemIds = collect($data['dataItem'])
+                ->pluck('id')
+                ->filter() // Removes nulls
+                ->all();
+
+            // Get IDs of items currently in the database for this service
+            $existingItemIds = $service->items()->pluck('id')->all();
+
+            // Find items that exist in DB but were not sent from frontend (i.e., deleted by user)
+            $itemsToDelete = array_diff($existingItemIds, $incomingItemIds);
+
+            if (!empty($itemsToDelete)) {
+                $this->serviceItemModel::whereIn('id', $itemsToDelete)->delete();
+            }
+
+            // Loop through the items sent from the frontend
+            foreach ($data['dataItem'] as $itemData) {
+                if (isset($itemData['id']) && $itemData['id']) {
+                    // Item has an ID, so it's an existing item. Update it.
+                    $this->serviceItemModel::where('id', $itemData['id'])->update($itemData);
+                } else {
+                    // Item has no ID, so it's a new item. Create it.
+                    $itemData['service_id'] = $service->id;
+                    $this->serviceItemModel::create($itemData);
+                }
+            }
+        } else {
+            // This case now correctly handles if the user sends an empty array or no items at all
+            $service->items()->delete();
+        }
+
+        // Unset dataItem so it doesn't try to save it to the services table
+        unset($data['dataItem']);
+        $service->update($data);
+        DB::commit();
+
+        return [
+            'status' => true,
+            'message' => 'Challan updated successfully',
+            'service' => $service->load('items')
+        ];
+    } catch (\Throwable $th) {
+        DB::rollBack();
+        return [
+            'status' => false,
+            'message' => 'Failed to update challan',
+            'error' => $th->getMessage()
+        ];
+    }
+}
 
     public function approveService($id)
     {
@@ -217,11 +233,75 @@ class SalesService
 
     public function getServiceItems($serviceId)
     {
-        return $this->serviceModel::with([
+        $service = $this->serviceModel::with([
             'items.yarnCount', 
             'items.unitAttr', 
             'items.color', 
             'items.weightAttr'
         ])->findOrFail($serviceId);
+        
+        // Get raw values for items (bypass accessors that format numbers)
+        $service->items->each(function ($item) {
+            $item->quantity = $item->getOriginal('quantity');
+            $item->unit_price = $item->getOriginal('unit_price');
+            $item->extra_quantity = $item->getOriginal('extra_quantity');
+            $item->extra_quantity_price = $item->getOriginal('extra_quantity_price');
+            $item->gross_weight = $item->getOriginal('gross_weight');
+            $item->net_weight = $item->getOriginal('net_weight');
+        });
+        
+        return $service;
+    }
+
+    public function convertToInvoice($id, array $data)
+    {
+        try {
+            DB::beginTransaction();
+            $service = $this->serviceModel::findOrFail($id);
+
+            // Verify that the service is a challan (status = 3)
+            if ($service->status != AllStatic::ALL_STATIC['SERVICE_STATUS']['DRAFT']) {
+                return [
+                    'status' => false,
+                    'message' => 'Only challans (draft status) can be converted to invoices'
+                ];
+            }
+
+            // Update service items with new quantity and price
+            if (isset($data['dataItem']) && is_array($data['dataItem'])) {
+                foreach ($data['dataItem'] as $itemData) {
+                    if (isset($itemData['id']) && $itemData['id']) {
+                        $existingItem = $this->serviceItemModel::find($itemData['id']);
+                        if ($existingItem) {
+                            // Update only quantity and price fields
+                            $existingItem->update([
+                                'quantity' => $itemData['quantity'],
+                                'unit_price' => $itemData['unit_price'],
+                                'extra_quantity' => $itemData['extra_quantity'] ?? 0,
+                                'extra_quantity_price' => $itemData['extra_quantity_price'] ?? 0,
+                            ]);
+                        }
+                    }
+                }
+            }
+
+            // Change status from challan (3) to invoice (1)
+            $service->status = AllStatic::ALL_STATIC['SERVICE_STATUS']['APPROVED'];
+            $service->save();
+
+            DB::commit();
+            return [
+                'status' => true,
+                'message' => 'Challan converted to invoice successfully',
+                'service' => $service->load('items')
+            ];
+        } catch (\Throwable $th) {
+            DB::rollBack();
+            return [
+                'status' => false,
+                'message' => 'Failed to convert challan to invoice',
+                'error' => $th->getMessage()
+            ];
+        }
     }
 }

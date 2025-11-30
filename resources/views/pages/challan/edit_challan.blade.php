@@ -1,5 +1,5 @@
 @extends('layout.app')
-@section('title', 'Edit Service | '.env('APP_NAME'))
+@section('title', 'Edit Challan | '.env('APP_NAME'))
 @push('style')
 <style>
     .modal-dialog {
@@ -29,13 +29,13 @@
                 <!-- Service Details Card -->
                 <div class="card mb-4">
                     <div class="card-header text-white">
-                        <h5 class="mb-0">Edit Service Details</h5>
+                        <h5 class="mb-0">Edit Challan Details</h5>
                     </div>
                     <div class="card-body">
                         <div class="row">
                             <div class="col-md-4">
                                 <div class="form-group">
-                                    <label for="basicFlatpickr">Service Date</label>
+                                    <label for="basicFlatpickr">Challan Date</label>
                                     <input id="basicFlatpickr" type="date"
                                         class="form-control" name="service_date" placeholder="Select Challan Date..">
                                 </div>
@@ -75,7 +75,7 @@
                             <div class="col-12">
                                 <div class="form-group">
                                     <label for="description">Description</label>
-                                    <textarea class="form-control" placeholder="Description for the service order"
+                                    <textarea class="form-control" placeholder="Description for the challan"
                                         rows="3" name="description">{{ $service->description }}</textarea>
                                 </div>
                             </div>
@@ -201,5 +201,5 @@
 @endsection
 
 @push('script')
-<script src="{{ asset('admin-assets/challan.js') }}"></script>
+<script src="{{ asset('admin-assets/edit_challan.js') }}"></script>
 @endpush

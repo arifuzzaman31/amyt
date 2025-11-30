@@ -56,6 +56,7 @@
                     v-model="currentPage" @click="onClickHandler" />
     </div>
     <EditService v-if="selectedService" :service="selectedService" @service-updated="handleServiceUpdated" @close-modal="closeEditModal"/>
+    <ConvertToInvoice v-if="serviceToConvert" :service="serviceToConvert" @invoice-converted="handleInvoiceConverted" @close-modal="closeConvertModal"/>
   </div>
 </template>
 
@@ -63,11 +64,13 @@
 import { ref, onMounted, watch } from 'vue'
 import Axistance from '../../Axistance'
 import EditService from './EditService.vue'
+import ConvertToInvoice from './ConvertToInvoice.vue'
 import "vue-awesome-paginate/dist/style.css";
 const serviceList = ref([])
 const currentPage = ref(1)
 const itemsPerPage = 10
 const selectedService = ref(null)
+const serviceToConvert = ref(null)
 const url = ref(baseUrl)
 const props = defineProps({
     from: {
@@ -131,27 +134,19 @@ const updateStatus = (id) => {
     })
 }
 
-const makeInvoice = (id) => {
-  swal({
-      title: 'Are you sure?',
-      text: "Data will change permanently!",
-      type: 'warning',
-      showCancelButton: true,
-      confirmButtonText: 'Yes',
-      padding: '2em'
-    }).then(async function(result) {
-      if (result.value) {
-        await Axistance.get(`service/${id}/approve`)
-          .then(response => {
-            swal(
-              'Approved!',
-              response.data.message,
-              response.data.status
-            )
-            fetchServices()
-        })
-      }
-    })
+const makeInvoice = async (service) => {
+  try {
+    // Fetch the full service details with items
+    const res = await Axistance.get(`service/${service.id}`)
+    serviceToConvert.value = res.data
+  } catch (error) {
+    console.error('Error fetching service details:', error)
+    swal(
+      'Error!',
+      'Failed to load service details',
+      'error'
+    )
+  }
 }
 
 const deleteService = async (id) => {
@@ -202,6 +197,13 @@ const closeEditModal = () => {
 const handleServiceUpdated = () => {
     fetchServices();
     closeEditModal();
+}
+const closeConvertModal = () => {
+    serviceToConvert.value = null;
+}
+const handleInvoiceConverted = () => {
+    fetchServices();
+    closeConvertModal();
 }
 watch(currentPage, () => {
   fetchServices()

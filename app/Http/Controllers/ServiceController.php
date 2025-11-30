@@ -26,10 +26,17 @@ class ServiceController extends Controller
         return response()->json($result, $result['status'] ? 201 : 400);
     }
 
-    public function show($id)
+    public function show(Request $request, $id)
     {
-        // return $this->salesService->getServiceItems($id);
-        return view('pages.challan.edit_challan', ['service' => $this->salesService->getServiceItems($id)]);
+        $service = $this->salesService->getServiceItems($id);
+        
+        // Return JSON if it's an API request
+        if ($request->wantsJson() || $request->expectsJson()) {
+            return response()->json($service);
+        }
+        
+        // Return view for web requests
+        return view('pages.challan.edit_challan', ['service' => $service]);
     }
 
     public function showDetails($id)
@@ -55,5 +62,11 @@ class ServiceController extends Controller
     {
         $response = $this->salesService->deleteService($id);
         return response()->json($response, $response['status'] ? 200 : 400);
+    }
+
+    public function convertToInvoice(Request $request, $id)
+    {
+        $result = $this->salesService->convertToInvoice($id, $request->all());
+        return response()->json($result, $result['status'] ? 200 : 400);
     }
 }

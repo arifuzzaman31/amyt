@@ -41,6 +41,7 @@ Route::prefix('admin')->middleware('AuthCheck')->group(function () {
     Route::view('quotation-list', 'pages.challan.quotaion')->name('quotation-list');
     Route::get('/view-challan-details/{id}', [ServiceController::class, 'showDetails']);
     Route::get('service/{id}/approve', [ServiceController::class, 'serviceStatus'])->name('service-approve');
+    Route::post('service/{id}/convert-to-invoice', [ServiceController::class, 'convertToInvoice'])->name('service-convert-to-invoice');
     Route::resource('yarn-count', YarnController::class); // Restoring original resource route
     Route::get('all-yarn-counts', [YarnController::class, 'allYarns'])->name('all-yarn-counts'); // Route for fetching all yarns
     Route::view('yarn-count-list', 'pages.yarn.yarn_list')->name('yarn-count-list');
