@@ -56,6 +56,7 @@
                                             <a type="button" :class="'dropdown-item ' + (purchase.is_stocked == 1 ? 'disabled text-muted' : '')" @click="loadToStock(purchase.id)" href="javascript:void(0);">Load to Stock</a>
                                             <a type="button" class="dropdown-item" @click="openEditModal(purchase)" href="javascript:void(0);">Edit</a>
                                             <a type="button" class="dropdown-item" @click="deletePurchase(purchase.id)" href="javascript:void(0);">Delete</a>
+                                            <a type="button" class="dropdown-item" @click="viewDetails(purchase.id)" href="javascript:void(0);">Detalis</a>
                                         </div>
                                     </div>
                                     
@@ -170,6 +171,14 @@ const deletePurchase = async (id) => {
 const handlePurchaseUpdated = () => {
     fetchPurchase();
     closeEditModal();
+}
+
+/**
+ * Navigate to the purchase details page
+ * @param {number} id - The purchase ID to view
+ */
+const viewDetails = (id) => {
+    window.location.href = `${url.value}view-purchase-details/${id}`;
 }
 
 /**

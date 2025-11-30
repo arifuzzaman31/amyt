@@ -5,9 +5,9 @@
                 <div class="row">
                     <div class="col-xl-12 col-md-12 col-sm-12 col-12 d-flex justify-content-between">
                         <h4>Amyt Stock</h4>
-                        <a :href="url+'create-purchase'" class="btn btn-primary mb-3">
+                        <!-- <a :href="url+'create-purchase'" class="btn btn-primary mb-3">
                             Add Purchase
-                        </a>
+                        </a> -->
                     </div>
                 </div>
             </div>
